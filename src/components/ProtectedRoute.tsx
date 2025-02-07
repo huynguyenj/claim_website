@@ -1,6 +1,6 @@
 import { PropsWithChildren, useEffect } from 'react'
 import { useAuthStore } from '../store/store';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 type ProtectedRouteProp = PropsWithChildren;
 
 export const ProtectedRoute = ({children}:ProtectedRouteProp) => {
@@ -12,15 +12,17 @@ export const ProtectedRoute = ({children}:ProtectedRouteProp) => {
       const token = useAuthStore((state)=>state.token)
       const role = useAuthStore((state)=>state.role)
 
+      const navigate = useNavigate();
       useEffect(()=>{
             if(token && role != 'admin'){
-                  <Navigate to={'/dashboardUser'} replace/> //using replace to prevent go back to page before 
+                  navigate('/dashboardUser', {replace:true})  //using replace to prevent go back to page before 
             }
             else if(token && role == 'admin'){
-                  <Navigate to={'/dashboardAdmin'} replace/>                  
+                  navigate('/dashboardAdmin', {replace:true})  //using replace to prevent go back to page before 
             }
             else if(!token) {
-                  <Navigate to={'/login'} replace/>                  
+                  navigate('/login', {replace:true})  //using replace to prevent go back to page before 
+                  
             }
       }, [token || role])
   return (
