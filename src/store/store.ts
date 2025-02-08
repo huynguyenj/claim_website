@@ -16,7 +16,7 @@ export const useAuthStore = create<AuthState>()(
                   token:null,
                   role:null,
                   setAuth: (token,role)=>set({token,role}),
-                  removeExpired: ()=>set({token:null,role:null})
+                  removeExpired: ()=>set({token:null,role:null,userName:null})
             }),
             {name:"auth-storage"} //store in local storage
       ),

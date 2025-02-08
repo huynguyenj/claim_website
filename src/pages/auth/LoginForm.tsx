@@ -6,13 +6,21 @@ import { Notification } from '../../components/Notification';
 import { PasswordIcon, UserIcon } from '../../components/MuiIIcon';
 import FormItem from 'antd/es/form/FormItem';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/store';
+interface AuthRes {
+  token:'string',
+  role:'string'
+}
 function LoginForm() {
+    
     const navigate = useNavigate();
-
-      const handleSubmit:FormProps<UserForm>['onFinish'] = async (values)=>{
+    const addAuthInfo = useAuthStore((state)=>state.setAuth)
+    
+    const handleSubmit:FormProps<UserForm>['onFinish'] = async (values)=>{
             try {
-                  await apiService.post('/register',values);
-                  Notification('success',"Login successful!"); //
+                 const response =  await apiService.post<AuthRes>('/login',values);
+                  Notification('success',"Login successful!");
+                  addAuthInfo(response.token,response.role);
             } catch (error) {
                   console.log(error);
                   Notification('error',"Login fail!","Please check your password or username!");

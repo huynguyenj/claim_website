@@ -23,7 +23,7 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use((response: AxiosResponse)=>response, 
       (error)=>{
-            if(error.response === 401){
+            if(error.response.status === 401){
                   console.log('token has expired!');
                   useAuthStore.getState().removeExpired();
             }
