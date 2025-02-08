@@ -9,8 +9,8 @@ export type User = {
 }
 
 export type UserForm = {
-      userName?:string,
-      password?:string     
+      userName:string,
+      password:string     
 }
 
 export type RegisterForm = {
