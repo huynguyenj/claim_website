@@ -3,7 +3,7 @@ import LoginForm from "./LoginForm"
 function LoginPage() {
      
       return (
-    <div>
+    <div className="bg-amber-50  min-h-screen">
      <LoginForm/>
     </div>
   )
