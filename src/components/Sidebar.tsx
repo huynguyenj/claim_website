@@ -1,7 +1,7 @@
-import { useState } from "react"
+import { Fragment, useState } from "react"
 import { SidebarItem } from "../data/SidebarData"
 import {BackArrowIcon } from "./MuiIIcon"
-import logo from '../assets/logouser.png'
+import logo from '../assets/logowebsite.png'
 import { Link } from "react-router-dom"
 
 
@@ -21,12 +21,21 @@ function Sidebar({itemList} :{itemList:SidebarItem[]}) {
                   <div className="overflow-hidden w-full">
                         <ul className="mt-10 flex flex-col gap-1">
                               {itemList.map((item)=>(
-                                    <Link to={item.path} key={item.title}>
-                                    <li className={`flex gap-5 py-2 px-2 rounded-2xl  hover:bg-indigo-500 duration-200 ease-in-out ${item.gap&&"mb-10"}`}>
+                                    <Fragment key={item.title}>
+                                    {item.path ? ( 
+                                    <Link to={item.path as string}>
+                                    <li className={`flex gap-5 py-2 px-2 rounded-2xl hover:bg-indigo-500 duration-200 ease-in-out ${item.gap&&"mb-10"}`}>
                                           <div><item.icon sx={{fontSize:'2rem',color:'white'}}/></div>
                                           <p className={`text-[1.2rem] ${!isOpen&&"scale-0"} text-cyan-400`}>{item.title}</p>
                                     </li>
-                                    </Link>
+                                    </Link>):(
+                                    <li className={`flex gap-5 py-2 px-2 rounded-2xl  hover:bg-indigo-500 duration-200 ease-in-out cursor-pointer  ${item.gap&&"mb-10"}`} onClick={item.action}>
+                                           <div><item.icon sx={{fontSize:'2rem',color:'white'}}/></div>
+                                           <p className={`text-[1.2rem] ${!isOpen&&"scale-0"} text-cyan-400`}>{item.title}</p>
+                                     </li> 
+                                    )}
+                                   
+                                    </Fragment>
                               ))}
                         </ul>
                   </div>
