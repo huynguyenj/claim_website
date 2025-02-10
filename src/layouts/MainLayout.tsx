@@ -17,9 +17,9 @@ const sideBarUser:SidebarItem[]=[
 ]
 
 const sideBarAdmin:SidebarItem[]=[
-  {title:'Admin dashboard',icon:DashBoard,path:'/adminDashboard'},
+  {title:'Dashboard',icon:DashBoard,path:'/adminDashboard', gap:true},
   {title:'User Management',icon:RequestPageIcon,path:'/requestPage'},
-  {title:'Project Manager',icon:UserProfile,path:'/userprofile'},
+  {title:'Project Manager',icon:UserProfile,path:'/projectManage',gap:true},
   {title:'Setting',icon:SettingIcon,path:'/setting'},
   {title:'Logout',icon:LogoutIcon, action:()=>useAuthStore.getState().removeExpired()},
 
