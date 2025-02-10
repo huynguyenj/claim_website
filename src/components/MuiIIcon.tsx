@@ -17,6 +17,8 @@ export { default as BackArrowIcon} from '@mui/icons-material/KeyboardTab'
 export { default as ApprovalIcon} from '@mui/icons-material/FactCheck'
 export { default as PaidIcon} from '@mui/icons-material/Paid'
 export { default as LogoutIcon} from '@mui/icons-material/Logout'
+export { default as CheckListIcon} from '@mui/icons-material/Checklist'
+
 
 
 
