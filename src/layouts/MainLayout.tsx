@@ -3,7 +3,7 @@ import Sidebar from "../components/Sidebar";
 import { useEffect, useState } from "react";
 import { SidebarItem } from "../data/SidebarData";
 import { useAuthStore } from "../store/store";
-import { ApprovalIcon, DashBoard, LogoutIcon, PaidIcon, RequestPageIcon, SettingIcon, UserProfile } from "../components/MuiIIcon";
+import { ApprovalIcon, CheckListIcon, DashBoard, LogoutIcon, PaidIcon, RequestPageIcon, SettingIcon, UserList, UserProfile } from "../components/MuiIIcon";
 
 const sideBarUser:SidebarItem[]=[
   {title:'Claim data',icon:DashBoard,path:'/userDashboard'},
@@ -18,8 +18,8 @@ const sideBarUser:SidebarItem[]=[
 
 const sideBarAdmin:SidebarItem[]=[
   {title:'Dashboard',icon:DashBoard,path:'/adminDashboard', gap:true},
-  {title:'User Management',icon:RequestPageIcon,path:'/requestPage'},
-  {title:'Project Manager',icon:UserProfile,path:'/projectManage',gap:true},
+  {title:'User Management',icon:UserList,path:'/userlist'},
+  {title:'Project Manager',icon:CheckListIcon,path:'/projectManage',gap:true},
   {title:'Setting',icon:SettingIcon,path:'/setting'},
   {title:'Logout',icon:LogoutIcon, action:()=>useAuthStore.getState().removeExpired()},
 
