@@ -1,4 +1,6 @@
-type UserObjectEndpoint = {
+type Endpoint = {
       endpoint:string,
 }
-export const userInfoEndPoint:UserObjectEndpoint= {endpoint: 'user'};
+export const userInfoEndPoint: Endpoint= {endpoint: 'user'};
+export const authEndPoint: Endpoint= {endpoint: 'auth'};
+
