@@ -1,7 +1,8 @@
 export type SidebarItem = {
       title: string,
       icon:React.ComponentType<{sx?:object}>
-      path:string,
+      path?:string,
       role?:string,
-      gap?:boolean
+      gap?:boolean,
+      action?:()=>void
 }
