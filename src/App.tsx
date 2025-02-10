@@ -14,7 +14,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path='/' element={<MainLayout/>}>
-                {/* All page in here not admin page */}
+                {/* All pages in here route write in here*/}
             </Route>
         </Routes>
       {/* <ProtectedRoute>
