@@ -16,7 +16,7 @@ function App() {
             <Route path='/' element={<MainLayout/>}>
                 {/* All pages in here route write in here*/}
             </Route>
-        </Routes>
+    </Routes>
       {/* <ProtectedRoute>
         
       </ProtectedRoute> */}
