@@ -7,6 +7,7 @@ import RegisterPage from './pages/auth/RegisterPage'
 import UserManagement from './components/UserManagement'
 import ProjectManagement from './components/ProjectManagement'
 import Project from './components/Project'
+import User from './components/User'
 function App() {
 
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/project" element={<Project />} />
+        <Route path="/user" element={<User />} />
         {/* <Route path="/usermanagement" element={<UserManagement />} />
         <Route path="/projectmanagement" element={<ProjectManagement />} /> */}
 
