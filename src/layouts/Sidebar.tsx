@@ -1,6 +1,6 @@
 import {useState } from "react"
 import { SidebarItem } from "../data/SidebarData"
-import {BackArrowIcon } from "./MuiIIcon"
+import {BackArrowIcon } from "../components/MuiIIcon"
 import logo from '../assets/logowebsite.png'
 import { Link } from "react-router-dom"
 
