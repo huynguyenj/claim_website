@@ -8,6 +8,10 @@ interface AuthState {
       removeExpired: ()=>void
 
 }
+interface Theme{
+      themeClr:string
+      setTheme:(newTheme:string)=>void
+}
 
 export const useAuthStore = create<AuthState>()(
       persist(
@@ -20,4 +24,13 @@ export const useAuthStore = create<AuthState>()(
             }),
             {name:"auth-storage"} //store in local storage
       ),
+)
+
+export const useTheme = create<Theme>()(
+      persist((set)=>({
+            themeClr: "light",
+            setTheme: (newTheme)=> set({themeClr:newTheme})
+      }),
+      {name:'theme'}
+)
 )
