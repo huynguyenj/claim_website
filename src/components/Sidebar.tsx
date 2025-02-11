@@ -1,4 +1,4 @@
-import {Fragment, useState } from "react"
+import {useState } from "react"
 import { SidebarItem } from "../data/SidebarData"
 import {BackArrowIcon } from "./MuiIIcon"
 import logo from '../assets/logowebsite.png'
@@ -11,31 +11,29 @@ function Sidebar({itemList} :{itemList:SidebarItem[]}) {
             setIsOpen((prev)=>!prev);
       }
   return (
-    <aside className={`bg-black/100 min-h-screen w-${isOpen ? '50':'20'} sm:w-${isOpen ? '70':'20'} rounded-r-[5rem] duration-300 ease-in-out relative`}>
-      <nav className="w-full">
+    <aside className={`bg-black/100 min-h-screen ${isOpen ?"w-50" : "w-22"} rounded-r-[4rem] duration-300 ease-in-out relative`}>
+      <nav className="flex flex-col ">
                   <div className="w-full flex rounded-full mt-13 gap-3 items-center px-5">
                         <img className="w-7 h-7 sm:w-10 sm:h-10 bg-amber-50 rounded-full" src={logo} alt="logo" />
-                  <p className={`text-white font-bold text-[0.9rem] sm:text-[1.2rem] ${!isOpen&&"hidden"}`}>System</p>
+                        <p className={`text-white font-bold text-[0.9rem] sm:text-[1.2rem] ${!isOpen&&"hidden"}`}>System</p>
                   </div>
-                  <div className="overflow-hidden w-full p-2">
-                        <ul className="mt-4 flex flex-col p-2 gap-2">
+                        <ul className="p-5 pt-10 overflow-hidden">
                               {itemList.map((item)=>(   
-                                    <li key={item.title}>
+                                    <li>
                                     {item.path ? ( 
-                                    <Link to={item.path as string} className={`flex gap-5 p-2 rounded-2xl items-center hover:bg-indigo-500 duration-300 ease-in-out ${item.gap&&"mb-10"} relative`}>
-                                          <div><item.icon sx={{fontSize:'1.8rem',color:'white'}}/></div>
-                                          <p className={`text-[0.7rem] sm:text-[1.2rem] ${!isOpen&&"hidden"} text-cyan-400`}>{item.title}</p>
+                                    <Link to={item.path as string} className={`flex gap-x-5 p-2 rounded-2xl items-center hover:bg-indigo-500 duration-300 ease-in-out ${item.gap&&"mb-10"} relative`}>
+                                          <div><item.icon sx={{fontSize:'2rem',color:'white'}}/></div>
+                                          <span className={`text-[0.8rem] sm:text-[1.1rem] ${!isOpen&&"hidden"} text-cyan-400 origin-left`}>{item.title}</span>
                                     </Link>):(
                                     <div className={`flex gap-5 p-2 rounded-2xl items-center hover:bg-indigo-500 duration-300 ease-in-out ${item.gap&&"mb-10"} relative`} onClick={item.action}>
-                                           <div><item.icon sx={{fontSize:'1.8rem',color:'white'}}/></div>
-                                           <p className={`text-[0.7rem] sm:text-[1.2rem] ${!isOpen&&"hidden"} text-cyan-400`}>{item.title}</p>
+                                           <div><item.icon sx={{fontSize:'2rem',color:'white'}}/></div>
+                                           <p className={`text-[0.8rem] sm:text-[1.1rem] ${!isOpen&&"hidden"} text-cyan-400`}>{item.title}</p>
                                      </div> 
                                     )}
                                    
                                     </li>
                               ))}
                         </ul>
-                  </div>
       </nav>
       <div className="w-8 h-8 rounded-full bg-blue-300 top-5 right-0 absolute flex justify-center items-center hover:bg-green-300 cursor-pointer">
             <div className={`${isOpen && "rotate-180"} duration-300 ease-in-out`} onClick={handleOpen}><BackArrowIcon/></div>
