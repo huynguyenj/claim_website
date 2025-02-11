@@ -19,7 +19,7 @@ function Sidebar({itemList} :{itemList:SidebarItem[]}) {
                   </div>
                         <ul className="p-5 pt-10 overflow-hidden">
                               {itemList.map((item)=>(   
-                                    <li>
+                                    <li key={item.title}>
                                     {item.path ? ( 
                                     <Link to={item.path as string} className={`flex gap-x-5 p-2 rounded-2xl items-center hover:bg-indigo-500 duration-300 ease-in-out ${item.gap&&"mb-10"} relative`}>
                                           <div><item.icon sx={{fontSize:'2rem',color:'white'}}/></div>
