@@ -12,7 +12,7 @@ function App() {
   return (
     <>
       <Routes>
-        {/* Public route */}
+        {/* Public route for all user */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/" element={<MainLayout />}>
