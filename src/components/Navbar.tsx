@@ -11,7 +11,7 @@ const anouncement = [
 
 ]
 function Navbar() {
-      const [notification,setNotification] = useState<number>(0);
+      // const [notification,setNotification] = useState<number>(0);
       const userInfo = useAuthStore.getState();
       const [isPopup,setIsPopup] = useState<boolean>(false);
       const handlePopup = ()  =>{

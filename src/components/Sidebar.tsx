@@ -11,7 +11,7 @@ function Sidebar({itemList} :{itemList:SidebarItem[]}) {
             setIsOpen((prev)=>!prev);
       }
   return (
-    <aside className={`bg-black/100 min-h-screen ${isOpen ?"w-50" : "w-22"} rounded-r-[4rem] duration-300 ease-in-out relative`}>
+    <aside className={`bg-black/100 fixed min-h-screen ${isOpen ?"w-50" : "w-22"} rounded-r-[4rem] duration-300 ease-in-out relative`}>
       <nav className="flex flex-col ">
                   <div className="w-full flex rounded-full mt-13 gap-3 items-center px-5">
                         <img className="w-7 h-7 sm:w-10 sm:h-10 bg-amber-50 rounded-full" src={logo} alt="logo" />

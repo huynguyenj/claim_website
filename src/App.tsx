@@ -1,23 +1,33 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
-// import { ProtectedRoute } from './components/ProtectedRoute'
-import LoginPage from "./pages/auth/LoginPage";
-import RegisterPage from "./pages/auth/RegisterPage";
-import MainLayout from "./layouts/MainLayout";
-import Dashboard from "./pages/admin/Dashboard";
+import { ProtectedRoute } from "./router/ProtectedRoute";
+import { lazy } from "react";
+
+const LoginPage = lazy(()=>import("./pages/auth/LoginPage"));
+const RegisterPage = lazy(()=>import("./pages/auth/RegisterPage"));
+const MainLayout = lazy(()=>import("./layouts/MainLayout"));
+const AdminDashboard =lazy(()=>import("./pages/admin/Dashboard"));
+
 function App() {
   return (
     <>
       <Routes>
+        {/* Public route */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/" element={<MainLayout />}>
-          <Route path="/adminDashboard" element={<Dashboard />} />
+          {/* Protected route */}
+          <Route element={<ProtectedRoute roleProp="admin"/>}>
+              <Route path="/adminDashboard" element={<AdminDashboard />} />
+          </Route>
+
+          <Route element= {<ProtectedRoute roleProp="user"/>}>
+              <Route path="/userDashboard"/>
+          </Route>
+
         </Route>
       </Routes>
-      {/* <ProtectedRoute>
-        
-      </ProtectedRoute> */}
+    
     </>
   );
 }
