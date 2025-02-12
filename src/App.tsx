@@ -1,32 +1,28 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import { ProtectedRoute } from "./router/ProtectedRoute";
-import { lazy } from "react";
+import { Suspense } from "react";
 import ListPublicRoute from "./router/PublicRoute";
-
-
-const MainLayout = lazy(()=>import("./layouts/MainLayout"));
-const AdminDashboard =lazy(()=>import("./pages/admin/Dashboard"));
+import PrivateRoute from "./router/PrivateRoute";
+import Loading from "./components/Loading";
 
 function App() {
   return (
     <>
-      <Routes>
+       <Suspense fallback={<Loading/>}>
+        <Routes>
         {/* Public route for all user */}
         {ListPublicRoute.map((route,index)=>(
           <Route key={index} path={route.path} element={route.element}/>
         ))}
-        <Route element={<MainLayout />}> 
+
         <Route element={<ProtectedRoute/>}>
-            <Route path="/adminDashboard" element={<AdminDashboard/>}/>
-        </Route>  
-        {/* <Route path="/admin" element={
-           <ProtectedRoute>
-              <Route path="/adminDashboard" element={<AdminDashboard />} />
-          </ProtectedRoute>
-        }/> */}
+            {/* Using /* to match any path after / but you need to sovle '*' to make sure it not have any issues when you navigate */}
+            <Route path="/*" element={<PrivateRoute/>}></Route> 
         </Route>
+      
       </Routes>
+      </Suspense>
     
     </>
   );
