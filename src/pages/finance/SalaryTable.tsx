@@ -1,6 +1,8 @@
 import { Button, Input, Space, Table, Tag } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
+import { useState } from "react";
+
 interface DataType {
   key: string;
   name: string;
@@ -8,12 +10,13 @@ interface DataType {
   address: string;
   tags: string[];
 }
+
 const columns: TableProps<DataType>["columns"] = [
   {
     title: "Name",
     dataIndex: "name",
     key: "name",
-    render: (text) => <a>{text}</a>,
+    render: (text) => <a className="text-blue-500 font-medium">{text}</a>,
   },
   {
     title: "Age",
@@ -26,6 +29,31 @@ const columns: TableProps<DataType>["columns"] = [
     key: "address",
   },
   {
+    title: "Address",
+    dataIndex: "address",
+    key: "address",
+  },
+  {
+    title: "Address",
+    dataIndex: "address",
+    key: "address",
+  },
+  {
+    title: "Address",
+    dataIndex: "address",
+    key: "address",
+  },
+  {
+    title: "Address",
+    dataIndex: "address",
+    key: "address",
+  },
+  {
+    title: "Address",
+    dataIndex: "address",
+    key: "address",
+  },aw
+  {
     title: "Tags",
     key: "tags",
     dataIndex: "tags",
@@ -33,11 +61,12 @@ const columns: TableProps<DataType>["columns"] = [
       <>
         {tags.map((tag) => {
           let color = tag.length > 5 ? "geekblue" : "green";
-          if (tag === "loser") {
-            color = "volcano";
-          }
+          if (tag === "loser") color = "volcano";
+          if (tag === "developer") color = "purple";
+          if (tag === "teacher") color = "blue";
+
           return (
-            <Tag color={color} key={tag}>
+            <Tag color={color} key={tag} className="px-3 py-1 rounded-full">
               {tag.toUpperCase()}
             </Tag>
           );
@@ -50,14 +79,18 @@ const columns: TableProps<DataType>["columns"] = [
     key: "action",
     render: () => (
       <Space size="middle">
-        <Button>Invite</Button>
-        <Button danger>Delete</Button>
+        <Button type="primary" className="px-4">
+          Approve
+        </Button>
+        <Button danger className="px-4">
+          Reject
+        </Button>
       </Space>
     ),
   },
 ];
 
-const data: DataType[] = [
+const initialData: DataType[] = [
   {
     key: "1",
     name: "John Brown",
@@ -81,37 +114,36 @@ const data: DataType[] = [
   },
   {
     key: "4",
-    name: "Joe Black",
-    age: 32,
-    address: "Sydney No. 1 Lake Park",
-    tags: ["cool", "teacher"],
-  },
-  {
-    key: "5",
-    name: "Joe Black",
-    age: 32,
-    address: "Sydney No. 1 Lake Park",
-    tags: ["cool", "teacher"],
-  },
-  {
-    key: "6",
-    name: "Joe Black",
-    age: 32,
-    address: "Sydney No. 1 Lake Park",
-    tags: ["cool", "teacher"],
+    name: "Anna Smith",
+    age: 29,
+    address: "Toronto No. 2 Lake Park",
+    tags: ["designer", "creative"],
   },
 ];
+
 function SalaryTable(): JSX.Element {
+  const [searchText, setSearchText] = useState("");
+
+  const filteredData = initialData.filter((item) =>
+    item.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   return (
-    <>
-      <Input addonBefore={<SearchOutlined />} placeholder="large size" className="w-2xl" />
+    <div className="p-4 bg-white rounded-xl shadow-lg">
+      <Input
+        prefix={<SearchOutlined className="text-gray-500" />}
+        placeholder="Tìm kiếm nhân viên..."
+        className="w-full max-w-xs mb-4 px-4 py-2 rounded-full  border-2 border-gray-700 focus:border-blue-500 transition-all"
+        onChange={(e) => setSearchText(e.target.value)}
+      />
+      {/* Bảng */}
       <Table<DataType>
-        className="pt-1 rounded-2xl relative"
+        className="pt-1 rounded-2xl relative shadow-lg "
         columns={columns}
-        dataSource={data}
+        dataSource={filteredData}
         pagination={{ position: ["bottomCenter"] }}
       />
-    </>
+    </div>
   );
 }
 

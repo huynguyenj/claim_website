@@ -63,7 +63,7 @@ const PaidPage: React.FC = () => {
 
   return (
     <div>
-      <div className="flex  justify-between m-auto bg-amber-300">
+      <div className="flex justify-between items-center bg-gray-700 backdrop-blur-md px-6 py-4 shadow-lg">
         <div className="flex justify-start gap-x-8 gap-y-8 py-4 antialiased md:subpixel-antialiased items-center grid-rows-4 ">
           <Button
             className="ml-3.5 mt-1 w-16 h-16 text-lg"
@@ -89,31 +89,34 @@ const PaidPage: React.FC = () => {
                 gap: "0.5rem",
               }}
             >
-              Finance Manage
-              <DollarOutlined />
+              Finance
+              <DollarOutlined className="animate-bounce" />
             </Typography.Title>
           </div>
         </div>
-        <div className="flex items-center rounded-2xl  object-cover w-full max-w-lg p-4 overflow-hidden relative">
+        <div className="flex items-center justify-end rounded-2xl mr-4 object-cover w-full max-w-lg p-3 overflow-hidden relative">
           <div className="relative z-10">
             <img
               src="https://i.pravatar.cc/100"
               alt="User Avatar"
-              className="w-32 h-28 rounded-full border-2 border-gray-500"
+              className="w-14 h-14 rounded-full border-2 border-gray-500 transition-transform duration-300 hover:scale-110"
             />
           </div>
-          <div className="shadow-md justify-between bg-[#1E293B] rounded-2xl ml-[-40px] w-full p-4 flex items-center relative z-0 gap-5">
-            <div className="pl-12">
-              <h3 className="text-white font-semibold text-lg">
+          <div className="shadow-md bg-[#1E293B] rounded-2xl -ml-6 w-fit max-w-sm p-2 flex items-center relative z-0">
+            {/* Thông tin người dùng */}
+            <div className="flex-1 pl-6">
+              <h3 className="text-white font-semibold text-xs sm:text-sm">
                 Andrew Alfred
               </h3>
-              <p className="text-gray-400 text-sm">Technical advisor</p>
+              <p className="text-gray-400 text-xs text-[10px] sm:text-xs">
+                Technical advisor
+              </p>
             </div>
-            <div>
-              <BellOutlined style={{ fontSize: "2.5rem", color: "#fff" }} />
-            </div>
-            <div>
-              <LogoutIcon style={{ fontSize: "2.5rem", color: "#fff" }} />
+
+            {/* Nhóm icon */}
+            <div className="flex items-center space-x-3 pr-1 pl-2 ">
+              <BellOutlined style={{ fontSize: "1rem", color: "#fff" }} />
+              <LogoutIcon style={{ fontSize: "1rem", color: "#fff" }} />
             </div>
           </div>
         </div>
@@ -122,18 +125,14 @@ const PaidPage: React.FC = () => {
         {/* Cột Menu */}
         <Col sm={5} md={4} lg={3} className="h-full">
           <Menu
-            className="rounded-r-lg border-x-4 border-2 border-amber-300 h-full "
-            defaultSelectedKeys={["1"]}
-            defaultOpenKeys={["sub1"]}
+            className="rounded-r-lg border-x-4 border-2 border-[#334155] h-full bg-gradient-to-b from-[#1E293B] to-[#334155]"
             mode="inline"
-            theme="light"
+            theme="dark"
             inlineCollapsed={collapsed}
-            style={{ fontSize: "18px" }}
+            style={{ fontSize: "18px", transition: "all 0.3s ease-in-out" }}
             items={items}
           />
         </Col>
-
-        {/* Cột Bảng Salary */}
         <Col sm={19} md={20} lg={21} className="w-full p-4">
           <SalaryTable />
         </Col>
