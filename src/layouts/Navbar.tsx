@@ -1,8 +1,8 @@
 import { useAuthStore } from "../store/store"
-import { NightModeIcon, NotificationIcon } from "./MuiIIcon";
+import { NightModeIcon, NotificationIcon } from "../components/MuiIIcon";
 import profile from '../assets/logouser.png'
 import { useState } from "react";
-import Popup from "./Popup";
+import Popup from "../components/Popup";
 const anouncement = [
       {title:"Hello",content:"this is welcome",date: new Date('2025/2/11')},
       {title:"Hello",content:"this is welcome",date: new Date('2025/2/11')},
@@ -11,7 +11,7 @@ const anouncement = [
 
 ]
 function Navbar() {
-      const [notification,setNotification] = useState<number>(0);
+      // const [notification,setNotification] = useState<number>(0);
       const userInfo = useAuthStore.getState();
       const [isPopup,setIsPopup] = useState<boolean>(false);
       const handlePopup = ()  =>{

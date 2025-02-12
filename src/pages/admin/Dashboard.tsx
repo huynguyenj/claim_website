@@ -2,18 +2,11 @@
 import {
   LineChart,
   BarChart,
-  PieChart,
   RadarChart,
-  RadialBarChart,
-  RadialBar,
-  ScatterChart,
   Radar,
   PolarGrid,
   PolarAngleAxis,
   PolarRadiusAxis,
-  Pie,
-  Sector,
-  Cell,
   Line,
   XAxis,
   YAxis,
@@ -24,11 +17,10 @@ import {
   Bar,
   ComposedChart,
   Area,
-  Scatter,
 } from "recharts";
 
 // Antd
-import { DatePicker, Space, Select, Button, Statistic, Divider } from "antd";
+import { DatePicker,Select, Button, Statistic} from "antd";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { useState } from "react";
 const { RangePicker } = DatePicker;
