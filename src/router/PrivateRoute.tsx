@@ -2,6 +2,8 @@ import { lazy,useLayoutEffect, useState } from "react";
 import { Route, Routes} from "react-router-dom";
 import { RouteType } from "../data/RouteData";
 import { useAuthStore } from "../store/store";
+import { AdminRoutes } from "./AdminRoutes";
+import { UserRoutes } from "./UserRoutes";
 
 const AdminDashboard =lazy(()=>import("../pages/admin/Dashboard"));
 const HomePage = lazy(()=> import("../pages/home/Home"));
@@ -9,8 +11,8 @@ const MainLayout = lazy(()=>import("../layouts/MainLayout"));
 const ErrorPage = lazy(()=>import("../pages/error/ErrorPage"))
 
 const privateRouteList: RouteType[]=[
-      {path:'/admin/adminDashboard', element:<AdminDashboard/>,roleRoute:'admin'},
-      {path:'/user', element:<HomePage/>,roleRoute:'user'},
+      {path:AdminRoutes.ADMIN_DASHBOARD, element:<AdminDashboard/> ,roleRoute:'admin'},
+      {path:UserRoutes.USER_DASHBOARD, element:<HomePage/> ,roleRoute:'user'},
 
 ]
 
