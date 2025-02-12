@@ -52,7 +52,7 @@ const columns: TableProps<DataType>["columns"] = [
     title: "Address",
     dataIndex: "address",
     key: "address",
-  },aw
+  },
   {
     title: "Tags",
     key: "tags",
