@@ -1,14 +1,16 @@
 import { Button, Input, Space, Table, Tag } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { DollarOutlined, SearchOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
 import { useState } from "react";
 
 interface DataType {
   key: string;
   name: string;
-  age: number;
-  address: string;
-  tags: string[];
+  roles: string[];
+  project: string;
+  overtime: number;
+  department: string;
+  salary: number;
 }
 
 const columns: TableProps<DataType>["columns"] = [
@@ -19,55 +21,42 @@ const columns: TableProps<DataType>["columns"] = [
     render: (text) => <a className="text-blue-500 font-medium">{text}</a>,
   },
   {
-    title: "Age",
-    dataIndex: "age",
-    key: "age",
+    title: "Department",
+    dataIndex: "department",
+    key: "department",
   },
   {
-    title: "Address",
-    dataIndex: "address",
-    key: "address",
+    title: "Project",
+    dataIndex: "project",
+    key: "project",
   },
   {
-    title: "Address",
-    dataIndex: "address",
-    key: "address",
+    title: "Salary",
+    dataIndex: "salary",
+    key: "salary",
+    render:(salary) => <p>{salary}   <DollarOutlined/></p>
   },
   {
-    title: "Address",
-    dataIndex: "address",
-    key: "address",
+    title: "Overtime",
+    dataIndex: "overtime",
+    key: "overtime",
+    render: (text) => <p>{text} Hours</p>,
   },
   {
-    title: "Address",
-    dataIndex: "address",
-    key: "address",
-  },
-  {
-    title: "Address",
-    dataIndex: "address",
-    key: "address",
-  },
-  {
-    title: "Address",
-    dataIndex: "address",
-    key: "address",
-  },
-  {
-    title: "Tags",
-    key: "tags",
-    dataIndex: "tags",
-    render: (_, { tags }) => (
+    title: "Role",
+    key: "role",
+    dataIndex: "role",
+    render: (_, { roles }) => (
       <>
-        {tags.map((tag) => {
-          let color = tag.length > 5 ? "geekblue" : "green";
-          if (tag === "loser") color = "volcano";
-          if (tag === "developer") color = "purple";
-          if (tag === "teacher") color = "blue";
+        {roles.map((role) => {
+          let color = role.length > 5 ? "geekblue" : "green";
+          if (role === "BA") color = "volcano";
+          if (role === "developer") color = "purple";
+          if (role === "Designer") color = "blue";
 
           return (
-            <Tag color={color} key={tag} className="px-3 py-1 rounded-full">
-              {tag.toUpperCase()}
+            <Tag color={color} key={role} className="px-3 py-1 rounded-full">
+              {role.toUpperCase()}
             </Tag>
           );
         })}
@@ -79,7 +68,12 @@ const columns: TableProps<DataType>["columns"] = [
     key: "action",
     render: () => (
       <Space size="middle">
-        <Button type="primary" className="px-4">
+        <Button
+          style={{           
+            color: "#000",
+            borderColor: '#1D4',
+          }}
+        >
           Approve
         </Button>
         <Button danger className="px-4">
@@ -93,31 +87,75 @@ const columns: TableProps<DataType>["columns"] = [
 const initialData: DataType[] = [
   {
     key: "1",
-    name: "John Brown",
-    age: 32,
-    address: "New York No. 1 Lake Park",
-    tags: ["nice", "developer"],
+    name: "Nguyễn Văn A",
+    roles: ["Developer", "Team Lead"],
+    project: "E-commerce Website",
+    overtime: 5,
+    department: "IT",
+    salary: 500,
   },
   {
     key: "2",
-    name: "Jim Green",
-    age: 42,
-    address: "London No. 1 Lake Park",
-    tags: ["loser"],
+    name: "Trần Thị B",
+    roles: ["Designer"],
+    project: "Mobile App UI",
+    overtime: 2,
+    department: "Design",
+    salary: 3000,
   },
   {
     key: "3",
-    name: "Joe Black",
-    age: 32,
-    address: "Sydney No. 1 Lake Park",
-    tags: ["cool", "teacher"],
+    name: "Lê Hoàng C",
+    roles: ["QA Tester"],
+    project: "Banking System",
+    overtime: 3,
+    department: "Quality Assurance",
+    salary: 3000,
   },
   {
     key: "4",
-    name: "Anna Smith",
-    age: 29,
-    address: "Toronto No. 2 Lake Park",
-    tags: ["designer", "creative"],
+    name: "Phạm Minh D",
+    roles: ["Developer"],
+    project: "CRM System",
+    overtime: 4,
+    department: "IT",
+    salary: 3000,
+  },
+  {
+    key: "5",
+    name: "Đỗ Thanh E",
+    roles: ["Project Manager"],
+    project: "Healthcare System",
+    overtime: 6,
+    department: "Management",
+    salary: 3000,
+  },
+  {
+    key: "6",
+    name: "Võ Hải F",
+    roles: ["HR Manager"],
+    project: "Internal HR System",
+    overtime: 1,
+    department: "Human Resources",
+    salary: 3000,
+  },
+  {
+    key: "7",
+    name: "Bùi Văn G",
+    roles: ["Developer"],
+    project: "AI Chatbot",
+    overtime: 8,
+    department: "IT",
+    salary: 3000,
+  },
+  {
+    key: "8",
+    name: "Ngô Thị H",
+    roles: ["Data Analyst"],
+    project: "Sales Dashboard",
+    overtime: 0,
+    department: "Data Science",
+    salary: 3000,
   },
 ];
 
@@ -132,7 +170,7 @@ function SalaryTable(): JSX.Element {
     <div className="p-4 bg-white rounded-xl shadow-lg">
       <Input
         prefix={<SearchOutlined className="text-gray-500" />}
-        placeholder="Tìm kiếm nhân viên..."
+        placeholder="Search By Name"
         className="w-full max-w-xs mb-4 px-4 py-2 rounded-full  border-2 border-gray-700 focus:border-blue-500 transition-all"
         onChange={(e) => setSearchText(e.target.value)}
       />
