@@ -1,10 +1,10 @@
 import { Outlet } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "./Sidebar";
 import { useEffect, useState } from "react";
 import { SidebarItem } from "../data/SidebarData";
 import { useAuthStore } from "../store/store";
 import { ApprovalIcon, CheckListIcon, DashBoard, LogoutIcon, PaidIcon, RequestPageIcon, SettingIcon, UserList, UserProfile } from "../components/MuiIIcon";
-import Navbar from "../components/Navbar";
+import Navbar from "./Navbar";
 
 const sideBarUser:SidebarItem[]=[
   {title:'Claim data',icon:DashBoard,path:'/userDashboard'},
