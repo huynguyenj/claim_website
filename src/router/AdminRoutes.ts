@@ -1,5 +1,5 @@
 export const AdminRoutes = {
       ADMIN_DASHBOARD: '/adminDashboard',
-      PROJECT_DASHBOARD: '/project',
-      USER_DASHBOARD: '/user'
+      PROJECT_LIST_PAGE: '/projectList',
+      USER_LIST_PAGE: '/userList'
 }
