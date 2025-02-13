@@ -1,10 +1,10 @@
 import { Outlet } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "./Sidebar";
 import { useEffect, useState } from "react";
 import { SidebarItem } from "../data/SidebarData";
 import { useAuthStore } from "../store/store";
 import { ApprovalIcon, CheckListIcon, DashBoard, LogoutIcon, PaidIcon, RequestPageIcon, SettingIcon, UserList, UserProfile } from "../components/MuiIIcon";
-import Navbar from "../components/Navbar";
+import Navbar from "./Navbar";
 
 const sideBarUser:SidebarItem[]=[
   {title:'Claim data',icon:DashBoard,path:'/userDashboard'},
@@ -31,6 +31,7 @@ export default function MainLayout() {
   const [item,setItem] = useState<SidebarItem[]>([])
   const userRole = useAuthStore.getState().role;
   useEffect(()=>{
+    console.log(userRole)
     setItem(sideBarUser.filter((item)=>item.role === userRole || item.role === undefined));
   },[userRole])
   return (
