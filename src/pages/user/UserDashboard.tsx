@@ -113,7 +113,10 @@ const UserDashboard: React.FC = () => {
     { id: 0, value: 27, label: "Travel" },
     { id: 1, value: 25, label: "Food" },
     { id: 2, value: 18, label: "Equipment" },
-    { id: 3, value: 30, label: "Others" },
+    { id: 3, value: 30, label: "Sport" },
+    { id: 4, value: 30, label: "Jack" },
+    { id: 5, value: 30, label: "J97" },
+    { id: 6, value: 30, label: "Others" },
   ];
 
   return (
@@ -130,8 +133,13 @@ const UserDashboard: React.FC = () => {
         <Title level={3}>Dashboard</Title>
 
         <Spin spinning={loading}>
-          <Row gutter={[16, 16]}>
-            <Col span={6}>
+          <Row
+            gutter={[
+              { xs: 8, sm: 16 },
+              { xs: 8, sm: 16 },
+            ]}
+          >
+            <Col xs={24} sm={12} md={6}>
               <Card>
                 <Statistic
                   title="Claim Request"
@@ -139,7 +147,7 @@ const UserDashboard: React.FC = () => {
                 />
               </Card>
             </Col>
-            <Col span={6}>
+            <Col xs={24} sm={12} md={6}>
               <Card>
                 <Statistic
                   title="Claim Approval"
@@ -147,7 +155,7 @@ const UserDashboard: React.FC = () => {
                 />
               </Card>
             </Col>
-            <Col span={6}>
+            <Col xs={24} sm={12} md={6}>
               <Card>
                 <Statistic
                   title="Rejected Claims"
@@ -155,7 +163,7 @@ const UserDashboard: React.FC = () => {
                 />
               </Card>
             </Col>
-            <Col span={6}>
+            <Col xs={24} sm={12} md={6}>
               <Card>
                 <Statistic title="Total Claims" value={mockClaims.length} />
               </Card>
@@ -163,17 +171,20 @@ const UserDashboard: React.FC = () => {
           </Row>
 
           <Row
-            gutter={[16, 16]}
+            gutter={[
+              { xs: 8, sm: 16 },
+              { xs: 8, sm: 16 },
+            ]}
             style={{ marginTop: "20px", marginBottom: "10px" }}
           >
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Input
                 placeholder="Search by Claim ID"
                 value={searchTerm}
                 onChange={handleSearch}
               />
             </Col>
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Select<FilterStatus>
                 placeholder="Filter by Status"
                 style={{ width: "100%" }}
@@ -189,14 +200,24 @@ const UserDashboard: React.FC = () => {
             </Col>
           </Row>
 
-          <Table<Claim>
-            dataSource={filteredClaims}
-            columns={columns}
-            rowKey="id"
-          />
+          {/* table */}
+          <div style={{ overflowX: "auto" }}>
+            <Table<Claim>
+              dataSource={filteredClaims}
+              columns={columns}
+              rowKey="id"
+              scroll={{ x: true }}
+            />
+          </div>
 
-          <Row gutter={[16, 16]} style={{ marginTop: "20px" }}>
-            <Col span={14}>
+          <Row
+            gutter={[
+              { xs: 8, sm: 16 },
+              { xs: 8, sm: 16 },
+            ]}
+            style={{ marginTop: "20px" }}
+          >
+            <Col xs={24} lg={14}>
               <Card title="Number of Claims Per Month">
                 <LineChart
                   xAxis={[
@@ -209,14 +230,20 @@ const UserDashboard: React.FC = () => {
                     {
                       data: [3, 20, 3.5, 25, 4.9, 15],
                       area: true,
-                      color: "#8884d8",
+                      color: "#1890ff",
                     },
                   ]}
                   height={300}
+                  margin={{
+                    left: 50,
+                    right: 20,
+                    top: 20,
+                    bottom: 30,
+                  }}
                 />
               </Card>
             </Col>
-            <Col span={10}>
+            <Col xs={24} lg={10}>
               <Card title="Claim Classification">
                 <PieChart
                   series={[
@@ -227,12 +254,33 @@ const UserDashboard: React.FC = () => {
                     },
                   ]}
                   height={300}
+                  margin={{
+                    left: 20,
+                    right: 20,
+                    top: 20,
+                    bottom: 20,
+                  }}
+                  colors={[
+                    "#ACE1AF",
+                    "#9FA8DA",
+                    "#77DD77",
+                    "#5C6BC0",
+                    "#FF80AB",
+                    "#FFD180",
+                    "red",
+                  ]}
                 />
               </Card>
             </Col>
           </Row>
 
-          <Row gutter={[16, 16]} style={{ marginTop: "20px" }}>
+          <Row
+            gutter={[
+              { xs: 8, sm: 16 },
+              { xs: 8, sm: 16 },
+            ]}
+            style={{ marginTop: "20px" }}
+          >
             <Col span={24}>
               <Card title="Claim Status Overview">
                 <BarChart
@@ -245,7 +293,7 @@ const UserDashboard: React.FC = () => {
                         mockClaims.filter((c) => c.status === "rejected")
                           .length,
                       ],
-                      color: "#FF6384",
+                      color: "#1890ff",
                     },
                   ]}
                   xAxis={[
@@ -255,6 +303,12 @@ const UserDashboard: React.FC = () => {
                     },
                   ]}
                   height={300}
+                  margin={{
+                    left: 50,
+                    right: 20,
+                    top: 20,
+                    bottom: 30,
+                  }}
                 />
               </Card>
             </Col>
