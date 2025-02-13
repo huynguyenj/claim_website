@@ -8,8 +8,8 @@ import Navbar from "./Navbar";
 
 const sideBarUser:SidebarItem[]=[
   {title:'Claim data',icon:DashBoard,path:'/userDashboard'},
-  {title:'Request',icon:RequestPageIcon,path:'/requestPage',gap:true},
-  {title:'Approval',icon:ApprovalIcon,path:'/approvalPage',role: "ba", gap:true},
+  {title:'Request',icon:RequestPageIcon,path:'/requestPage'},
+  {title:'Approval',icon:ApprovalIcon,path:'/approvalPage', role:'BA', gap:true},
   {title:'Profile',icon:UserProfile,path:'/userprofile'},
   {title:'Paid',icon:PaidIcon,path:'/paidPage', role:"finance"},
   {title:'Setting',icon:SettingIcon,path:'/setting',gap:true},
