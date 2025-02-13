@@ -1,31 +1,39 @@
+import { Route, Routes } from "react-router-dom";
+import "./App.css";
+import { ProtectedRoute } from "./router/ProtectedRoute";
+import { Suspense } from "react";
+import ListPublicRoute from "./router/PublicRoute";
+import PrivateRoute from "./router/PrivateRoute";
+import Loading from "./components/Loading";
+import { UserRoutes } from "./router/UserRoutes";
+import User from "./components/User"
+import Project from "./components/Project"
+import { AdminRoutes } from "./router/AdminRoutes";
+import Sidebar from "./layouts/Sidebar";
 
-import { Route, Routes } from 'react-router-dom'
-import './App.css'
-// import { ProtectedRoute } from './components/ProtectedRoute'
-import LoginPage from './pages/auth/LoginPage'
-import RegisterPage from './pages/auth/RegisterPage'
-import UserManagement from './components/UserManagement'
-import ProjectManagement from './components/ProjectManagement'
-import Project from './components/Project'
-import User from './components/User'
 function App() {
-
   return (
     <>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/project" element={<Project />} />
-        <Route path="/user" element={<User />} />
-        {/* <Route path="/usermanagement" element={<UserManagement />} />
-        <Route path="/projectmanagement" element={<ProjectManagement />} /> */}
+      {/* <Suspense fallback={<Loading />}>
+        <Routes> */}
+      {/* Public route for all user */}
+      {/* {ListPublicRoute.map((route, index) => (
+            <Route key={index} path={route.path} element={route.element} />
+          ))} */}
 
+      {/* </><Route element={<ProtectedRoute />}> */}
+      {/* Using /* to match any path after / but you need to sovle '*' to make sure it not have any issues when you navigate */}
+      {/* <Route path="/*" element={<PrivateRoute />}></Route> */}
+      {/* </Route>
+
+        </Routes>
+      </Suspense> */}
+      <Routes>
+        <Route path={AdminRoutes.PROJECT_DASHBOARD} element={<Project />} />
       </Routes>
-      {/* <ProtectedRoute>
-        
-      </ProtectedRoute> */}
+
     </>
-  )
+  );
 }
 
-export default App
+export default App;
