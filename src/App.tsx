@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+import { Route, Routes } from 'react-router-dom'
+import './App.css'
+// import { ProtectedRoute } from './components/ProtectedRoute'
+import LoginPage from './pages/auth/LoginPage'
+import RegisterPage from './pages/auth/RegisterPage'
+import MainLayout from './layouts/MainLayout'
+import RequestPage from './pages/user/RequestPage'
+=======
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import { ProtectedRoute } from "./router/ProtectedRoute";
