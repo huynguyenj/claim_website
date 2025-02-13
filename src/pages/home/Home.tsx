@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom"
-import { useAuthStore } from "../../store/store";
+import { useAuthStore } from "../../store/authStore";
 import { PublicRoutes } from "../../router/PublicRoutes";
 import { AdminRoutes } from "../../router/AdminRoutes";
 import { UserRoutes } from "../../router/UserRoutes";
+import MainLayout from "../../layouts/MainLayout";
 
 
 function Home() {
@@ -19,6 +20,8 @@ function Home() {
       }
   }
   return (
+    <>
+      <MainLayout/>
     <div className="bg-gradient-to-l from-blue-500 via-black to-blue-800 w-full h-screen flex flex-col justify-center items-center">
         <div>
           <h1 className="text-white text-3xl sm:text-6xl font-bold">Seamless Claims Processing, Faster Resolutions</h1>
@@ -28,6 +31,7 @@ function Home() {
           </div>
         </div>
     </div>
+    </>
   )
 }
 
