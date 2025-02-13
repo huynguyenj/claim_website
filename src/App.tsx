@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import "./App.css";
 import { ProtectedRoute } from "./router/ProtectedRoute";
 import { Suspense } from "react";
 import ListPublicRoute from "./router/PublicRoute";
