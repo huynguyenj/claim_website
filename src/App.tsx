@@ -5,6 +5,7 @@ import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import MainLayout from "./layouts/MainLayout";
 import Dashboard from "./pages/admin/Dashboard";
+import Profile from "./pages/admin/Profile";
 function App() {
   return (
     <>
@@ -13,6 +14,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/" element={<MainLayout />}>
           <Route path="/adminDashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Routes>
       {/* <ProtectedRoute>
