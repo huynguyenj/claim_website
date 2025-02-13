@@ -19,10 +19,8 @@ function App() {
             {/* Using /* to match any path after / but you need to sovle '*' to make sure it not have any issues when you navigate */}
             <Route path="/*" element={<PrivateRoute />}></Route>
           </Route>
-
         </Routes>
       </Suspense>
-
     </>
   );
 }
