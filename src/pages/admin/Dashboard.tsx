@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // Ant Design
 import { HomeOutlined, UserOutlined } from "@ant-design/icons";
 import { Breadcrumb, DatePicker } from "antd";
@@ -10,80 +9,6 @@ import StackedBarChart from "../../components/Admin/StackedBarChart";
 import DetailsTable from "../../components/Admin/DetailsTable";
 
 export default function Dashboard() {
-=======
-// Recharts
-import {
-  LineChart,
-  BarChart,
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Bar,
-  ComposedChart,
-  Area,
-} from "recharts";
-
-// Antd
-import { DatePicker,Select, Button, Statistic} from "antd";
-import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
-import { useState } from "react";
-const { RangePicker } = DatePicker;
-
-// Dashboard
-const Dashboard = () => {
-  const [category, setCategory] = useState("all");
-  // Data
-  const data = [
-    { month: "Jan", users: 1, claims: 1, date: "2025-01-01" },
-    { month: "Feb", users: 3, claims: 5, date: "2025-02-01" },
-    { month: "Mar", users: 4, claims: 8, date: "2025-03-01" },
-    { month: "Apr", users: 5, claims: 20, date: "2025-04-01" },
-    { month: "May", users: 7, claims: 5, date: "2025-05-01" },
-    { month: "Jun", users: 6, claims: 7, date: "2025-06-01" },
-    { month: "Jul", users: 8, claims: 16, date: "2025-07-01" },
-    { month: "Aug", users: 6, claims: 10, date: "2025-08-01" },
-    { month: "Sep", users: 13, claims: 12, date: "2025-09-01" },
-    { month: "Oct", users: 14, claims: 13, date: "2025-10-01" },
-    { month: "Nov", users: 16, claims: 25, date: "2025-11-01" },
-    { month: "Dec", users: 18, claims: 17, date: "2025-12-01" },
-  ];
-
-  // Constants
-
-  const onSearch = (value: string) => {
-    console.log("search:", value);
-  };
-  const sumOfUsers = data.reduce((acc, current) => acc + current.users, 0);
-  const sumOfClaims = data.reduce((acc, current) => acc + current.claims, 0);
-  const usersGrowthFromNovToDec = data[11].users - data[10].users;
-  const claimsGrowthFromNovToDec = data[11].claims - data[10].claims;
-  const style = {
-    top: "50%",
-    right: 0,
-    transform: "translate(0, -50%)",
-    lineHeight: "24px",
-  };
-  const onChange = (value: string) => {
-    console.log(`selected ${value}`);
-    setCategory(value);
-  };
-  // Filter data based on category selection
-  const filteredData =
-    category === "users"
-      ? data.map(({ month, users }) => ({ month, users }))
-      : category === "claims"
-      ? data.map(({ month, claims }) => ({ month, claims }))
-      : data;
->>>>>>> 4f8dc26f37c6a73c291cbbe456a49970bc539217
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 bg-gray-100 p-5">
       {/* Search Section */}
