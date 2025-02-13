@@ -10,7 +10,7 @@ import DetailsTable from "../../components/Admin/DetailsTable";
 
 export default function Dashboard() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 bg-gray-100 p-5 overflow-hidden">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 bg-gray-100 p-5 overflow-y-scroll">
       {/* Search Section */}
       <div className="col-span-1 sm:col-span-2 lg:col-span-4 flex flex-col lg:flex-row items-center justify-between">
         <Breadcrumb

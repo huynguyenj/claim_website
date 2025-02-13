@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SidebarItem } from "../data/SidebarData";
-import { BackArrowIcon } from "../components/MuiIIcon";
+import { BackRightKeyboardIcon } from "../components/MuiIIcon";
 import logo from "../assets/logowebsite.png";
 import { Link } from "react-router-dom";
 
@@ -11,9 +11,9 @@ function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
   };
   return (
     <aside
-      className={`bg-black/100 fixed min-h-screen ${
+      className={`bg-black/100 h-screen ${
         isOpen ? "w-50" : "w-22"
-      } rounded-r-[4rem] duration-300 ease-in-out relative`}
+      } duration-400 ease-in-out relative`}
     >
       <nav className="flex flex-col ">
         <div className="w-full flex rounded-full mt-13 gap-3 items-center px-5">
@@ -74,12 +74,13 @@ function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
           ))}
         </ul>
       </nav>
-      <div className="w-8 h-8 rounded-full bg-blue-300 top-5 right-0 absolute flex justify-center items-center hover:bg-green-300 cursor-pointer">
+      <div className="w-10 h-10 bg-black bottom-10 right-6 absolute flex justify-center items-center hover:opacity-75 cursor-pointer">
+            {isOpen&& <p className="text-white">Collapse</p>}
         <div
           className={`${isOpen && "rotate-180"} duration-300 ease-in-out`}
           onClick={handleOpen}
         >
-          <BackArrowIcon />
+          <BackRightKeyboardIcon sx={{color:'white'}} />
         </div>
       </div>
     </aside>
