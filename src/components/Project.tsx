@@ -187,7 +187,7 @@ const ProjectDashboard = () => {
     );
 
     return (
-        <div className="p-6 bg-gray-100 min-h-screen">
+        <div className="p-6 bg-gray-100 h-screen overflow-y-scroll">
             <div className="flex justify-between items-center">
                 <h1 className="text-4xl font-bold mb-4">Project Management Dashboard</h1>
 

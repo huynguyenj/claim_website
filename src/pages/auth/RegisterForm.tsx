@@ -1,4 +1,4 @@
-import { RegisterForm } from "../../data/User";
+import { RegisterForm } from "../../data/UserData";
 import { Button, DatePicker, Form, Input, Select, Space } from "antd";
 import type { DatePickerProps, FormProps } from "antd";
 import { Notification } from "../../components/Notification";

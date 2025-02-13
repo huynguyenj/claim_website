@@ -1,4 +1,4 @@
-import {UserForm} from '../../data/User'
+import {UserForm} from '../../data/UserData'
 import { Button, Form, Input, Space } from 'antd'
 import type { FormProps } from 'antd';
 import { Notification } from '../../components/Notification';

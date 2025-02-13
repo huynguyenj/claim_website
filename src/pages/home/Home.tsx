@@ -3,7 +3,7 @@ import { useAuthStore } from "../../store/authStore";
 import { PublicRoutes } from "../../router/PublicRoutes";
 import { AdminRoutes } from "../../router/AdminRoutes";
 import { UserRoutes } from "../../router/UserRoutes";
-import MainLayout from "../../layouts/MainLayout";
+import { roleDefine } from "../../data/Role";
 
 
 function Home() {
@@ -13,7 +13,7 @@ function Home() {
       if(!role){
           navigate(PublicRoutes.LOGIN)
       }
-      else if(role == 'admin'){
+      else if(role == roleDefine.ADMIN_ROLE){
         navigate(AdminRoutes.ADMIN_DASHBOARD)
       }else{
         navigate(UserRoutes.USER_DASHBOARD)
@@ -21,7 +21,6 @@ function Home() {
   }
   return (
     <>
-      <MainLayout/>
     <div className="bg-gradient-to-l from-blue-500 via-black to-blue-800 w-full h-screen flex flex-col justify-center items-center">
         <div>
           <h1 className="text-white text-3xl sm:text-6xl font-bold">Seamless Claims Processing, Faster Resolutions</h1>

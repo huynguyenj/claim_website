@@ -141,7 +141,7 @@ const ProjectManagement: React.FC = () => {
     ];
 
     return (
-        <div className="p-4">
+        <div className="p-4 overflow-y-scroll h-screen">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Project Management</h2>
                 <Button type="primary" onClick={handleAddProject}>Add Project</Button>
