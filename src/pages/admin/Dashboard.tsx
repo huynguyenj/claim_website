@@ -10,7 +10,7 @@ import DetailsTable from "../../components/Admin/DetailsTable";
 
 export default function Dashboard() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 bg-gray-100 p-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 bg-gray-100 p-5 overflow-hidden">
       {/* Search Section */}
       <div className="col-span-1 sm:col-span-2 lg:col-span-4 flex flex-col lg:flex-row items-center justify-between">
         <Breadcrumb
@@ -77,8 +77,9 @@ export default function Dashboard() {
           +25%
         </p>
       </div>
+
       {/* Stacked Line Chart */}
-      <div className="relative col-span-1 lg:col-span-2 bg-white w-min p-3 rounded-lg shadow-sm">
+      <div className="relative col-span-1 sm:col-span-2 bg-white p-3 rounded-lg shadow-sm h-min overflow-auto">
         <p className="text-md text-gray-600 font-bold">Sessions</p>
         <p className="text-2xl font-bold">13.277</p>
         <p className="absolute left-25 top-10 text-sm text-center text-green-800 bg-green-100 border border-green-300 w-12  rounded-full">
@@ -90,7 +91,7 @@ export default function Dashboard() {
         <StackedAreaChart />
       </div>
       {/* Stacked Bar Chart */}
-      <div className="relative bg-white w-min rounded-lg shadow-sm p-3">
+      <div className="relative col-span-1 sm:col-span-2 bg-white rounded-lg shadow-sm p-3 h-min overflow-auto">
         <p className="text-md text-gray-600 font-bold">Funds Spending</p>
         <p className="text-2xl font-bold">$27.496</p>
         <p className="absolute left-30 top-10 text-sm text-center text-green-800 bg-green-100 border border-green-300 w-12  rounded-full">
