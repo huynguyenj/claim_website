@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { useEffect, useState } from "react";
 import { SidebarItem } from "../data/SidebarData";
-import { useAuthStore } from "../store/store";
+import { useAuthStore } from "../store/authStore";
 import { ApprovalIcon, CheckListIcon, DashBoard, LogoutIcon, PaidIcon, RequestPageIcon, SettingIcon, UserList, UserProfile } from "../components/MuiIIcon";
 import Navbar from "./Navbar";
 

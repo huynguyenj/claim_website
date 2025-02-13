@@ -1,7 +1,7 @@
 import { lazy,useLayoutEffect, useState } from "react";
 import { Route, Routes} from "react-router-dom";
 import { RouteType } from "../data/RouteData";
-import { useAuthStore } from "../store/store";
+import { useAuthStore } from "../store/authStore";
 import { AdminRoutes } from "./AdminRoutes";
 import { UserRoutes } from "./UserRoutes";
 

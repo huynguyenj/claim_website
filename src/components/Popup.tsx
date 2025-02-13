@@ -1,54 +1,22 @@
-type ContentType = {
-  title:string,
-  content:string,
-  date: Date
+type contentPopup = {
+    icon?:React.ComponentType<{sx?:object}>,
+    content:string
+
 }
 
 type AttributePopup = {
-  width: string;
-  bg_color: string;
-  textColor?: string;
-  textSize?: string;
-  top?: number;
-  left?: number;
-  right?: number;
-  bottom?: number;
-  padding_x?: number;
-  padding_y?: number;
-  content?: ContentType[];
+  isOpen:boolean,
+  onClose:()=>void,
+  title?:string,
+  content:contentPopup[]
 };
 
-function Popup({
-  width,
-  bg_color,
-  textColor,
-  textSize,
-  top,
-  right,
-  left,
-  bottom,
-  padding_x,
-  padding_y,
-  content,
-}: AttributePopup) {
+function Popup({isOpen,title,content}:AttributePopup) {
+  if(!isOpen) return null
   return (
-    <div
-      className={`absolute rounded-2xl flex flex-col leading-7 ${ top ? `top-${top}` : ""} ${right ? `right-${right}` : ""} ${left ? `left-${left}` : ""} ${bottom ? `bottom-${bottom}` : ""} w-${width} ${padding_x? `px-${padding_x}`:""} ${padding_y ? `py-${padding_y}`:""} `}
-      style={{
-        backgroundColor: bg_color,
-        color: textColor,
-        fontSize: textSize,
-      }}
-    >
-      {content && content?.map((c)=>(
-        <div className="flex flex-col items-center">
-        <div className="flex gap-2">
-            <p>{c.title}:</p>
-            <p>{c.content}</p>
-        </div>
-          <p>({new Date(c.date).toLocaleDateString('en-US')})</p>
-        </div>
-
+    <div className="fixed justify-center">
+      {content.map((c,index)=>(
+        <p key={index}>{c.content}</p>
       ))}
     </div>
   );

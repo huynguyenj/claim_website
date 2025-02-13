@@ -1,3 +1,3 @@
 export const UserRoutes = {
-      USER_DASHBOARD: '/userdashboard'
+      USER_DASHBOARD: '/userdashboard',
 }

@@ -5,7 +5,7 @@ import { Notification } from '../../components/Notification';
 import { PasswordIcon, UserIcon } from '../../components/MuiIIcon';
 import FormItem from 'antd/es/form/FormItem';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/store';
+import { useAuthStore } from '../../store/authStore';
 import publicApiService from '../../services/BaseApi';
 import { PublicRoutes } from '../../router/PublicRoutes';
 
