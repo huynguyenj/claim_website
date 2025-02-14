@@ -1,6 +1,6 @@
 import { lazy} from "react";
-import { RouteType } from "../data/RouteData";
-import { PublicRoutes } from "./PublicRoutes";
+import { RouteType } from "../model/RouteData";
+import { PublicRoutes } from "../consts/RoutesConst";
 
 const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 const RegisterPage = lazy(()=>import("../pages/auth/RegisterPage"));

@@ -1,5 +1,5 @@
 import { useAuthStore } from "../store/authStore";
-import { EditIcon, LogoutIcon, NightModeIcon, NotificationIcon, UserIcon } from "../components/MuiIIcon";
+import { EditIcon, LogoutIcon, NightModeIcon, NotificationIcon, UserIcon } from "../components/Icon/MuiIIcon";
 import profile from "../assets/logouser.png";
 import { useState } from "react";
 import Popup from "../components/Popup";

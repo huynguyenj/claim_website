@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, DatePicker, InputNumber, message, Select } from 'antd';
 import moment from 'moment';
 import apiService from '../services/ApiService';
-import { User } from '../types/user';
-import { Project } from '../types/project';
+import { User } from '../model/UserData';
+import { Project } from '../model/ProjectData';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;

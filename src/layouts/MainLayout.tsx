@@ -1,13 +1,12 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { useEffect, useState } from "react";
-import { SidebarItem } from "../data/SidebarData";
+import { SidebarItem } from "../model/SidebarData";
 import { useAuthStore } from "../store/authStore";
-import { ApprovalIcon, CheckListIcon, DashBoard,PaidIcon, RequestPageIcon, SettingIcon, UserList, UserProfile } from "../components/MuiIIcon";
+import { ApprovalIcon, CheckListIcon, DashBoard,PaidIcon, RequestPageIcon, SettingIcon, UserList, UserProfile } from "../components/Icon/MuiIIcon";
 import Navbar from "./Navbar";
-import { UserRoutes } from "../router/UserRoutes";
-import { AdminRoutes } from "../router/AdminRoutes";
-import { roleDefine } from "../data/Role";
+import { UserRoutes,AdminRoutes } from "../consts/RoutesConst";
+import { roleDefine } from "../consts/UserRole";
 
 const sideBarUser:SidebarItem[]=[
   {title:'Claim data',icon:DashBoard,path:'/userDashboard'},

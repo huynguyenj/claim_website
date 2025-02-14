@@ -1,6 +1,6 @@
 import { Button, Input, Modal, Popconfirm, Spin, Table, Tag } from "antd";
 import React, { useState } from "react";
-import { SearchOutlined, StopFilled } from './AntdIcon';
+import { SearchOutlined, StopFilled } from './Icon/AntdIcon';
 import Title from "antd/es/typography/Title";
 
 interface User {

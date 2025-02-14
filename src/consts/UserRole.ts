@@ -1,9 +1,4 @@
-type RoleData= {
-      ADMIN_ROLE:string,
-      CLAIMER_ROLE:string,
-      APPROVAL_ROLE:string,
-      FINANCE:string
-}
+import { RoleData } from "../model/RoleData";
 
 export const roleDefine:RoleData ={
       ADMIN_ROLE:'administrator',
