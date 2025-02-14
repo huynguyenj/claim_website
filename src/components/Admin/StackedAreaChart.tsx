@@ -5,8 +5,9 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  ResponsiveContainer,
 } from "recharts";
-
+import dataset from "../../data/AdminDashboard";
 const data = [
   {
     name: "Jan 1",
@@ -53,42 +54,44 @@ const data = [
 ];
 export default function StackedAreaChart() {
   return (
-    <AreaChart
-      width={600}
-      height={300}
-      data={data}
-      margin={{
-        top: 10,
-        right: 30,
-        left: 0,
-        bottom: 0,
-      }}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="name" />
-      <YAxis />
-      <Tooltip />
-      <Area
-        type="monotone"
-        dataKey="users"
-        stackId="1"
-        stroke="oklab(0.69 -0.09 -0.14 / 1)"
-        fill="oklab(0.69 -0.09 -0.14 / 1)"
-      />
-      <Area
-        type="monotone"
-        dataKey="claims"
-        stackId="1"
-        stroke="oklab(0.69 -0.09 -0.14 / 1)"
-        fill="oklab(0.69 -0.09 -0.14 / 0.8)"
-      />
-      <Area
-        type="monotone"
-        dataKey="funds"
-        stackId="1"
-        stroke="oklab(0.69 -0.09 -0.14 / 1)"
-        fill="oklab(0.69 -0.09 -0.14 / 0.4)"
-      />
-    </AreaChart>
+    <ResponsiveContainer width={"100%"} height={"70%"}>
+      <AreaChart
+        width={600}
+        height={300}
+        data={data}
+        margin={{
+          top: 10,
+          right: 30,
+          left: 0,
+          bottom: 0,
+        }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Area
+          type="monotone"
+          dataKey="users"
+          stackId="1"
+          stroke="oklab(0.69 -0.09 -0.14 / 1)"
+          fill="oklab(0.69 -0.09 -0.14 / 1)"
+        />
+        <Area
+          type="monotone"
+          dataKey="claims"
+          stackId="1"
+          stroke="oklab(0.69 -0.09 -0.14 / 1)"
+          fill="oklab(0.69 -0.09 -0.14 / 0.8)"
+        />
+        <Area
+          type="monotone"
+          dataKey="funds"
+          stackId="1"
+          stroke="oklab(0.69 -0.09 -0.14 / 1)"
+          fill="oklab(0.69 -0.09 -0.14 / 0.4)"
+        />
+      </AreaChart>
+    </ResponsiveContainer>
   );
 }
