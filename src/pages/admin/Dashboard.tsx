@@ -1,6 +1,5 @@
 // Ant Design
-import { HomeOutlined, UserOutlined } from "@ant-design/icons";
-import { Breadcrumb, DatePicker } from "antd";
+import { DatePicker } from "antd";
 import StackedAreaChart from "../../components/Admin/StackedAreaChart";
 // MUI UI
 import SearchIcon from "@mui/icons-material/Search";
@@ -11,8 +10,8 @@ import StatisticsAreaChart from "../../components/Admin/StatisticsAreaChart";
 import SelectComponent from "../../components/Admin/Select";
 import AnchorComponent from "../../components/Admin/Anchor";
 // Fake dataset
-import { totalFunds } from "../../data/AdminDashboard";
-import dataset from "../../data/AdminDashboard";
+import { totalFunds } from "../../model/AdminDashboard";
+import dataset from "../../model/AdminDashboard";
 
 export default function Dashboard() {
   return (
