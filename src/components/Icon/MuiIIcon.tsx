@@ -20,6 +20,10 @@ export { default as LogoutIcon } from '@mui/icons-material/Logout'
 export { default as CheckListIcon } from '@mui/icons-material/Checklist'
 export { default as NightModeIcon } from '@mui/icons-material/Brightness3'
 export { default as NotificationIcon } from '@mui/icons-material/Notifications'
+export { default as BackRightKeyboardIcon } from '@mui/icons-material/KeyboardDoubleArrowRight'
+export { default as EditIcon } from '@mui/icons-material/Edit'
+
+
 
 
 

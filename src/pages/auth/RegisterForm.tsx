@@ -1,4 +1,4 @@
-import { RegisterForm } from "../../data/User";
+import { RegisterForm } from "../../model/UserData";
 import { Button, DatePicker, Form, Input, Select, Space } from "antd";
 import type { DatePickerProps, FormProps } from "antd";
 import { Notification } from "../../components/Notification";
@@ -9,11 +9,11 @@ import {
   GenderIcon,
   PasswordIcon,
   UserIcon,
-} from "../../components/MuiIIcon";
+} from "../../components/Icon/MuiIIcon";
 import FormItem from "antd/es/form/FormItem";
 import { useNavigate } from "react-router-dom";
 import publicApiService from "../../services/BaseApi";
-import { PublicRoutes } from "../../router/PublicRoutes";
+import { PublicRoutes } from "../../consts/RoutesConst";
 function SignUpForm() {
       const [form] = Form.useForm();
       const handleChangeGender = (value:boolean ):void=>{

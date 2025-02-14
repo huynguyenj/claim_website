@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, DatePicker, InputNumber, message, Select } from 'antd';
 import moment from 'moment';
 import apiService from '../services/ApiService';
-import { User } from '../types/user';
-import { Project } from '../types/project';
+import { User } from '../model/UserData';
+import { Project } from '../model/ProjectData';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -141,7 +141,7 @@ const ProjectManagement: React.FC = () => {
     ];
 
     return (
-        <div className="p-4">
+        <div className="p-4 overflow-y-scroll h-screen">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Project Management</h2>
                 <Button type="primary" onClick={handleAddProject}>Add Project</Button>

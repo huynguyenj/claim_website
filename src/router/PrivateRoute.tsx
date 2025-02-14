@@ -1,36 +1,40 @@
 import { lazy,useLayoutEffect, useState } from "react";
 import { Route, Routes} from "react-router-dom";
-import { RouteType } from "../data/RouteData";
+import { RouteType } from "../model/RouteData";
 import { useAuthStore } from "../store/authStore";
-import { AdminRoutes } from "./AdminRoutes";
-import { UserRoutes } from "./UserRoutes";
+import { UserRoutes ,AdminRoutes } from "../consts/RoutesConst";
+import { roleDefine } from "../consts/UserRole";
+
 
 const AdminDashboard =lazy(()=>import("../pages/admin/Dashboard"));
 const HomePage = lazy(()=> import("../pages/home/Home"));
 const MainLayout = lazy(()=>import("../layouts/MainLayout"));
+const ApprovalPage = lazy(()=>import("../pages/user/ApprovalPage"));
+const RequestPage = lazy(()=>import("../pages/user/RequestPage"))
+const UserListPage = lazy(()=>import("../components/User"))
+const ProjectListPage = lazy(()=>import("../components/Project"))
 const ErrorPage = lazy(()=>import("../pages/error/ErrorPage"))
 
 const privateRouteList: RouteType[]=[
-      {path:AdminRoutes.ADMIN_DASHBOARD, element:<AdminDashboard/> ,roleRoute:'admin'},
-      {path:UserRoutes.USER_DASHBOARD, element:<HomePage/> ,roleRoute:'user'},
-
+      {path:AdminRoutes.ADMIN_DASHBOARD, element:<AdminDashboard/> ,roleRoute:[roleDefine.ADMIN_ROLE]},
+      {path: UserRoutes.USER_DASHBOARD, element: <HomePage/>, roleRoute: [roleDefine.CLAIMER_ROLE,roleDefine.APPROVAL_ROLE,roleDefine.FINANCE]},
+      {path:UserRoutes.APPROVAL_PAGE, element:<ApprovalPage/>, roleRoute:[roleDefine.APPROVAL_ROLE]},
+      {path:UserRoutes.REQUEST_PAGE,element:<RequestPage/>,roleRoute:[roleDefine.CLAIMER_ROLE]},
+      {path:AdminRoutes.USER_LIST_PAGE, element:<UserListPage/>,roleRoute:[roleDefine.ADMIN_ROLE]},
+      {path:AdminRoutes.PROJECT_LIST_PAGE, element:<ProjectListPage/>,roleRoute:[roleDefine.ADMIN_ROLE]}
 ]
 
 function PrivateRoute() {
       const [routeRole,setRouteRole] = useState<RouteType[]>([]);
-      const role = useAuthStore((state)=>state.role)
+      const role = useAuthStore((state)=>state.role);
+
       useLayoutEffect(() => {
         console.log(role)
-        switch(role){
-          case 'admin':
-            setRouteRole(privateRouteList.filter((route)=> route.roleRoute == 'admin'));
-            break;
-          case 'user':
-            setRouteRole(privateRouteList.filter((route)=> route.roleRoute == 'user'));
-            break
-          default:
-            setRouteRole([]);  
-        }
+          if(role){
+            setRouteRole(privateRouteList.filter((route)=>route.roleRoute?.includes(role.toLocaleLowerCase())))
+          }else{
+            setRouteRole([]);
+          }
           }, [role]);
     return (
       <Routes>
