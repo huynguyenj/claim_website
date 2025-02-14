@@ -1,10 +1,9 @@
 import { lazy,useLayoutEffect, useState } from "react";
 import { Route, Routes} from "react-router-dom";
-import { RouteType } from "../data/RouteData";
+import { RouteType } from "../model/RouteData";
 import { useAuthStore } from "../store/authStore";
-import { AdminRoutes } from "./AdminRoutes";
-import { UserRoutes } from "./UserRoutes";
-import { roleDefine } from "../data/Role";
+import { UserRoutes ,AdminRoutes } from "../consts/RoutesConst";
+import { roleDefine } from "../consts/UserRole";
 
 
 const AdminDashboard =lazy(()=>import("../pages/admin/Dashboard"));

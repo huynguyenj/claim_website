@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { SidebarItem } from "../data/SidebarData";
-import { BackRightKeyboardIcon } from "../components/MuiIIcon";
+import { SidebarItem } from "../model/SidebarData";
+import { BackRightKeyboardIcon } from "../components/Icon/MuiIIcon";
 import logo from "../assets/logowebsite.png";
 import { Link } from "react-router-dom";
 

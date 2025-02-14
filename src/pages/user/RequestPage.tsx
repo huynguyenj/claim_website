@@ -20,7 +20,7 @@ import {
   Box,
 } from '@mui/material';
 import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material';
-import type { ClaimRequest } from '../../data/Claim';
+import type { ClaimRequest } from '../../model/Claim';
 
 
 const RequestPage: React.FC = () => {
@@ -87,7 +87,7 @@ const RequestPage: React.FC = () => {
       setIsModalOpen(false);
       setFormData({ title: '', description: '', amount: '' });
     } catch (error) {
-      console.error('Operation failed');
+      console.error('Operation failed',error);
     }
   };
 

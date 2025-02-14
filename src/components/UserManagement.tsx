@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, Select, message } from 'antd';
 import apiService from '../services/ApiService';
-import { User } from '../types/user';
+import { User } from '../model/UserData';
 
 const { Option } = Select;
 

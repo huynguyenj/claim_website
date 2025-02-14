@@ -1,9 +1,7 @@
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "../../store/authStore";
-import { PublicRoutes } from "../../router/PublicRoutes";
-import { AdminRoutes } from "../../router/AdminRoutes";
-import { UserRoutes } from "../../router/UserRoutes";
-import { roleDefine } from "../../data/Role";
+import { UserRoutes ,PublicRoutes,AdminRoutes } from "../../consts/RoutesConst";
+import { roleDefine } from "../../consts/UserRole";
 
 
 function Home() {
