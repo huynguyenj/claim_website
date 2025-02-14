@@ -1,89 +1,19 @@
-import { Button, Input, Space, Table, Tag } from "antd";
+import { Button, Input, Select, Space, Table, Tag } from "antd";
 import { DollarOutlined, SearchOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
-import { useState } from "react";
-
+import { useCallback, useMemo, useState } from "react";
+import ModalConfirm from "./ModalConfirm";
+import { useDebounce } from "use-debounce";
+import dayjs from "dayjs";
 interface DataType {
   key: string;
   name: string;
   roles: string[];
   project: string;
   overtime: number;
-  department: string;
   salary: number;
+  date: Date;
 }
-
-const columns: TableProps<DataType>["columns"] = [
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-    render: (text) => <a className="text-blue-500 font-medium">{text}</a>,
-  },
-  {
-    title: "Department",
-    dataIndex: "department",
-    key: "department",
-  },
-  {
-    title: "Project",
-    dataIndex: "project",
-    key: "project",
-  },
-  {
-    title: "Salary",
-    dataIndex: "salary",
-    key: "salary",
-    render:(salary) => <p>{salary}   <DollarOutlined/></p>
-  },
-  {
-    title: "Overtime",
-    dataIndex: "overtime",
-    key: "overtime",
-    render: (text) => <p>{text} Hours</p>,
-  },
-  {
-    title: "Role",
-    key: "role",
-    dataIndex: "role",
-    render: (_, { roles }) => (
-      <>
-        {roles.map((role) => {
-          let color = role.length > 5 ? "geekblue" : "green";
-          if (role === "BA") color = "volcano";
-          if (role === "developer") color = "purple";
-          if (role === "Designer") color = "blue";
-
-          return (
-            <Tag color={color} key={role} className="px-3 py-1 rounded-full">
-              {role.toUpperCase()}
-            </Tag>
-          );
-        })}
-      </>
-    ),
-  },
-  {
-    title: "Action",
-    key: "action",
-    render: () => (
-      <Space size="middle">
-        <Button
-          style={{           
-            color: "#000",
-            borderColor: '#1D4',
-          }}
-        >
-          Approve
-        </Button>
-        <Button danger className="px-4">
-          Reject
-        </Button>
-      </Space>
-    ),
-  },
-];
-
 const initialData: DataType[] = [
   {
     key: "1",
@@ -91,8 +21,8 @@ const initialData: DataType[] = [
     roles: ["Developer", "Team Lead"],
     project: "E-commerce Website",
     overtime: 5,
-    department: "IT",
-    salary: 500,
+    salary: 5000,
+    date: new Date("2025-02-15"),
   },
   {
     key: "2",
@@ -100,8 +30,8 @@ const initialData: DataType[] = [
     roles: ["Designer"],
     project: "Mobile App UI",
     overtime: 2,
-    department: "Design",
-    salary: 3000,
+    salary: 4500,
+    date: new Date("2025-01-20"),
   },
   {
     key: "3",
@@ -109,8 +39,8 @@ const initialData: DataType[] = [
     roles: ["QA Tester"],
     project: "Banking System",
     overtime: 3,
-    department: "Quality Assurance",
-    salary: 3000,
+    salary: 4000,
+    date: new Date("2025-01-25"),
   },
   {
     key: "4",
@@ -118,8 +48,8 @@ const initialData: DataType[] = [
     roles: ["Developer"],
     project: "CRM System",
     overtime: 4,
-    department: "IT",
-    salary: 3000,
+    salary: 4800,
+    date: new Date("2025-01-30"),
   },
   {
     key: "5",
@@ -127,8 +57,8 @@ const initialData: DataType[] = [
     roles: ["Project Manager"],
     project: "Healthcare System",
     overtime: 6,
-    department: "Management",
-    salary: 3000,
+    salary: 5500,
+    date: new Date("2025-02-05"),
   },
   {
     key: "6",
@@ -136,8 +66,8 @@ const initialData: DataType[] = [
     roles: ["HR Manager"],
     project: "Internal HR System",
     overtime: 1,
-    department: "Human Resources",
-    salary: 3000,
+    salary: 4700,
+    date: new Date("2025-02-10"),
   },
   {
     key: "7",
@@ -145,8 +75,8 @@ const initialData: DataType[] = [
     roles: ["Developer"],
     project: "AI Chatbot",
     overtime: 8,
-    department: "IT",
-    salary: 3000,
+    salary: 4900,
+    date: new Date("2025-02-15"),
   },
   {
     key: "8",
@@ -154,16 +84,124 @@ const initialData: DataType[] = [
     roles: ["Data Analyst"],
     project: "Sales Dashboard",
     overtime: 0,
-    department: "Data Science",
-    salary: 3000,
+    salary: 4600,
+    date: new Date("2025-02-20"),
   },
 ];
-
+const options = [
+  { label: "E-commerce Website", value: "E-commerce Website" },
+  { label: "Mobile App UI", value: "Mobile App UI" },
+  { label: "Banking System", value: "Banking System" },
+  { label: "CRM System", value: "CRM System" },
+  { label: "Healthcare System", value: "Healthcare System" },
+  { label: "Internal HR System", value: "Internal HR System" },
+  { label: "AI Chatbot", value: "AI Chatbot" },
+  { label: "Sales Dashboard", value: "Sales Dashboard" },
+];
 function SalaryTable(): JSX.Element {
-  const [searchText, setSearchText] = useState("");
+  const columns: TableProps<DataType>["columns"] = [
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      render: (date) => dayjs(date).format("DD/MM/YYYY"),
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text) => <a className="text-blue-500 font-medium">{text}</a>,
+    },
+    {
+      title: "Project",
+      dataIndex: "project",
+      key: "project",
+    },
+    {
+      title: "Salary",
+      dataIndex: "salary",
+      key: "salary",
+      render: (salary) => (
+        <p>
+          {salary} <DollarOutlined />
+        </p>
+      ),
+    },
+    {
+      title: "Overtime",
+      dataIndex: "overtime",
+      key: "overtime",
+      render: (text) => <p>{text} Hours</p>,
+    },
+    {
+      title: "Role",
+      key: "role",
+      dataIndex: "roles",
+      render: (roles) => (
+        <>
+          {roles.map((role: string, index: number) => {
+            let color = role.length > 5 ? "geekblue" : "green";
+            if (role === "BA") color = "volcano";
+            if (role === "developer") color = "purple";
+            if (role === "Designer") color = "blue";
 
-  const filteredData = initialData.filter((item) =>
-    item.name.toLowerCase().includes(searchText.toLowerCase())
+            return (
+              <Tag color={color} key={`${role}-${index}`}>
+                {role.toUpperCase()}
+              </Tag>
+            );
+          })}
+        </>
+      ),
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: () => (
+        <Space size="middle">
+          <ModalConfirm />
+          <Button danger className="px-4">
+            Reject
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
+  const [searchText, setSearchText] = useState("");
+  const [debouncedSearch] = useDebounce(searchText, 300);
+
+  const [listProject, setListProject] = useState<string[]>([]);
+  const filteredData = useMemo(() => {
+    return initialData
+      .filter((item) =>
+        debouncedSearch
+          ? item.name.toLowerCase().includes(debouncedSearch.toLowerCase())
+          : true
+      )
+      .filter((item) =>
+        listProject.length > 0 ? listProject.includes(item.project) : true
+      )
+      .sort((a, b) => b.date.getTime() - a.date.getTime()); 
+  }, [debouncedSearch, listProject]);
+
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value.trim();
+      if (value !== searchText) {
+        setSearchText(value);
+      }
+    },
+    [searchText]
+  );
+
+  const handleProjectChange = useCallback(
+    (value: string[]) => {
+      if (JSON.stringify(value) !== JSON.stringify(listProject)) {
+        setListProject(value);
+      }
+    },
+    [listProject]
   );
 
   return (
@@ -171,15 +209,25 @@ function SalaryTable(): JSX.Element {
       <Input
         prefix={<SearchOutlined className="text-gray-500" />}
         placeholder="Search By Name"
-        className="w-full max-w-xs mb-4 px-4 py-2 rounded-full  border-2 border-gray-700 focus:border-blue-500 transition-all"
-        onChange={(e) => setSearchText(e.target.value)}
+        className="w-full max-w-xs mb-4 px-4 py-2 rounded-full mr-4"
+        onChange={handleSearchChange}
+      />
+      <Select
+        mode="multiple"
+        allowClear
+        style={{ width: "40%", marginBottom: "1rem" }}
+        placeholder="Please select"
+        onChange={handleProjectChange}
+        options={options}
       />
       {/* Bảng */}
-      <Table<DataType>
-        className="pt-1 rounded-2xl relative shadow-lg "
+      <Table
+        rowKey="key"
+        className="pt-1 relative"
+        style={{ borderRadius: "8px", boxShadow: "none" }}
         columns={columns}
         dataSource={filteredData}
-        pagination={{ position: ["bottomCenter"] }}
+        pagination={{ position: ["bottomCenter"], pageSize: 5 }}
       />
     </div>
   );
