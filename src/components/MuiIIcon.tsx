@@ -20,12 +20,8 @@ export { default as LogoutIcon} from '@mui/icons-material/Logout'
 export { default as CheckListIcon} from '@mui/icons-material/Checklist'
 export { default as NightModeIcon} from '@mui/icons-material/Brightness3'
 export { default as NotificationIcon} from '@mui/icons-material/Notifications'
-
-
-
-
-
-
+export {default as PersonIcon} from '@mui/icons-material/Person';
+export {default as SettingsIcon } from'@mui/icons-material/Settings';
 
 
 

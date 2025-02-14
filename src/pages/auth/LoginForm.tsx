@@ -1,16 +1,14 @@
 import {UserForm} from '../../data/User'
 import { Button, Form, Input, Space } from 'antd'
 import type { FormProps } from 'antd';
-import apiService from '../../services/ApiService';
 import { Notification } from '../../components/Notification';
 import { PasswordIcon, UserIcon } from '../../components/MuiIIcon';
 import FormItem from 'antd/es/form/FormItem';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/store';
-interface AuthRes {
-  token:'string',
-  role:'string'
-}
+import publicApiService from '../../services/BaseApi';
+import { PublicRoutes } from '../../router/PublicRoutes';
+
 function LoginForm() {
     
     const navigate = useNavigate();
@@ -18,9 +16,10 @@ function LoginForm() {
     
     const handleSubmit:FormProps<UserForm>['onFinish'] = async (values)=>{
             try {
-                 const response =  await apiService.post<AuthRes>('/login',values);
+                 const response =  await publicApiService.login(values);
                   Notification('success',"Login successful!");
                   addAuthInfo(response.token,response.role);
+                  navigate(PublicRoutes.HOME)
             } catch (error) {
                   console.log(error);
                   Notification('error',"Login fail!","Please check your password or username!");
@@ -29,7 +28,7 @@ function LoginForm() {
       }
 
       const handleChangePage = ():void=>{
-        navigate('/register')
+        navigate(PublicRoutes.REGISTER)
   }
 
 
