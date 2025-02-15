@@ -11,8 +11,8 @@ const HomePage = lazy(()=> import("../pages/home/Home"));
 const MainLayout = lazy(()=>import("../layouts/MainLayout"));
 const ApprovalPage = lazy(()=>import("../pages/user/ApprovalPage"));
 const RequestPage = lazy(()=>import("../pages/user/RequestPage"))
-const UserListPage = lazy(()=>import("../components/User"))
-const ProjectListPage = lazy(()=>import("../components/Project"))
+const UserListPage = lazy(()=>import("../pages/admin/User"))
+const ProjectListPage = lazy(()=>import("../pages/admin/Project"))
 const ErrorPage = lazy(()=>import("../pages/error/ErrorPage"))
 
 const privateRouteList: RouteType[]=[
