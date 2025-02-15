@@ -7,7 +7,6 @@ function Space() {
   
   return (
     <mesh scale={[5, 6, 5]} position={[-8, -8, 8]} rotation={[0, 0, 0]}>
-   
       <primitive object={space.scene} />
     </mesh>
   );
