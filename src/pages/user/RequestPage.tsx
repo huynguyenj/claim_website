@@ -20,7 +20,7 @@ import {
   Box,
 } from '@mui/material';
 import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material';
-import type { ClaimRequest } from '../../data/Claim';
+import type { ClaimRequest } from '../../model/Claim';
 
 
 const RequestPage: React.FC = () => {
@@ -63,14 +63,14 @@ const RequestPage: React.FC = () => {
   const handleSubmit = () => {
     try {
       if (editingId) {
-        setRequests(requests.map(request => 
-          request.id === editingId 
-            ? { 
-                ...request, 
-                title: formData.title,
-                description: formData.description,
-                amount: Number(formData.amount)
-              }
+        setRequests(requests.map(request =>
+          request.id === editingId
+            ? {
+              ...request,
+              title: formData.title,
+              description: formData.description,
+              amount: Number(formData.amount)
+            }
             : request
         ));
       } else {
@@ -165,8 +165,7 @@ const RequestPage: React.FC = () => {
                   <TableCell>{request.title}</TableCell>
                   <TableCell>{request.amount.toLocaleString('vi-VN')}</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-sm ${
-                      {
+                    <span className={`px-2 py-1 rounded-full text-sm ${{
                         DRAFT: 'bg-gray-200',
                         PENDING_APPROVAL: 'bg-yellow-200',
                         APPROVED: 'bg-green-200',
@@ -174,7 +173,7 @@ const RequestPage: React.FC = () => {
                         PENDING_PAYMENT: 'bg-blue-200',
                         PAID: 'bg-purple-200',
                       }[request.status]
-                    }`}>
+                      }`}>
                       {request.status.replace('_', ' ')}
                     </span>
                   </TableCell>
