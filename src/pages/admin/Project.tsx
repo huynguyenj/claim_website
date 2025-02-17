@@ -1,6 +1,6 @@
 import { Button, Input, Popconfirm, Spin, Table, Tag, Modal, Form, DatePicker, InputNumber, Select } from "antd";
 import { useState } from "react";
-import { PlusOutlined, SearchOutlined, StopFilled } from "./Icon/AntdIcon";
+import { PlusOutlined, SearchOutlined, StopFilled } from "../../components/Icon/AntdIcon";
 import dayjs from "dayjs";
 
 const { Option } = Select;

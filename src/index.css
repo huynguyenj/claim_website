@@ -6,8 +6,22 @@
 * {
   font-family: "Poppins", sans-serif;
 }
+html {
+  scroll-behavior: smooth;
+}
 @theme {
   --animate-spinAround: spinAround 5s linear infinite;
+  --animate-fadeInLeft : fadeInLeft linear
+  @keyframes fadeInLeft {
+    from{
+      opacity: 0;
+      transform:translateX(-100px)
+    }
+    to{
+      opacity: 1;
+      transform:translateX(0px)
+    }
+  }
   @keyframes spinAround {
     0% {
       transform: rotate(0deg);
