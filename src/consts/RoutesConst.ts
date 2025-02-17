@@ -13,5 +13,6 @@ export const PublicRoutes = {
 export const UserRoutes = {
       USER_DASHBOARD: '/userdashboard',
       REQUEST_PAGE: '/request',
-      APPROVAL_PAGE: '/approvalPage'
+      APPROVAL_PAGE: '/approvalPage',
+      PROFILE_PAGE: '/userprofile',
 }

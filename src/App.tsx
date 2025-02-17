@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import ListPublicRoute from "./router/PublicRoute";
 import PrivateRoute from "./router/PrivateRoute";
 import Loading from "./components/Loading";
-import UserProfile from "./pages/user/UserProfile";
+
 
 function App() {
   return (
