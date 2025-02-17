@@ -1,23 +1,19 @@
-type contentPopup = {
-    icon?:React.ComponentType<{sx?:object}>,
-    content:string
-
-}
+import { ReactNode } from "react";
 
 type AttributePopup = {
-  isOpen:boolean,
-  onClose:()=>void,
-  title?:string,
-  content:contentPopup[]
+  isOpen: boolean;
+  children: ReactNode;
+  top?: number;
+  left?: number;
+  bottom?: number;
+  right?: number;
 };
 
-function Popup({isOpen,title,content}:AttributePopup) {
-  if(!isOpen) return null
+function Popup({ isOpen, children, top, right, bottom, left }: AttributePopup) {
+  if (!isOpen) return null;
   return (
-    <div className="fixed justify-center">
-      {content.map((c,index)=>(
-        <p key={index}>{c.content}</p>
-      ))}
+    <div className={`absolute z-99`} style={{ top, right, bottom, left }}>
+      {children}
     </div>
   );
 }
