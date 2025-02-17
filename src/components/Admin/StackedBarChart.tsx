@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   BarChart,
   Bar,
@@ -7,6 +6,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  ResponsiveContainer,
 } from "recharts";
 
 const data = [
@@ -56,34 +56,36 @@ const data = [
 
 export default function StackedBarChart() {
   return (
-    <BarChart
-      width={600}
-      height={300}
-      data={data}
-      margin={{
-        top: 20,
-        right: 30,
-        left: 20,
-        bottom: 5,
-      }}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="name" />
-      <YAxis />
-      <Tooltip />
-      <Legend />
-      <Bar
-        dataKey="claims"
-        stackId="a"
-        stroke="oklab(0.69 -0.09 -0.14 / 1)"
-        fill="oklab(0.69 -0.09 -0.14 / 0.6)"
-      />
-      <Bar
-        dataKey="salary"
-        stackId="a"
-        stroke="oklab(0.69 -0.09 -0.14 / 1)"
-        fill="oklab(0.69 -0.09 -0.14 / 0.4)"
-      />
-    </BarChart>
+    <ResponsiveContainer width={"100%"} height={"80%"}>
+      <BarChart
+        width={600}
+        height={300}
+        data={data}
+        margin={{
+          top: 20,
+          right: 30,
+          left: 20,
+          bottom: 5,
+        }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar
+          dataKey="claims"
+          stackId="a"
+          stroke="oklab(0.69 -0.09 -0.14 / 1)"
+          fill="oklab(0.69 -0.09 -0.14 / 0.6)"
+        />
+        <Bar
+          dataKey="salary"
+          stackId="a"
+          stroke="oklab(0.69 -0.09 -0.14 / 1)"
+          fill="oklab(0.69 -0.09 -0.14 / 0.4)"
+        />
+      </BarChart>
+    </ResponsiveContainer>
   );
 }
