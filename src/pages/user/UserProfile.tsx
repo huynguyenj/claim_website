@@ -1,13 +1,12 @@
 import {useState} from 'react'
 
 import logouser from '../../assets/logouser.png'
-import { EditOutlined, DownOutlined } from '@ant-design/icons'
+import { EditOutlined } from '@ant-design/icons'
 
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
 
-import { Select, Space, DatePicker } from 'antd'
-import type { MenuProps } from 'antd'
+import { Select, DatePicker } from 'antd'
 
 const Profile = () => {
     const [avatar, setAvatar] = useState<string | undefined>(logouser)
@@ -22,7 +21,7 @@ const Profile = () => {
     const genders : string[] = ['Male','Female','Others']
 
   return (
-    < div className = "flex justify-center" > 
+    < div className = "flex flex-col items-center" > 
         <div className="w-1/2 min-w-sm bg-black rounded-4xl flex flex-col items-center">
             
             <div className="relative w-28 h-28 bottom-14">
@@ -62,7 +61,7 @@ const Profile = () => {
                         <input type="text" className="bg-white p-1 rounded-lg border-2 border-cyan-400 border-dotted w-full"/>
                     </div>
                     <div className="flex flex-col mb-5 flex-grow">
-                        <label className="text-white">Password</label>
+                        <label className="text-white">Email</label>
                         <input type="text" className="bg-white p-1 rounded-lg border-2 border-cyan-400 border-dotted w-full"/>
                     </div>
                 </div>
@@ -70,16 +69,16 @@ const Profile = () => {
                 {/* Email and Phone */}
                 <div className="flex flex-row gap-2 w-full">
                     <div className="flex flex-col mb-5 flex-grow">
-                        <label className="text-white">Email</label>
-                        <input type="text" className="bg-white p-1 rounded-lg border-2 border-cyan-400 border-dotted w-full"/>
-                    </div>
-                    <div className="flex flex-col mb-5 flex-grow">
                         <label className="text-white">Phone number</label>
                         <PhoneInput international placeholder="Enter phone number"
                             value={phone}
                             onChange={setPhone}
                             className="bg-white p-1 rounded-lg border-2 border-cyan-400 border-dotted w-full"
                         />
+                    </div>
+                    <div className="flex flex-col mb-5 flex-grow">
+                        <label className="text-white">Address</label>
+                        <input type="text" className="bg-white p-1 rounded-lg border-2 border-cyan-400 border-dotted w-full"/>
                     </div>
                 </div>
                 
@@ -101,9 +100,13 @@ const Profile = () => {
                     </div>
                 </div>
 
+                <button className='bg-cyan-400 hover:bg-blue-700 rounded-lg p-2 font-bold'>
+                    Save Changes
+                </button>
             </div>
 
         </div> 
+    
     </div>
   )
 }

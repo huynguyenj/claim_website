@@ -1,7 +1,6 @@
-import { RegisterForm } from "../../data/User";
+import { RegisterForm } from "../../model/UserData";
 import { Button, DatePicker, Form, Input, Select, Space } from "antd";
 import type { DatePickerProps, FormProps } from "antd";
-import apiService from "../../services/ApiService";
 import { Notification } from "../../components/Notification";
 import {
       AddressIcon,
@@ -10,9 +9,11 @@ import {
   GenderIcon,
   PasswordIcon,
   UserIcon,
-} from "../../components/MuiIIcon";
+} from "../../components/Icon/MuiIIcon";
 import FormItem from "antd/es/form/FormItem";
 import { useNavigate } from "react-router-dom";
+import publicApiService from "../../services/BaseApi";
+import { PublicRoutes } from "../../consts/RoutesConst";
 function SignUpForm() {
       const [form] = Form.useForm();
       const handleChangeGender = (value:boolean ):void=>{
@@ -26,8 +27,9 @@ function SignUpForm() {
       const handleSubmit: FormProps<RegisterForm>["onFinish"] = async (values) => {
                   console.log(values);
             try {
-                  await apiService.post("/register", values);
+                  await publicApiService.register(values);
                   Notification("success", "Register successful!"); //
+                  navigate(PublicRoutes.LOGIN)
              } catch (error) {
                   console.log(error);
                   Notification(
@@ -39,7 +41,7 @@ function SignUpForm() {
   };
 
   const handleChangePage = (): void => {
-    navigate("/login");
+    navigate(PublicRoutes.LOGIN);
   };
 
   return (
