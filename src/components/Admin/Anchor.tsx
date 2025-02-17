@@ -1,4 +1,3 @@
-import React from "react";
 import { Anchor } from "antd";
 
 export default function AnchorComponent() {

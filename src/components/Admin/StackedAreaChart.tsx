@@ -7,7 +7,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import dataset from "../../model/AdminDashboard";
 const data = [
   {
     name: "Jan 1",

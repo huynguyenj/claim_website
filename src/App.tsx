@@ -7,7 +7,6 @@ import Loading from "./components/Loading";
 import MainLayout from "./layouts/MainLayout";
 import Dashboard from "./pages/admin/Dashboard";
 
-
 function App() {
   return (
     <>
