@@ -14,7 +14,6 @@ const sideBarUser: SidebarItem[] = [
   { title: 'Paid', icon: PaidIcon, path: '/paidPage', role: "finance" },
   { title: 'Setting', icon: SettingIcon, path: '/setting', gap: true },
   { title: 'Logout', icon: LogoutIcon, action: () => useAuthStore.getState().removeExpired() },
-
 ]
 
 const sideBarAdmin: SidebarItem[] = [
@@ -41,7 +40,9 @@ export default function MainLayout() {
 
         <main className="flex-1 flex flex-col">
           <Navbar />
-          <Outlet />
+          <Outlet>
+
+          </Outlet>
         </main>
       </div>
     </>
