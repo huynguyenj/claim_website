@@ -145,7 +145,7 @@ function OverView() {
       </div>
       <div>
         <h1 className="text-3xl sm:text-5xl font-bold text-center mt-15" >Contributors</h1>
-        <div className="grid sm:grid-cols-4 mt-10 w-[70%] m-auto items-center justify-center bg-gray-800 rounded-2xl p-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 mt-10 w-[70%] m-auto items-center justify-center bg-gray-800 rounded-2xl p-5">
           {contributors.length > 0 &&(contributors.map((contributor,index)=>(
             <div key={index} className="flex flex-col items-center gap-5 mt-5">
               <img className="w-15 h-15 sm:w-30 sm:h-30 rounded-full" src={contributor.avatar_url} alt="avatar"/>
