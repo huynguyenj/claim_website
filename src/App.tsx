@@ -9,7 +9,7 @@ import Loading from "./components/Loading";
 function App() {
   return (
     <>
-       <Suspense fallback={<Loading/>}>
+      <Suspense fallback={<Loading />}>
         <Routes>
         
         {ListPublicRoute.map((route,index)=>(
@@ -24,7 +24,6 @@ function App() {
       </Routes>
       </Suspense>
        
-    
     </>
   );
 }
