@@ -12,7 +12,7 @@ function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
   return (
     <aside
       className={`bg-black/100 h-screen ${
-        isOpen ? "w-60" : "w-22"
+        isOpen ? "w-full" : "w-22"
       } duration-400 ease-in-out relative`}
     >
       <nav className="flex flex-col ">

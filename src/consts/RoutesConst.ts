@@ -1,7 +1,8 @@
 export const PublicRoutes = {
       HOME: '/',
       LOGIN:'/login',
-      REGISTER:'/register'
+      REGISTER:'/register',
+      FINANCE:'/paidPage'
  }
 
  export const AdminRoutes = {
