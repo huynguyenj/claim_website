@@ -4,9 +4,7 @@ import { Suspense } from "react";
 import ListPublicRoute from "./router/PublicRoute";
 import PrivateRoute from "./router/PrivateRoute";
 import Loading from "./components/Loading";
-import MainLayout from "./layouts/MainLayout";
-import { UserRoutes } from "./router/UserRoutes";
-import ApprovalPage from "./pages/auth/ApprovalPage";
+
 
 function App() {
   return (
@@ -25,6 +23,7 @@ function App() {
       
       </Routes>
       </Suspense>
+       
     </>
   );
 }
