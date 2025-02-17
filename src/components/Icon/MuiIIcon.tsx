@@ -29,6 +29,8 @@ export { default as AttachMoneyIcon } from '@mui/icons-material/AttachMoney'
 export { default as ArrowDownwardIcon } from '@mui/icons-material/ArrowDownward'
 export { default as ArrowForwardIcon } from '@mui/icons-material/ArrowForward'
 export { default as SummarizeIcon } from '@mui/icons-material/Summarize'
+export { default as PhoneIcon } from '@mui/icons-material/Phone'
+
 
 
 

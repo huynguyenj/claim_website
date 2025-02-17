@@ -55,7 +55,7 @@ function Home() {
         </div>}
         <div className="absolute bottom-10 cursor-pointer"><a href="#section"><KeyboardArrowDownIcon sx={{color:'white',fontSize:35}}/></a></div>
     </div>
-      <div id="section" className={`z-10duration-700 p-5`}>
+      <div id="section" className={`z-10 duration-700`}>
         <OverView/>
       </div>
    
