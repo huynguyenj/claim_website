@@ -1,7 +1,7 @@
 export const PublicRoutes = {
       HOME: '/',
       LOGIN:'/login',
-      REGISTER:'/register'
+      REGISTER:'/register',
  }
 
  export const AdminRoutes = {
@@ -15,4 +15,5 @@ export const UserRoutes = {
       REQUEST_PAGE: '/request',
       APPROVAL_PAGE: '/approvalPage',
       PROFILE_PAGE: '/userprofile',
+      PAID_PAGE : '/paidPage'
 }
