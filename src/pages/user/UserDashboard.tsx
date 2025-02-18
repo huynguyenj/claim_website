@@ -120,7 +120,7 @@ const UserDashboard: React.FC = () => {
   ];
 
   return (
-    <Layout style={{ minHeight: "100vh", padding: "20px" }}>
+    <Layout style={{ height: "fit-content", padding: "20px", overflowY:'scroll' }}>
       <Content style={{ background: "#fff", padding: "20px" }}>
         <Button
           type="link"
