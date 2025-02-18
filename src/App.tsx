@@ -1,9 +1,9 @@
-import { Route, Routes } from "react-router-dom";
-import { ProtectedRoute } from "./router/ProtectedRoute";
 import { Suspense } from "react";
-import ListPublicRoute from "./router/PublicRoute";
-import PrivateRoute from "./router/PrivateRoute";
+import { Route, Routes } from "react-router-dom";
 import Loading from "./components/Loading";
+import PrivateRoute from "./router/PrivateRoute";
+import { ProtectedRoute } from "./router/ProtectedRoute";
+import ListPublicRoute from "./router/PublicRoute";
 
 
 function App() {
@@ -11,7 +11,7 @@ function App() {
     <>
       <Suspense fallback={<Loading />}>
         <Routes>
-        
+          
         {ListPublicRoute.map((route,index)=>(
           <Route key={index} path={route.path} element={route.element}/>
         ))}
