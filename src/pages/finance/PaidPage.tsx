@@ -1,3 +1,4 @@
+import { Col, Row } from "antd";
 import SalaryTable from "./SalaryTable";
 import { SidebarItem } from "../../model/SidebarData";
 import {
@@ -8,7 +9,6 @@ import {
 } from "../../components/Icon/MuiIIcon";
 import Navbar from "../../layouts/Navbar";
 import Sidebar from "../../layouts/Sidebar";
-import { Grid2 } from "@mui/material";
 
 const PaidPage: React.FC = () => {
   const sidebarItems: SidebarItem[] = [
@@ -39,20 +39,17 @@ const PaidPage: React.FC = () => {
   ];
 
   return (
-    <Grid2 container spacing={0}>
-      <Grid2 size={12}>
+    <Row className="h-screen">
+      <Col span={24}>
         <Navbar />
-      </Grid2>
-      <Grid2
-        size={{ xs: 1, md: 2 }}
-        sx={{ display: "flex", flexDirection: "column", height: "100%" }}
-      >
+      </Col>
+      <Col sm={5} md={4} lg={3} className="h-full">
         <Sidebar itemList={sidebarItems} />
-      </Grid2>
-      <Grid2 size={{ xs: 11, md: 10 }}>
+      </Col>
+      <Col sm={19} md={20} lg={21} className="w-full p-4">
         <SalaryTable />
-      </Grid2>
-    </Grid2>
+      </Col>
+    </Row>
   );
 };
 export default PaidPage;
