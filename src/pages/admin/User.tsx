@@ -1,7 +1,7 @@
-import { Button, Input, Modal, Popconfirm, Spin, Table, Tag } from "antd";
-import React, { useState } from "react";
+import { Button, Input, Modal,Spin, Table} from "antd";
+import { useState } from "react";
 import { SearchOutlined, StopFilled } from '../../components/Icon/AntdIcon';
-import Title from "antd/es/typography/Title";
+// import Title from "antd/es/typography/Title";
 
 interface User {
     id: string;
@@ -17,11 +17,12 @@ interface User {
 const UserDashboard = () => {
 
     const [searchText, setSearchText] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading] = useState<boolean>(false);
     const [pageSize, setPageSize] = useState(5);
     const [passwordModalVisible, setPasswordModalVisible] = useState<boolean>(false);
     const [selectedProject, setSelectedProject] = useState<User | null>(null);
     const [password, setPassword] = useState<string>("");
+
 
 
     const [users, setUsers] = useState<User[]>(
@@ -35,6 +36,7 @@ const UserDashboard = () => {
         ]
     );
 
+
     const handleDeleteClick = (project: User) => {
         setSelectedProject(project);
         setPasswordModalVisible(true);
@@ -45,6 +47,7 @@ const UserDashboard = () => {
             setUsers(users.filter(p => p.id !== selectedProject?.id));
             setPasswordModalVisible(false);
             setPassword("");
+            
         } else {
             alert("Incorrect password!");
         }

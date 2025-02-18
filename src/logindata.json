@@ -1,0 +1,27 @@
+[
+      {
+        "userName": "admin",
+        "password": "123",
+        "role": "administrator",
+        "token":"abcioog"
+      },
+      {
+        "userName": "user",
+        "password": "123",
+        "role": "claimer",
+        "token":"abcioog"
+      },
+      {
+            "userName": "approval",
+            "password": "123",
+            "role": "approval",
+            "token":"abcioog"
+          },
+      {
+            "userName": "finance",
+            "password": "123",
+            "role": "finance",
+            "token":"abcioog"
+      }
+]
+    
