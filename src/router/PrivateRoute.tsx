@@ -20,7 +20,7 @@ const privateRouteList: RouteType[]=[
       {path:AdminRoutes.ADMIN_DASHBOARD, element:<AdminDashboard/> ,roleRoute:[roleDefine.ADMIN_ROLE]},
       {path: UserRoutes.USER_DASHBOARD, element: <HomePage/>, roleRoute: [roleDefine.CLAIMER_ROLE,roleDefine.APPROVAL_ROLE,roleDefine.FINANCE]},
       {path:UserRoutes.APPROVAL_PAGE, element:<ApprovalPage/>, roleRoute:[roleDefine.APPROVAL_ROLE]},
-      {path:UserRoutes.REQUEST_PAGE,element:<RequestPage/>,roleRoute:[roleDefine.CLAIMER_ROLE]},
+      {path:UserRoutes.REQUEST_PAGE,element:<RequestPage/>,roleRoute:[roleDefine.CLAIMER_ROLE,roleDefine.FINANCE,roleDefine.APPROVAL_ROLE]},
       {path:AdminRoutes.USER_LIST_PAGE, element:<UserListPage/>,roleRoute:[roleDefine.ADMIN_ROLE]},
       {path:AdminRoutes.PROJECT_LIST_PAGE, element:<ProjectListPage/>,roleRoute:[roleDefine.ADMIN_ROLE]},
       {path: UserRoutes.PROFILE_PAGE, element: <UserProfile/>, roleRoute: [roleDefine.CLAIMER_ROLE,roleDefine.APPROVAL_ROLE,roleDefine.FINANCE]},
@@ -33,7 +33,7 @@ function PrivateRoute() {
       useLayoutEffect(() => {
         console.log(role)
           if(role){
-            setRouteRole(privateRouteList.filter((route)=>route.roleRoute?.includes(role.toLocaleLowerCase())))
+            setRouteRole(privateRouteList.filter((route)=>route.roleRoute?.includes(role.toLowerCase())))
           }else{
             setRouteRole([]);
           }
