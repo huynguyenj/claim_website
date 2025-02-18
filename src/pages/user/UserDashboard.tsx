@@ -25,31 +25,34 @@ interface Claim {
   status: "pending" | "approved" | "rejected";
   type: "Travel" | "Food" | "Equipment" | "Others";
   amount: number;
+  date: String;
+  createdAt?: String;
 }
 
 interface ChartData {
   id: number;
   value: number;
   label: string;
+
 }
 
 type FilterStatus = "all" | "pending" | "approved" | "rejected";
 
 const mockClaims: Claim[] = [
-  { id: "1", status: "pending", type: "Travel", amount: 120 },
-  { id: "2", status: "approved", type: "Food", amount: 50 },
-  { id: "3", status: "pending", type: "Equipment", amount: 200 },
-  { id: "4", status: "approved", type: "Travel", amount: 75 },
-  { id: "5", status: "pending", type: "Others", amount: 180 },
-  { id: "6", status: "rejected", type: "Food", amount: 60 },
-  { id: "7", status: "rejected", type: "Equipment", amount: 90 },
-  { id: "8", status: "pending", type: "Others", amount: 150 },
-  { id: "9", status: "approved", type: "Travel", amount: 95 },
-  { id: "10", status: "rejected", type: "Travel", amount: 203 },
-  { id: "11", status: "approved", type: "Travel", amount: 95 },
-  { id: "12", status: "rejected", type: "Travel", amount: 203 },
-  { id: "13", status: "rejected", type: "Travel", amount: 95 },
-  { id: "14", status: "rejected", type: "Travel", amount: 203 },
+  { id: "1", status: "pending", type: "Travel", amount: 120, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
+  { id: "2", status: "approved", type: "Food", amount: 50, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
+  { id: "3", status: "pending", type: "Equipment", amount: 200, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
+  { id: "4", status: "approved", type: "Travel", amount: 75, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
+  { id: "5", status: "pending", type: "Others", amount: 180, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
+  { id: "6", status: "rejected", type: "Food", amount: 60, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
+  { id: "7", status: "rejected", type: "Equipment", amount: 90, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
+  { id: "8", status: "pending", type: "Others", amount: 150, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
+  { id: "9", status: "approved", type: "Travel", amount: 95, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
+  { id: "10", status: "rejected", type: "Travel", amount: 203, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
+  { id: "11", status: "approved", type: "Travel", amount: 95, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
+  { id: "12", status: "rejected", type: "Travel", amount: 203, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
+  { id: "13", status: "rejected", type: "Travel", amount: 95, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
+  { id: "14", status: "rejected", type: "Travel", amount: 203, date: new Date().toISOString().split("T")[0], createdAt: new Date().toISOString() },
 ];
 
 const UserDashboard: React.FC = () => {
@@ -92,8 +95,8 @@ const UserDashboard: React.FC = () => {
               status === "approved"
                 ? "#52c41a"
                 : status === "rejected"
-                ? "#ff4d4f"
-                : "black",
+                  ? "#ff4d4f"
+                  : "black",
           }}
         >
           {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -102,11 +105,11 @@ const UserDashboard: React.FC = () => {
     },
     { title: "Type", dataIndex: "type", key: "type" },
     {
-      title: "Amount ($)",
-      dataIndex: "amount",
-      key: "amount",
-      render: (amount: number) => amount.toFixed(2),
-    },
+      title: "Date created",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date?: string) => date ? new Date(date).toLocaleString("vi-VN") : "N/A",
+    }
   ];
 
   const chartData: ChartData[] = [
@@ -114,13 +117,11 @@ const UserDashboard: React.FC = () => {
     { id: 1, value: 25, label: "Food" },
     { id: 2, value: 18, label: "Equipment" },
     { id: 3, value: 30, label: "Sport" },
-    { id: 4, value: 30, label: "Jack" },
-    { id: 5, value: 30, label: "J97" },
-    { id: 6, value: 30, label: "Others" },
+    { id: 4, value: 30, label: "Others" },
   ];
 
   return (
-    <Layout style={{ height: "fit-content", padding: "20px", overflowY:'scroll' }}>
+    <Layout style={{ minHeight: "50vh", padding: "20px", overflow: "scroll" }}>
       <Content style={{ background: "#fff", padding: "20px" }}>
         <Button
           type="link"
@@ -130,7 +131,7 @@ const UserDashboard: React.FC = () => {
         >
           Back to Home
         </Button>
-        <Title level={3}>Dashboard</Title>
+        <Title level={1}>Dashboard</Title>
 
         <Spin spinning={loading}>
           <Row
@@ -288,10 +289,8 @@ const UserDashboard: React.FC = () => {
                     {
                       data: [
                         mockClaims.filter((c) => c.status === "pending").length,
-                        mockClaims.filter((c) => c.status === "approved")
-                          .length,
-                        mockClaims.filter((c) => c.status === "rejected")
-                          .length,
+                        mockClaims.filter((c) => c.status === "approved").length,
+                        mockClaims.filter((c) => c.status === "rejected").length,
                       ],
                       color: "#1890ff",
                     },
