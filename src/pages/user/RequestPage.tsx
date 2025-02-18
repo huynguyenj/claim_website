@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -18,59 +18,58 @@ import {
   FormControl,
   InputLabel,
   Box,
-} from '@mui/material';
-import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material';
-import type { ClaimRequest } from '../../model/Claim';
-
+} from "@mui/material";
+import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
+import type { ClaimRequest } from "../../model/Claim";
 
 const RequestPage: React.FC = () => {
   const [requests, setRequests] = useState<ClaimRequest[]>([
     {
-      id: '1',
-      title: 'Overtime Salary - John Doe',
-      description: 'Overtime work on project XYZ',
+      id: "1",
+      title: "Overtime Salary - John Doe",
+      description: "Overtime work on project XYZ",
       amount: 2000000,
-      status: 'DRAFT',
+      status: "DRAFT",
       createdAt: new Date().toISOString(),
     },
     {
-      id: '2',
-      title: 'Overtime Salary - Jane Smith',
-      description: 'Weekend work for client meeting preparation',
+      id: "2",
+      title: "Overtime Salary - Jane Smith",
+      description: "Weekend work for client meeting preparation",
       amount: 1500000,
-      status: 'PENDING_APPROVAL',
+      status: "PENDING_APPROVAL",
       createdAt: new Date().toISOString(),
-    }
+    },
   ]);
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    amount: '',
+    title: "",
+    description: "",
+    amount: "",
   });
 
   const statusOptions = [
-    { value: 'DRAFT', label: 'Draft' },
-    { value: 'PENDING_APPROVAL', label: 'Pending Approval' },
-    { value: 'APPROVED', label: 'Approved' },
-    { value: 'REJECTED', label: 'Rejected' },
-    { value: 'PENDING_PAYMENT', label: 'Pending Payment' },
-    { value: 'PAID', label: 'Paid' },
+    { value: "DRAFT", label: "Draft" },
+    { value: "PENDING_APPROVAL", label: "Pending Approval" },
+    { value: "APPROVED", label: "Approved" },
+    { value: "REJECTED", label: "Rejected" },
+    { value: "PENDING_PAYMENT", label: "Pending Payment" },
+    { value: "PAID", label: "Paid" },
   ];
 
   const handleSubmit = () => {
     try {
       if (editingId) {
-        setRequests(requests.map(request =>
-          request.id === editingId
-            ? {
-              ...request,
-              title: formData.title,
-              description: formData.description,
-              amount: Number(formData.amount)
-            }
+        setRequests(requests.map(request => 
+          request.id === editingId 
+            ? { 
+                ...request, 
+                title: formData.title,
+                description: formData.description,
+                amount: Number(formData.amount)
+              }
             : request
         ));
       } else {
@@ -79,37 +78,35 @@ const RequestPage: React.FC = () => {
           title: formData.title,
           description: formData.description,
           amount: Number(formData.amount),
-          status: 'DRAFT',
+          status: "DRAFT",
           createdAt: new Date().toISOString(),
         };
         setRequests([...requests, newRequest]);
       }
       setIsModalOpen(false);
-      setFormData({ title: '', description: '', amount: '' });
+      setFormData({ title: "", description: "", amount: "" });
     } catch (error) {
-      console.error('Operation failed');
+      console.error('Operation failed',error);
     }
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure?')) {
-      setRequests(requests.filter(request => request.id !== id));
+    if (window.confirm("Are you sure?")) {
+      setRequests(requests.filter((request) => request.id !== id));
     }
   };
 
   const handleRequestApproval = (id: string) => {
-    setRequests(requests.map(request =>
-      request.id === id
-        ? { ...request, status: 'PENDING_APPROVAL' }
-        : request
-    ));
+    setRequests(
+      requests.map((request) =>
+        request.id === id ? { ...request, status: "PENDING_APPROVAL" } : request
+      )
+    );
   };
 
-  const filteredRequests = requests.filter(request =>
+  const filteredRequests = requests.filter((request) =>
     request.title.toLowerCase().includes(searchText.toLowerCase())
   );
-
-
 
   return (
     <div className="flex">
@@ -128,7 +125,7 @@ const RequestPage: React.FC = () => {
             <FormControl size="small" className="w-48">
               <InputLabel>Status</InputLabel>
               <Select label="Status">
-                {statusOptions.map(option => (
+                {statusOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
@@ -163,9 +160,12 @@ const RequestPage: React.FC = () => {
               {filteredRequests.map((request) => (
                 <TableRow key={request.id}>
                   <TableCell>{request.title}</TableCell>
-                  <TableCell>{request.amount.toLocaleString('vi-VN')}</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-sm ${{
+                    {request.amount.toLocaleString("vi-VN")}
+                  </TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded-full text-sm ${
+                      {
                         DRAFT: 'bg-gray-200',
                         PENDING_APPROVAL: 'bg-yellow-200',
                         APPROVED: 'bg-green-200',
@@ -173,11 +173,13 @@ const RequestPage: React.FC = () => {
                         PENDING_PAYMENT: 'bg-blue-200',
                         PAID: 'bg-purple-200',
                       }[request.status]
-                      }`}>
+                    }`}>
                       {request.status.replace('_', ' ')}
                     </span>
                   </TableCell>
-                  <TableCell>{new Date(request.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {new Date(request.createdAt).toLocaleDateString()}
+                  </TableCell>
                   <TableCell>
                     <Box className="flex gap-2">
                       <Button
@@ -204,7 +206,7 @@ const RequestPage: React.FC = () => {
                       <Button
                         variant="contained"
                         onClick={() => handleRequestApproval(request.id)}
-                        disabled={request.status === 'PENDING_APPROVAL'}
+                        disabled={request.status === "PENDING_APPROVAL"}
                       >
                         Request Approval
                       </Button>
@@ -217,20 +219,26 @@ const RequestPage: React.FC = () => {
         </TableContainer>
 
         <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>
-          <DialogTitle>{editingId ? 'Edit Request' : 'New Request'}</DialogTitle>
+          <DialogTitle>
+            {editingId ? "Edit Request" : "New Request"}
+          </DialogTitle>
           <DialogContent>
             <Box className="flex flex-col gap-4 pt-4">
               <TextField
                 label="Title"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
                 required
                 fullWidth
               />
               <TextField
                 label="Description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 required
                 multiline
                 rows={4}
@@ -240,7 +248,9 @@ const RequestPage: React.FC = () => {
                 label="Amount (VND)"
                 type="number"
                 value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, amount: e.target.value })
+                }
                 required
                 fullWidth
               />
@@ -249,7 +259,7 @@ const RequestPage: React.FC = () => {
           <DialogActions>
             <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
             <Button onClick={handleSubmit} variant="contained">
-              {editingId ? 'Update' : 'Create'}
+              {editingId ? "Update" : "Create"}
             </Button>
           </DialogActions>
         </Dialog>

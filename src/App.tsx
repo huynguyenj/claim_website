@@ -5,7 +5,6 @@ import PrivateRoute from "./router/PrivateRoute";
 import { ProtectedRoute } from "./router/ProtectedRoute";
 import ListPublicRoute from "./router/PublicRoute";
 
-
 function App() {
   return (
     <>
