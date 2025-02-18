@@ -1,7 +1,6 @@
-import { Button, Input, Popconfirm, Spin, Table, Tag, Modal, Form, DatePicker, InputNumber, Select } from "antd";
+import { Button, Input, Spin, Table, Tag, Modal, Form, DatePicker, InputNumber, Select } from "antd";
 import { useState } from "react";
 import { PlusOutlined, SearchOutlined, StopFilled } from "./AntdIcon";
-import dayjs from "dayjs";
 
 const { Option } = Select;
 
@@ -24,7 +23,7 @@ interface Project {
 
 const ProjectDashboard = () => {
     const [searchText, setSearchText] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading] = useState<boolean>(false);
     const [pageSize, setPageSize] = useState(5);
 
     const [projects, setProjects] = useState<Project[]>([
