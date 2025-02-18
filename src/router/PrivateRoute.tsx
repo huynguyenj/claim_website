@@ -17,7 +17,7 @@ const ProjectListPage = lazy(()=>import("../pages/admin/Project"))
 const ErrorPage = lazy(()=>import("../pages/error/ErrorPage"))
 const UserProfile = lazy(()=>import("../pages/user/UserProfile"))
 const UserDashboard = lazy(()=>import("../pages/user/UserDashboard"))
-
+const PaidPage = lazy(()=> import('../pages/finance/PaidPage'))
 
 const privateRouteList: RouteType[]=[
       {path:AdminRoutes.ADMIN_DASHBOARD, element:<AdminDashboard/> ,roleRoute:[roleDefine.ADMIN_ROLE]},
@@ -27,6 +27,7 @@ const privateRouteList: RouteType[]=[
       {path:AdminRoutes.USER_LIST_PAGE, element:<UserListPage/>,roleRoute:[roleDefine.ADMIN_ROLE]},
       {path:AdminRoutes.PROJECT_LIST_PAGE, element:<ProjectListPage/>,roleRoute:[roleDefine.ADMIN_ROLE]},
       {path: UserRoutes.PROFILE_PAGE, element: <UserProfile/>, roleRoute: [roleDefine.CLAIMER_ROLE,roleDefine.APPROVAL_ROLE,roleDefine.FINANCE]},
+      {path: FinanceRoutes.FINANCE, element: <PaidPage/>, roleRoute: [roleDefine.FINANCE]},
 ]
 
 function PrivateRoute() {
