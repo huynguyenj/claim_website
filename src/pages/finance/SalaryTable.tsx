@@ -181,6 +181,7 @@ function SalaryTable(): JSX.Element {
     {
       title: "Action",
       key: "action",
+      width:"250px",
       render: () => (
         <Space size="middle">
           <ModalConfirm />
@@ -194,7 +195,7 @@ function SalaryTable(): JSX.Element {
   ];
 
   return (
-    <div className="p-4 bg-white rounded-xl shadow-lg">
+    <div className="p-4 bg-white rounded-xl shadow-lg overflow-y-scroll">
       <Input
         prefix={<SearchOutlined className="text-gray-500" />}
         placeholder="Search By Name"
