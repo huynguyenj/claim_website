@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthState>()(
             (set)=>({
                   userName:null,
                   token:null,
-                  role:'finance',
+                  role:null,
                   setAuth: (token,role)=>set({token,role}),
                   removeExpired: ()=>set({token:null,role:null,userName:null})
             }),
