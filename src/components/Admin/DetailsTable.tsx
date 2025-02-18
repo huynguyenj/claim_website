@@ -133,7 +133,7 @@ const data: DataType[] = [
 ];
 
 const DetailsTable: React.FC = () => (
-  <Table<DataType> columns={columns} dataSource={data} />
+  <Table<DataType> columns={columns} dataSource={data} scroll={{ x: 1000 }} />
 );
 
 export default DetailsTable;
