@@ -6,19 +6,24 @@ import { PasswordIcon, UserIcon } from "../../components/Icon/MuiIIcon";
 import FormItem from "antd/es/form/FormItem";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import publicApiService from "../../services/BaseApi";
+// import publicApiService from "../../services/BaseApi";
 import { PublicRoutes } from "../../consts/RoutesConst";
-
+import userCheck from '../../logindata.json'
 function LoginForm() {
   const navigate = useNavigate();
   const addAuthInfo = useAuthStore((state) => state.setAuth);
 
   const handleSubmit: FormProps<UserForm>["onFinish"] = async (values) => {
+    console.log(values)
     try {
-      const response = await publicApiService.login(values);
-      Notification("success", "Login successful!");
-      addAuthInfo(response.token, response.role);
-      navigate(PublicRoutes.HOME);
+      // const response = await publicApiService.login(values);
+      // addAuthInfo(response.token, response.role);
+      const user = userCheck.find((u)=> u.userName == values.userName && u.password == values.password)
+      if(user){
+        Notification("success", "Login successful!");
+        navigate(PublicRoutes.HOME);
+        addAuthInfo(user.token,user.role);
+      }
     } catch (error) {
       console.log(error);
       Notification(
