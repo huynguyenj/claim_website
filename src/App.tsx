@@ -5,6 +5,7 @@ import ListPublicRoute from "./router/PublicRoute";
 import PrivateRoute from "./router/PrivateRoute";
 import Loading from "./components/Loading";
 
+import UserProfile from './pages/user/UserProfile'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         {ListPublicRoute.map((route,index)=>(
           <Route key={index} path={route.path} element={route.element}/>
         ))}
+
 
         <Route element={<ProtectedRoute/>}>
             {/* Using /* to match any path after / but you need to sovle '*' to make sure it not have any issues when you navigate */}
