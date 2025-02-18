@@ -9,19 +9,7 @@
 html {
   scroll-behavior: smooth;
 }
-@theme {
-  --animate-spinAround: spinAround 5s linear infinite;
-  --animate-fadeInLeft : fadeInLeft linear
-  @keyframes fadeInLeft {
-    from{
-      opacity: 0;
-      transform:translateX(-100px)
-    }
-    to{
-      opacity: 1;
-      transform:translateX(0px)
-    }
-  }
+@layer utilities {
   @keyframes spinAround {
     0% {
       transform: rotate(0deg);
@@ -29,5 +17,24 @@ html {
     100% {
       transform: rotate(360deg);
     }
+  }
+
+  .animate-spinAround {
+    animation: spinAround 5s linear infinite;
+  }
+
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0px);
+    }
+  }
+
+  .animate-fadeInLeft {
+    animation: fadeInLeft 1s ease-in-out;
   }
 }

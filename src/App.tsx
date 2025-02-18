@@ -11,16 +11,19 @@ function App() {
     <>
       <Suspense fallback={<Loading />}>
         <Routes>
-          {ListPublicRoute.map((route, index) => (
-            <Route key={index} path={route.path} element={route.element} />
-          ))}
+          
+        {ListPublicRoute.map((route,index)=>(
+          <Route key={index} path={route.path} element={route.element}/>
+        ))}
 
-          <Route element={<ProtectedRoute />}>
-            <Route path="/*" element={<PrivateRoute />}></Route>
-          </Route>
-
-        </Routes>
+        <Route element={<ProtectedRoute/>}>
+            
+            <Route path="/*" element={<PrivateRoute/>}></Route> 
+        </Route>
+      
+      </Routes>
       </Suspense>
+       
     </>
   );
 }
