@@ -1,8 +1,8 @@
-import { lazy, useLayoutEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { lazy,useLayoutEffect, useState } from "react";
+import { Route, Routes} from "react-router-dom";
 import { RouteType } from "../model/RouteData";
 import { useAuthStore } from "../store/authStore";
-import { UserRoutes, AdminRoutes } from "../consts/RoutesConst";
+import { UserRoutes ,AdminRoutes } from "../consts/RoutesConst";
 import { roleDefine } from "../consts/UserRole";
 
 
@@ -27,8 +27,8 @@ const privateRouteList: RouteType[]=[
 ]
 
 function PrivateRoute() {
-  const [routeRole, setRouteRole] = useState<RouteType[]>([]);
-  const role = useAuthStore((state) => state.role);
+      const [routeRole,setRouteRole] = useState<RouteType[]>([]);
+      const role = useAuthStore((state)=>state.role);
 
       useLayoutEffect(() => {
         console.log(role)
@@ -50,4 +50,4 @@ function PrivateRoute() {
           );
 }
 
-export default PrivateRoute;
+export default PrivateRoute
