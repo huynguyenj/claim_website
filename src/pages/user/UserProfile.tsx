@@ -104,6 +104,7 @@ const Profile = () => {
                 <button className='bg-cyan-400 hover:bg-blue-700 rounded-lg p-2 font-bold'>
                     Save Changes
                 </button>
+                <br/>
             </div>
 
         </div> 
