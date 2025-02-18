@@ -15,6 +15,7 @@ const ProjectListPage = lazy(() => import("../pages/admin/Project"));
 const ErrorPage = lazy(() => import("../pages/error/ErrorPage"));
 const UserProfile = lazy(() => import("../pages/user/UserProfile"));
 const UserDashboard = lazy(() => import("../pages/user/UserDashboard"));
+const PaidPage = lazy(() => import("../pages/finance/PaidPage"));
 
 const privateRouteList: RouteType[] = [
   {
@@ -61,6 +62,13 @@ const privateRouteList: RouteType[] = [
     roleRoute: [
       roleDefine.CLAIMER_ROLE,
       roleDefine.APPROVAL_ROLE,
+      roleDefine.FINANCE,
+    ],
+  },
+  {
+    path: UserRoutes.PAID_PAGE,
+    element: <PaidPage />,
+    roleRoute: [
       roleDefine.FINANCE,
     ],
   },
