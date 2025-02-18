@@ -13,7 +13,7 @@ function Footer() {
             />
             <h1 className="text-[1.2rem] sm:text-4xl font-bold">Claim project</h1>
           </div>
-          <p className="">We are committed to providing a fast, reliable, and hassle-free claims process, ensuring you receive the support and resolution you need with complete transparency and security. </p>
+          <p className="text-center sm:text-start">We are committed to providing a fast, reliable, and hassle-free claims process, ensuring you receive the support and resolution you need with complete transparency and security. </p>
         </div>
         <div className="sm:mr-10">
           <h1 className="text-3xl m-2 text-center sm:text-start">Supports</h1>
@@ -44,6 +44,3 @@ function Footer() {
 
 export default Footer;
 
-{
-  /* <span className="text-blue-400">MyProject</span> &copy; {new Date().getFullYear()} Copyright */
-}
