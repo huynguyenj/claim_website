@@ -1,5 +1,5 @@
       import axios, { AxiosInstance, AxiosResponse } from 'axios'
-      import { useAuthStore } from '../store/store'
+      import { useAuthStore } from '../store/authStore'
 
       const API_BASE_URL:string = ''
 

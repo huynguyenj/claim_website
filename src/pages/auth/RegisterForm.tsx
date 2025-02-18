@@ -1,43 +1,43 @@
-import { RegisterForm } from "../../data/User";
+import { RegisterForm } from "../../model/UserData";
 import { Button, DatePicker, Form, Input, Select, Space } from "antd";
 import type { DatePickerProps, FormProps } from "antd";
 import { Notification } from "../../components/Notification";
 import {
-      AddressIcon,
-      BirthdayIcon,
+  AddressIcon,
+  BirthdayIcon,
   EmailIcon,
   GenderIcon,
   PasswordIcon,
   UserIcon,
-} from "../../components/MuiIIcon";
+} from "../../components/Icon/MuiIIcon";
 import FormItem from "antd/es/form/FormItem";
 import { useNavigate } from "react-router-dom";
 import publicApiService from "../../services/BaseApi";
-import { PublicRoutes } from "../../router/PublicRoutes";
+import { PublicRoutes } from "../../consts/RoutesConst";
 function SignUpForm() {
-      const [form] = Form.useForm();
-      const handleChangeGender = (value:boolean ):void=>{
-            form.setFieldsValue({gender:value})
-      }
-      const handleChangeDate: DatePickerProps['onChange']=(_,dateString)=>{
-            console.log(dateString);
-            form.setFieldsValue({birth:dateString})
-      }
-      const navigate = useNavigate();
-      const handleSubmit: FormProps<RegisterForm>["onFinish"] = async (values) => {
-                  console.log(values);
-            try {
-                  await publicApiService.register(values);
-                  Notification("success", "Register successful!"); //
-                  navigate(PublicRoutes.LOGIN)
-             } catch (error) {
-                  console.log(error);
-                  Notification(
-                  "error",
-                  "Login fail!",
-                  "Please check your information again!"
-            );
-      }
+  const [form] = Form.useForm();
+  const handleChangeGender = (value: boolean): void => {
+    form.setFieldsValue({ gender: value });
+  };
+  const handleChangeDate: DatePickerProps["onChange"] = (_, dateString) => {
+    console.log(dateString);
+    form.setFieldsValue({ birth: dateString });
+  };
+  const navigate = useNavigate();
+  const handleSubmit: FormProps<RegisterForm>["onFinish"] = async (values) => {
+    console.log(values);
+    try {
+      await publicApiService.register(values);
+      Notification("success", "Register successful!"); //
+      navigate(PublicRoutes.LOGIN);
+    } catch (error) {
+      console.log(error);
+      Notification(
+        "error",
+        "Login fail!",
+        "Please check your information again!"
+      );
+    }
   };
 
   const handleChangePage = (): void => {
@@ -99,9 +99,15 @@ function SignUpForm() {
 
         <Form.Item<RegisterForm>
           name="password"
-          rules={[{ required: true, message: "Please input your password!" },
-                  { min:10, message:'Please enter at least 10 characters'},
-                  { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/,message:'"Must include uppercase, lowercase, number, and special character!"'}
+          rules={[
+            { required: true, message: "Please input your password!" },
+            { min: 10, message: "Please enter at least 10 characters" },
+            {
+              pattern:
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/,
+              message:
+                '"Must include uppercase, lowercase, number, and special character!"',
+            },
           ]}
         >
           <Space.Compact style={{ width: "100%" }}>
@@ -112,10 +118,12 @@ function SignUpForm() {
           </Space.Compact>
         </Form.Item>
 
-      
         <Form.Item<RegisterForm>
           name="email"
-          rules={[{ required: true, message: "Please input your email!" }, {type:"email",message:'Please input vaild email!'}]}
+          rules={[
+            { required: true, message: "Please input your email!" },
+            { type: "email", message: "Please input vaild email!" },
+          ]}
         >
           <Space.Compact style={{ width: "100%" }}>
             <Button type="primary" style={{ height: "2.5rem" }}>
@@ -125,42 +133,39 @@ function SignUpForm() {
           </Space.Compact>
         </Form.Item>
         <div className=" sm:flex gap-3">
-        <Form.Item<RegisterForm>
-          name="gender"
-          rules={[
-            { required: true, message: "Please choose your gender!" },
-          ]}
-        >
-          <Space.Compact>
-            <Button type="primary">
-              <GenderIcon />
-            </Button>
-            <Select
-              placeholder='select gender'
-              options={[
-                { value: true, label: "Male" },
-                { value: false, label: "Female" },
-              ]}
-              onChange={handleChangeGender}
-            ></Select>
-          </Space.Compact>
-        </Form.Item>
-        <Form.Item<RegisterForm>
-          name="birth"
-      //     rules={[{ required: true, message: "Please input your birthday!" }, {type:"date",message:'Please input vaild date!'}]}
-        >
-          <Space.Compact style={{ width: "100%" }}>
-            <Button type="primary">
-              <BirthdayIcon />
-            </Button>
-              <DatePicker onChange={handleChangeDate}/>
-          </Space.Compact>
-        </Form.Item>
+          <Form.Item<RegisterForm>
+            name="gender"
+            rules={[{ required: true, message: "Please choose your gender!" }]}
+          >
+            <Space.Compact>
+              <Button type="primary">
+                <GenderIcon />
+              </Button>
+              <Select
+                placeholder="select gender"
+                options={[
+                  { value: true, label: "Male" },
+                  { value: false, label: "Female" },
+                ]}
+                onChange={handleChangeGender}
+              ></Select>
+            </Space.Compact>
+          </Form.Item>
+          <Form.Item<RegisterForm>
+            name="birth"
+            //     rules={[{ required: true, message: "Please input your birthday!" }, {type:"date",message:'Please input vaild date!'}]}
+          >
+            <Space.Compact style={{ width: "100%" }}>
+              <Button type="primary">
+                <BirthdayIcon />
+              </Button>
+              <DatePicker onChange={handleChangeDate} />
+            </Space.Compact>
+          </Form.Item>
         </div>
         <Form.Item<RegisterForm>
           name="address"
-          rules={[{ required: true, message: "Please enter your address!" },
-          ]}
+          rules={[{ required: true, message: "Please enter your address!" }]}
         >
           <Space.Compact style={{ width: "100%" }}>
             <Button type="primary" style={{ height: "2.5rem" }}>
@@ -180,7 +185,7 @@ function SignUpForm() {
             Register
           </Button>
         </Form.Item>
-        
+
         <FormItem>
           <p className="text-[0.7rem] sm:text-[1rem]">
             Are you already have account?

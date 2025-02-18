@@ -5,9 +5,22 @@
 
 * {
   font-family: "Poppins", sans-serif;
+
 }
-@theme {
-  --animate-spinAround: spinAround 5s linear infinite;
+::-webkit-scrollbar{
+  width: 5px;
+  background-color: black;
+}
+
+::-webkit-scrollbar-thumb{
+  background-color: white;
+  border-radius: 10px;
+
+}
+html {
+  scroll-behavior: smooth;
+}
+@layer utilities {
   @keyframes spinAround {
     0% {
       transform: rotate(0deg);
@@ -15,5 +28,24 @@
     100% {
       transform: rotate(360deg);
     }
+  }
+
+  .animate-spinAround {
+    animation: spinAround 5s linear infinite;
+  }
+
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0px);
+    }
+  }
+
+  .animate-fadeInLeft {
+    animation: fadeInLeft 1s ease-in-out;
   }
 }
