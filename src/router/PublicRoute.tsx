@@ -10,5 +10,4 @@ const ListPublicRoute: RouteType[] = [
   { path: PublicRoutes.LOGIN, element: <LoginPage /> },
   { path: PublicRoutes.REGISTER, element: <RegisterPage /> },
 ];
-
 export default ListPublicRoute;
