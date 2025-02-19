@@ -1,16 +1,8 @@
-<<<<<<< HEAD
-import { Button, Input, Select, Space, Table, Tag } from "antd";
-=======
 import { Input, Select, Space, Table, Tag } from "antd";
->>>>>>> f5526d7df511370dcab24a1ade0a5cb6d911062c
 import { DollarOutlined, SearchOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
 import { useCallback, useMemo, useState } from "react";
 import ModalConfirm from "./ModalConfirm";
-<<<<<<< HEAD
-import { useDebounce } from "use-debounce";
-import dayjs from "dayjs";
-=======
 import dayjs from "dayjs";
 import { DatePicker } from "antd";
 import {
@@ -21,7 +13,6 @@ import {
   PersonIcon,
   WorkIcon,
 } from "../../components/Icon/MuiIIcon";
->>>>>>> f5526d7df511370dcab24a1ade0a5cb6d911062c
 interface DataType {
   key: string;
   name: string;
@@ -31,10 +22,6 @@ interface DataType {
   salary: number;
   date: Date;
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> f5526d7df511370dcab24a1ade0a5cb6d911062c
 const initialData: DataType[] = [
   {
     key: "1",
@@ -109,39 +96,6 @@ const initialData: DataType[] = [
     date: new Date("2025-02-20"),
   },
 ];
-<<<<<<< HEAD
-const options = [
-  { label: "E-commerce Website", value: "E-commerce Website" },
-  { label: "Mobile App UI", value: "Mobile App UI" },
-  { label: "Banking System", value: "Banking System" },
-  { label: "CRM System", value: "CRM System" },
-  { label: "Healthcare System", value: "Healthcare System" },
-  { label: "Internal HR System", value: "Internal HR System" },
-  { label: "AI Chatbot", value: "AI Chatbot" },
-  { label: "Sales Dashboard", value: "Sales Dashboard" },
-];
-function SalaryTable(): JSX.Element {
-  const columns: TableProps<DataType>["columns"] = [
-    {
-      title: "Date",
-      dataIndex: "date",
-      key: "date",
-      render: (date) => dayjs(date).format("DD/MM/YYYY"),
-    },
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      render: (text) => <a className="text-blue-500 font-medium">{text}</a>,
-    },
-    {
-      title: "Project",
-      dataIndex: "project",
-      key: "project",
-    },
-    {
-      title: "Salary",
-=======
 
 const options = initialData.map((item) => ({
   label: item.project,
@@ -193,12 +147,11 @@ function SalaryTable(): JSX.Element {
   const columns: TableProps<DataType>["columns"] = [
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5  ">
+        <div className="font-bold flex align-middle gap-0.5 sm:text-[0.7rem]  ">
           <DateRangeIcon />
           Date
         </div>
       ),
-      width:80,
       dataIndex: "date",
       key: "date",
       render: (date) => dayjs(date).format("DD/MM/YYYY"),
@@ -206,12 +159,11 @@ function SalaryTable(): JSX.Element {
     },
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5">
+        <div className="font-bold flex align-middle gap-0.5 sm:text-[0.7rem]">
           <PersonIcon />
           Name
         </div>
       ),
-      width : 150,
       dataIndex: "name",
       key: "name",
       render: (text) => <a className="text-blue-500 font-medium">{text}</a>,
@@ -219,12 +171,11 @@ function SalaryTable(): JSX.Element {
     },
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5">
+        <div className="font-bold flex align-middle gap-0.5 sm:text-[0.7rem]">
           <WorkIcon />
           Project
         </div>
       ),
-      width:200,
       dataIndex: "project",
       key: "project",
       responsive: ["md", "lg"],
@@ -237,13 +188,11 @@ function SalaryTable(): JSX.Element {
     },
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5">
+        <div className="font-bold flex align-middle gap-0.5 sm:text-[0.7rem]">
           <PaidIcon />
           Salary
         </div>
       ),
-      width:100,
->>>>>>> f5526d7df511370dcab24a1ade0a5cb6d911062c
       dataIndex: "salary",
       key: "salary",
       render: (salary) => (
@@ -251,38 +200,14 @@ function SalaryTable(): JSX.Element {
           {salary} <DollarOutlined />
         </p>
       ),
-<<<<<<< HEAD
-    },
-    {
-      title: "Overtime",
-      dataIndex: "overtime",
-      key: "overtime",
-      render: (text) => <p>{text} Hours</p>,
-    },
-    {
-      title: "Role",
-      key: "role",
-      dataIndex: "roles",
-      render: (roles) => (
-        <>
-          {roles.map((role: string, index: number) => {
-            let color = role.length > 5 ? "geekblue" : "green";
-            if (role === "BA") color = "volcano";
-            if (role === "developer") color = "purple";
-            if (role === "Designer") color = "blue";
-
-            return (
-              <Tag color={color} key={`${role}-${index}`}>
-=======
       responsive: ["sm", "md", "lg"],
     },
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5">
+        <div className="font-bold flex align-middle gap-0.5 sm:text-[0.7rem]">
           <MoreTimeIcon /> Overtime
         </div>
       ),
-      width:100,
       dataIndex: "overtime",
       key: "overtime",
       render: (text) => <p>{text} Hours</p>,
@@ -290,14 +215,13 @@ function SalaryTable(): JSX.Element {
     },
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5 ">
+        <div className="font-bold flex align-middle gap-0.5 sm:text-[0.7rem] ">
           <AccountCircleIcon />
           Role
         </div>
       ),
       key: "role",
       dataIndex: "roles",
-      width: 200,
       render: (roles: string[]) => (
         <>
           {roles.map((role: string, index: number) => {
@@ -320,76 +244,17 @@ function SalaryTable(): JSX.Element {
             }
             return (
               <Tag color={color} key={index}>
->>>>>>> f5526d7df511370dcab24a1ade0a5cb6d911062c
                 {role.toUpperCase()}
               </Tag>
             );
           })}
         </>
       ),
-<<<<<<< HEAD
-=======
       responsive: ["sm", "md", "lg"],
->>>>>>> f5526d7df511370dcab24a1ade0a5cb6d911062c
     },
     {
       title: "Action",
       key: "action",
-<<<<<<< HEAD
-      render: () => (
-        <Space size="middle">
-          <ModalConfirm />
-          <Button danger className="px-4">
-            Reject
-          </Button>
-        </Space>
-      ),
-    },
-  ];
-
-  const [searchText, setSearchText] = useState("");
-  const [debouncedSearch] = useDebounce(searchText, 300);
-
-  const [listProject, setListProject] = useState<string[]>([]);
-  const filteredData = useMemo(() => {
-    return initialData
-      .filter((item) =>
-        debouncedSearch
-          ? item.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-          : true
-      )
-      .filter((item) =>
-        listProject.length > 0 ? listProject.includes(item.project) : true
-      )
-      .sort((a, b) => b.date.getTime() - a.date.getTime()); 
-  }, [debouncedSearch, listProject]);
-
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value.trim();
-      if (value !== searchText) {
-        setSearchText(value);
-      }
-    },
-    [searchText]
-  );
-
-  const handleProjectChange = useCallback(
-    (value: string[]) => {
-      if (JSON.stringify(value) !== JSON.stringify(listProject)) {
-        setListProject(value);
-      }
-    },
-    [listProject]
-  );
-
-  return (
-    <div className="p-4 bg-white rounded-xl shadow-lg">
-      <Input
-        prefix={<SearchOutlined className="text-gray-500" />}
-        placeholder="Search By Name"
-        className="w-full max-w-xs mb-4 px-4 py-2 rounded-full mr-4"
-=======
       width: 240,
       render: () => (
         <Space size="small">
@@ -408,54 +273,39 @@ function SalaryTable(): JSX.Element {
   ];
 
   return (
-    <div className="p-5 rounded-xl shadow-lg overflow-y-scroll bg-black bg-[radial-gradient(white_0.2px,transparent_0.1px)] bg-[size:30px_30px]">
-      <Input
-        prefix={<SearchOutlined className="text-gray-500" />}
-        placeholder="Search By Name"
-        className="max-w-xs mb-4  rounded-full mr-4"
->>>>>>> f5526d7df511370dcab24a1ade0a5cb6d911062c
-        onChange={handleSearchChange}
-      />
-      <Select
-        mode="multiple"
-        allowClear
-<<<<<<< HEAD
-        style={{ width: "40%", marginBottom: "1rem" }}
-=======
-        style={{ width: "30%", marginBottom: "1rem" }}
->>>>>>> f5526d7df511370dcab24a1ade0a5cb6d911062c
-        placeholder="Please select"
-        onChange={handleProjectChange}
-        options={options}
-      />
-<<<<<<< HEAD
-      {/* Bảng */}
+    <div className="p-6 rounded-xl shadow-lg bg-[#000] ">
+      {/* Bộ lọc - Căn chỉnh Responsive */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <Input
+          prefix={<SearchOutlined className="text-gray-500" />}
+          placeholder="Search By Name"
+          className="w-full rounded-lg shadow-sm"
+          onChange={handleSearchChange}
+        />
+        <Select
+          mode="multiple"
+          allowClear
+          style={{ width: "100%" }}
+          placeholder="Select Project"
+          onChange={handleProjectChange}
+          options={options}
+          className="rounded-lg shadow-sm"
+        />
+        <DatePicker.RangePicker
+          className="w-full rounded-lg shadow-sm"
+          onChange={handleDatePicker}
+        />
+      </div>
+
+      {/* Bảng hiển thị dữ liệu */}
       <Table
         rowKey="key"
-        className="pt-1 relative"
-        style={{ borderRadius: "8px", boxShadow: "none" }}
+        className="shadow-lg rounded-lg shadow-[#636466] hover:shadow-[0_0_50px_#636466] bg-[#C7C8CA]"
         columns={columns}
         dataSource={filteredData}
-        pagination={{ position: ["bottomCenter"], pageSize: 5 }}
-=======
-      <DatePicker.RangePicker
-        style={{ width: "30%", marginBottom: "1rem", marginLeft: "1rem" }}
-        onChange={handleDatePicker}
-      />
-      <Table
-        rowKey="key"
-        className="shadow-[0_0_35px_#939589] border-1 rounded-lg mt-4 hover:shadow-[0_0_50px_#939589]"
-        columns={columns}
-        dataSource={filteredData}
-        pagination={{ position: ["bottomCenter"], pageSize: 5 }}
-        style={{ tableLayout: "fixed" }}
->>>>>>> f5526d7df511370dcab24a1ade0a5cb6d911062c
+        pagination={{ position: ["bottomCenter"], pageSize: 8}}
       />
     </div>
   );
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> f5526d7df511370dcab24a1ade0a5cb6d911062c
 export default SalaryTable;
