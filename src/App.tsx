@@ -5,7 +5,6 @@ import PrivateRoute from "./router/PrivateRoute";
 import { ProtectedRoute } from "./router/ProtectedRoute";
 import ListPublicRoute from "./router/PublicRoute";
 
-
 function App() {
   return (
     <>
@@ -15,6 +14,7 @@ function App() {
         {ListPublicRoute.map((route,index)=>(
           <Route key={index} path={route.path} element={route.element}/>
         ))}
+
 
         <Route element={<ProtectedRoute/>}>
             
