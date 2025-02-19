@@ -1,14 +1,27 @@
-import { useState } from "react";
+import { useEffect,useState } from "react";
 import { SidebarItem } from "../model/SidebarData";
 import { BackRightKeyboardIcon } from "../components/Icon/MuiIIcon";
 import logo from "../assets/logowebsite.png";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
   const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [active, setActive] = useState<number>(0);
+  const location = useLocation();
+  const handleActive = (index:number):void=>{
+      setActive(index);
+  }
   const handleOpen = (): void => {
     setIsOpen((prev) => !prev);
   };
+
+  useEffect(()=>{
+      const currentIndex = itemList.findIndex((item)=>item.path == location.pathname);
+      if(currentIndex!=-1){
+            setActive(currentIndex);
+      }
+  },[location.pathname,itemList])
+
   return (
     <aside
       className={`bg-black/100 h-screen ${
@@ -31,13 +44,14 @@ function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
           </p>
         </div>
         <ul className="p-5 pt-10 overflow-hidden">
-          {itemList.map((item) => (
-            <li key={item.title}>
+          {itemList.map((item,index) => (
+            <li key={item.title} onClick={()=>handleActive(index)}>
               <Link
                 to={item.path as string}
-                className={`flex gap-x-5 p-2 rounded-2xl items-center hover:bg-indigo-500 duration-500 ease-in-out ${
-                  item.gap && "mb-8"
-                } relative`}
+                className={`relative flex gap-x-5 p-2 items-center hover:bg-indigo-500 duration-500 ease-in-out 
+                  before:absolute before:w-[0.1rem] before:bg-white before:left-0 before:origin-top before:transition-all before:duration-500 before:ease-in-out
+                  ${index === active ? "before:h-full" : "before:h-0"} 
+                }  ${item.gap && "mb-8"} relative`} 
               >
                 <div>
                   <item.icon sx={{ fontSize: "2rem", color: "white" }} />
