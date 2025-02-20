@@ -1,8 +1,12 @@
+
 export interface ClaimRequest {
   id: string;
   title: string;
   description: string;
-  amount: number;
-  status: 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'PENDING_PAYMENT' | 'PAID';
+
+  status: string;
   createdAt: string;
+  projectName: string; // Add this line
+  workDate: string;    // Add this line
+  workTime: string; 
 }

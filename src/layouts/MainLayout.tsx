@@ -9,7 +9,6 @@ import {
   DashBoard,
   PaidIcon,
   RequestPageIcon,
-  SettingIcon,
   UserList,
   UserProfile,
 } from "../components/Icon/MuiIIcon";
@@ -18,7 +17,7 @@ import { UserRoutes, AdminRoutes } from "../consts/RoutesConst";
 import { roleDefine } from "../consts/UserRole";
 
 const sideBarUser: SidebarItem[] = [
-  { title: "Claim data", icon: DashBoard, path: "/userDashboard" },
+  { title: "Claim data", icon: DashBoard, path: UserRoutes.USER_DASHBOARD },
   { title: "Request", icon: RequestPageIcon, path: UserRoutes.REQUEST_PAGE },
   {
     title: "Approval",
@@ -34,7 +33,26 @@ const sideBarUser: SidebarItem[] = [
     path: "/paidPage",
     role: roleDefine.FINANCE,
   },
-  { title: "Setting", icon: SettingIcon, path: "/setting", gap: true },
+];
+
+const sideBarAdmin: SidebarItem[] = [
+  {
+    title: "Dashboard",
+    icon: DashBoard,
+    path: AdminRoutes.ADMIN_DASHBOARD,
+    gap: true,
+  },
+  {
+    title: "User Management",
+    icon: UserList,
+    path: AdminRoutes.USER_LIST_PAGE,
+  },
+  {
+    title: "Project Management",
+    icon: CheckListIcon,
+    path: AdminRoutes.PROJECT_LIST_PAGE,
+    gap: true,
+  },
 ];
 
 const sideBarAdmin: SidebarItem[] = [

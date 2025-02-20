@@ -30,10 +30,12 @@ export { default as ArrowDownwardIcon } from '@mui/icons-material/ArrowDownward'
 export { default as ArrowForwardIcon } from '@mui/icons-material/ArrowForward'
 export { default as SummarizeIcon } from '@mui/icons-material/Summarize'
 export { default as PhoneIcon } from '@mui/icons-material/Phone'
-
-
-
-
+export {default as PersonIcon} from '@mui/icons-material/Person';
+export {default as SettingsIcon } from'@mui/icons-material/Settings';
+export {default as MoreTimeIcon } from "@mui/icons-material/MoreTime";
+export {default as DateRangeIcon } from "@mui/icons-material/DateRange";
+export {default as WorkIcon } from "@mui/icons-material/Work";
+export {default as AccountCircleIcon} from '@mui/icons-material/AccountCircle';
 
 
 

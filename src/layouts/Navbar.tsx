@@ -1,8 +1,8 @@
-import { useAuthStore } from "../store/authStore";
 import { EditIcon, LogoutIcon, NightModeIcon, NotificationIcon, UserIcon } from "../components/Icon/MuiIIcon";
 import profile from "../assets/logouser.png";
 import { useState } from "react";
 import Popup from "../components/Popup";
+import { useAuthStore } from "../store/authStore";
 const anouncement = [
   { title: "Hello", content: "this is welcome", date: new Date("2025/2/11") },
   { title: "Hello", content: "this is welcome", date: new Date("2025/2/11") },
@@ -37,6 +37,9 @@ function Navbar() {
     setIsPopup((prev) => !prev);
     console.log(isPopup);
   };
+  const handleLogout = ()=> {
+    useAuthStore.getState().removeExpired();
+  }
   return (
     <nav className="mb-5 p-2 w-fit sm:w-[95%] sm:rounded-4xl sm:bg-gray-200 mx-auto mt-5">
       <div className="flex items-center w-full py-5 gap-5 justify-between sm:px-10">
@@ -104,7 +107,7 @@ function Navbar() {
                             <p className="text-[0.5rem] sm:text-[0.8rem]">Edit</p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <p className="bg-white w-5 h-5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center cursor-pointer hover:opacity-70"><LogoutIcon sx={{fontSize:15,color:'gray'}}/></p>
+                            <p className="bg-white w-5 h-5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center cursor-pointer hover:opacity-70" onClick={handleLogout}><LogoutIcon sx={{fontSize:15,color:'gray'}}/></p>
                           <p className="text-[0.5rem] sm:text-[0.8rem]">Logout</p>
                           </div>
                         </div>
