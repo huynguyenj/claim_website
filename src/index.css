@@ -20,6 +20,12 @@
 html {
   scroll-behavior: smooth;
 }
+@theme{
+  --color-dark-fig: #000000;
+  --color-gray-fig:#939598;
+  --color-white-fig:#FFFFFF;
+  
+}
 @layer utilities {
   @keyframes spinAround {
     0% {
