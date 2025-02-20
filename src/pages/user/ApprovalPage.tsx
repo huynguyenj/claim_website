@@ -93,7 +93,7 @@ function ApprovalPage() {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', py: 4, px: { xs: 2, sm: 3, md: 4 } }}>
+    <Box sx={{height: "fit-content", bgcolor: '#f5f5f5', overflowY:'scroll', py: 2, px: { xs: 2, sm: 3, md: 4 } }}>
       <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
         <Typography variant="h4" component="h1" sx={{ mb: 4, fontWeight: 'bold' }}>
           Approval Dashboard
