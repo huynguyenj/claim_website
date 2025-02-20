@@ -19,6 +19,7 @@ import {
 } from "../../components/Icon/AntdIcon";
 import moment from "moment";
 import { EditOutlined } from "@mui/icons-material";
+import { exportToExcel } from "../../consts/ExcelDowload";
 
 const { Option } = Select;
 
@@ -42,7 +43,7 @@ interface Project {
 const ProjectDashboard = () => {
   const [searchText, setSearchText] = useState<string>("");
   const [loading] = useState<boolean>(false);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize] = useState(5);
 
   const [projects, setProjects] = useState<Project[]>([
     {
@@ -334,10 +335,10 @@ const ProjectDashboard = () => {
     setIsAddModalVisible(true);
   };
 
-  const showEditModal = (project: Project) => {
-    setSelectedProject(project);
-    setIsEditModalVisible(true);
-  };
+  // const showEditModal = (project: Project) => {
+  //   setSelectedProject(project);
+  //   setIsEditModalVisible(true);
+  // };
 
 
   const handleAddCancel = () => {
@@ -486,9 +487,9 @@ const ProjectDashboard = () => {
 
 
 
-  const filteredProjects = projects.filter((project) =>
-    project.projectName.toLowerCase().includes(searchText.toLowerCase())
-  );
+  // const filteredProjects = projects.filter((project) =>
+  //   project.projectName.toLowerCase().includes(searchText.toLowerCase())
+  // );
 
   return (
     <div className="p-6 bg-gray-100 h-screen overflow-y-scroll">
@@ -496,10 +497,12 @@ const ProjectDashboard = () => {
         <h1 className="text-4xl font-bold mb-4">
           Project Management Dashboard
         </h1>
-
+        <div className="flex gap-2">
+        <Button type="primary" onClick={()=>exportToExcel(projects,['id','project name','start date','enddate','budget'],'project')}>Export project list</Button>
         <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
           Add Project
         </Button>
+        </div>
       </div>
 
       <div className="mb-4">

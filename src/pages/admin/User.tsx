@@ -1,6 +1,7 @@
 import { Button, Col, Form, Input, Modal, Row, Spin, Table } from "antd";
 import { useState } from "react";
 import { PlusOutlined, SearchOutlined, StopFilled } from '../../components/Icon/AntdIcon';
+import { exportToExcel } from "../../consts/ExcelDowload";
 // import Title from "antd/es/typography/Title";
 
 interface User {
@@ -110,8 +111,9 @@ const UserDashboard = () => {
         <div className="p-6 bg-gray-100 h-screen overflow-x-scroll">
             <div className="flex justify-between items-center">
                 <h1 className="text-4xl font-bold mb-4">User Management Dashboard</h1>
-
-                <div>
+            
+                <div className="flex gap-2">
+                    <Button type="primary" onClick={()=>exportToExcel(users,['id','name','email','password','phone','role','department','salary','address'],'users')}>Export users file</Button>
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
