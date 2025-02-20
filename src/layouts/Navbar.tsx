@@ -1,14 +1,14 @@
-import { EditIcon, LogoutIcon, NightModeIcon, NotificationIcon, UserIcon } from "../components/Icon/MuiIIcon";
+import { EditIcon, LogoutIcon,UserIcon } from "../components/Icon/MuiIIcon";
 import profile from "../assets/logouser.png";
 import { useState } from "react";
 import Popup from "../components/Popup";
 import { useAuthStore } from "../store/authStore";
-const anouncement = [
-  { title: "Hello", content: "this is welcome", date: new Date("2025/2/11") },
-  { title: "Hello", content: "this is welcome", date: new Date("2025/2/11") },
-  { title: "Hello", content: "this is welcome", date: new Date("2025/2/11") },
-  { title: "Hello", content: "this is welcome", date: new Date("2025/2/11") },
-];
+// const anouncement = [
+//   { title: "Hello", content: "this is welcome", date: new Date("2025/2/11") },
+//   { title: "Hello", content: "this is welcome", date: new Date("2025/2/11") },
+//   { title: "Hello", content: "this is welcome", date: new Date("2025/2/11") },
+//   { title: "Hello", content: "this is welcome", date: new Date("2025/2/11") },
+// ];
 
 type infoData = {
   userId: string,
@@ -26,33 +26,33 @@ const user_Info:infoData= {
 function Navbar() {
   // const [notification,setNotification] = useState<number>(0);
   // const userInfo = useAuthStore((state) => state.userName);
-  const [isPopup, setIsPopup] = useState<boolean>(false);
+  // const [isPopup, setIsPopup] = useState<boolean>(false);
   const [isProfilePopup, setIsProfilePopup] = useState<boolean>(false);
 
   const handlePopUpProfile = () =>{
       setIsProfilePopup((prev)=>!prev)
       console.log('check1')
   }
-  const handlePopup = () => {
-    setIsPopup((prev) => !prev);
-    console.log(isPopup);
-  };
+  // const handlePopup = () => {
+  //   setIsPopup((prev) => !prev);
+  //   console.log(isPopup);
+  // };
   const handleLogout = ()=> {
     useAuthStore.getState().removeExpired();
   }
   return (
-    <nav className="mb-5 p-2 w-fit sm:w-[95%] sm:rounded-4xl sm:bg-gray-200 mx-auto mt-5">
-      <div className="flex items-center w-full py-5 gap-5 justify-between sm:px-10">
+    <nav className="mb-5 p-2 w-fit sm:w-[95%] bg-white-fig  mx-auto mt-5">
+      <div className="flex items-center w-full py-3 gap-5 justify-between sm:px-10">
         <div className="">
-          <h1 className="text-[0.7rem] sm:text-[1.8rem] text-gray-500 font-bold w-fit">
+          <h1 className="text-[0.7rem] sm:text-[1.8rem] text-dark-fig font-bold w-fit">
             Welcome! {user_Info.full_name}
           </h1>
         </div>
         <div className="flex items-center gap-5 ">
-          <button className="text-[1.2rem] bg-black/70 flex items-center justify-center w-6 h-6 sm:w-10 sm:h-10  rounded-full cursor-pointer hover:opacity-75">
+          {/* <button className="text-[1.2rem] bg-black/70 flex items-center justify-center w-6 h-6 sm:w-10 sm:h-10  rounded-full cursor-pointer hover:opacity-75">
             {<NightModeIcon sx={{ fontSize: "1.1rem", color: "white" }} />}
-          </button>
-          <div className="relative">
+          </button> */}
+          {/* <div className="relative">
             <button className="text-[1.2rem] bg-amber-600 flex items-center justify-center w-6 h-6 sm:w-10 sm:h-10 rounded-full cursor-pointer hover:opacity-75 relative">
               {
                 <NotificationIcon
@@ -79,7 +79,7 @@ function Navbar() {
               ))}
               </div>
             </Popup>
-          </div>
+          </div> */}
 
           <div className="relative">
             <button
@@ -97,17 +97,17 @@ function Navbar() {
               top={45}
               right={8}
             >
-                  <div className="p-5 w-40 sm:w-70 bg-black text-white rounded-2xl sm:mt-4 flex flex-col items-center justify-center">
+                  <div className="p-5 w-40 sm:w-70 bg-dark-fig text-white-fig rounded-2xl sm:mt-4 flex flex-col items-center justify-center">
                         <div className="m-auto bg-red-400 rounded-full p-1 sm:p-2 mb-3"><UserIcon sx={{fontSize:35}}/></div>
                         <p className="text-[0.9rem] sm:text-[1.3rem]">{user_Info.full_name}</p>
                         <p className="text-[0.55rem] sm:text-[0.75rem]">{user_Info.gmail}</p>
                         <div className="flex gap-2 mt-4">
                           <div className="flex items-center gap-2">
-                            <p className="bg-white w-5 h-5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center cursor-pointer hover:opacity-70"><EditIcon sx={{fontSize:15,color:'gray'}}/></p>
+                            <p className="bg-white-fig w-5 h-5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center cursor-pointer hover:opacity-70"><EditIcon sx={{fontSize:15,color:'gray'}}/></p>
                             <p className="text-[0.5rem] sm:text-[0.8rem]">Edit</p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <p className="bg-white w-5 h-5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center cursor-pointer hover:opacity-70" onClick={handleLogout}><LogoutIcon sx={{fontSize:15,color:'gray'}}/></p>
+                            <p className="bg-white-fig w-5 h-5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center cursor-pointer hover:opacity-70" onClick={handleLogout}><LogoutIcon sx={{fontSize:15,color:'gray'}}/></p>
                           <p className="text-[0.5rem] sm:text-[0.8rem]">Logout</p>
                           </div>
                         </div>
