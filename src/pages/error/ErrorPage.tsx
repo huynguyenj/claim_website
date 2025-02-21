@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import simsons from '../../assets/simsoncrying.png'
+import { PublicRoutes } from '../../consts/RoutesConst';
 
 function ErrorPage() {
       const navigate = useNavigate();
       const handleChangePage = ()=>{
-            navigate('/',{replace:true})
+            navigate(PublicRoutes.HOME,{replace:true})
       }
   return (
     <div className="bg-gray-100 w-full h-screen relative">

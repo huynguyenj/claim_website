@@ -21,8 +21,8 @@ export const useAuthStore = create<AuthState>()(
                   token: null,
                   role: null,
                   isLogin:false,
-                  setAuth: (token, role) => set({ token, role, isLogin:false }),
-                  removeExpired: () => set({ token: null, role: null, user: {}, isLogin:true })
+                  setAuth: (token, role) => set({ token, role, isLogin:true }),
+                  removeExpired: () => set({ token: null, role: null, user: {}, isLogin:false })
             }),
             { name: "auth-storage" } //store in local storage
       ),
