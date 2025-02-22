@@ -8,13 +8,12 @@ function VerifyPage() {
 //   const [success, setSuccess] = useState<boolean>(false);
   const navigate = useNavigate();
   const handleVerify = async () => {
-    const interval = setInterval(() => {
+   setTimeout(() => {
       setLoading((prev) => !prev);
       Notification('success','Your email verify success!')
       navigate(PublicRoutes.LOGIN)
 }, 3000);
     setLoading((prev) => !prev);
-    setTimeout(() => clearInterval(interval), 4000);
   };
   return (
     <div className="relative h-screen w-full flex items-center justify-center bg-[linear-gradient(to_right_bottom,black_50%,white_50%)]">

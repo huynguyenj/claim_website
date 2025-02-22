@@ -69,14 +69,14 @@ function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
         </ul>
       </nav>
       <div className="w-10 h-10 bg-black bottom-10 right-6 absolute flex justify-center items-center ">
-        {isOpen && <p className="text-white-fig">Collapse</p>}
         <div
           className={`${
             isOpen && "rotate-180"
-          } duration-300 ease-in-out hover:opacity-75 cursor-pointer`}
+          } duration-300 ease-in-out hover:opacity-75 cursor-pointer flex`}
           onClick={handleOpen}
         >
-          <BackRightKeyboardIcon sx={{ color: "white" }} />
+          <BackRightKeyboardIcon sx={{ color: "white"}} />
+          {isOpen && <p className="text-white-fig rotate-180">Collapse</p>}
         </div>
       </div>
     </aside>

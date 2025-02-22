@@ -9,7 +9,6 @@ const VerifyPage = lazy(() => import("../pages/auth/VerifyPage"))
 
 const getRoutesPublic = (isLogin:boolean) => {
   
-  
   const listPublicRoute: RouteType[] = [
     { path: PublicRoutes.HOME, element: <HomePage /> },
     { path: PublicRoutes.REGISTER, element: <RegisterPage /> },
