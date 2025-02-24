@@ -16,7 +16,7 @@ function ErrorPage() {
                         <p className='text-6xl sm:text-9xl font-bold text-white'>4</p>
                         <img src={simsons} alt="simsons" />
                         <p className='text-6xl sm:text-9xl font-bold text-white'>4</p></div>
-                  <h2 className="text-2xl sm:text-4xl sm:ml-20 mix-blend-difference text-white-fig">Page not found</h2>
+                  <h2 className="text-2xl sm:text-4xl sm:ml-20 mix-blend-difference text-red-500 uppercase font-bold">Page not found</h2>
             </div>
             <button onClick={handleChangePage} className="sm:mt-2 sm:m-20 hover:bg-orange-500 cursor-pointer rounded-2xl p-3 bg-amber-300 duration-200 ease-in-out border-2 text-[0.9rem] sm:text-[1.2rem] text-white">Back to home page</button>
             
