@@ -11,7 +11,12 @@ import {
   Button,
   Typography,
   Chip,
-  Box
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -19,13 +24,24 @@ import InputAdornment from '@mui/material/InputAdornment';
 interface ApprovalItem {
   id: string;
   title: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'returned' | 'rejected';
   submittedBy: string;
   date: string;
 }
 
+interface ConfirmDialogState {
+  open: boolean;
+  itemId: string;
+  action: 'approve' | 'return' | 'reject' | null;
+}
+
 function ApprovalPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>({
+    open: false,
+    itemId: '',
+    action: null,
+  });
   const [items, setItems] = useState<ApprovalItem[]>([
     {
       id: '1',
@@ -64,16 +80,44 @@ function ApprovalPage() {
     },
   ]);
 
-  const handleApprove = (id: string) => {
-    setItems(items.map(item => 
-      item.id === id ? { ...item, status: 'approved' } : item
-    ));
+  const handleConfirmOpen = (id: string, action: 'approve' | 'return' | 'reject') => {
+    setConfirmDialog({
+      open: true,
+      itemId: id,
+      action,
+    });
   };
 
-  const handleReject = (id: string) => {
-    setItems(items.map(item => 
-      item.id === id ? { ...item, status: 'rejected' } : item
-    ));
+  const handleConfirmClose = () => {
+    setConfirmDialog({
+      open: false,
+      itemId: '',
+      action: null,
+    });
+  };
+
+  const handleConfirm = () => {
+    if (!confirmDialog.action || !confirmDialog.itemId) return;
+
+    switch (confirmDialog.action) {
+      case 'approve':
+        setItems(items.map(item =>
+          item.id === confirmDialog.itemId ? { ...item, status: 'approved' } : item
+        ));
+        break;
+      case 'return':
+        setItems(items.map(item =>
+          item.id === confirmDialog.itemId ? { ...item, status: 'returned' } : item
+        ));
+        break;
+      case 'reject':
+        setItems(items.map(item =>
+          item.id === confirmDialog.itemId ? { ...item, status: 'rejected' } : item
+        ));
+        break;
+    }
+
+    handleConfirmClose();
   };
 
   const filteredItems = items.filter(item => 
@@ -85,10 +129,28 @@ function ApprovalPage() {
     switch (status) {
       case 'approved':
         return 'success';
+      case 'returned':
+        return 'warning';
       case 'rejected':
         return 'error';
       default:
-        return 'warning';
+        return 'default';
+    }
+  };
+
+  const getDialogContent = () => {
+    const item = items.find(i => i.id === confirmDialog.itemId);
+    if (!item) return '';
+
+    switch (confirmDialog.action) {
+      case 'approve':
+        return `Are you sure you want to approve "${item.title}"?`;
+      case 'return':
+        return `Are you sure you want to return "${item.title}"?`;
+      case 'reject':
+        return `Are you sure you want to reject "${item.title}"?`;
+      default:
+        return '';
     }
   };
 
@@ -153,15 +215,23 @@ function ApprovalPage() {
                             variant="contained"
                             color="success"
                             size="small"
-                            onClick={() => handleApprove(item.id)}
+                            onClick={() => handleConfirmOpen(item.id, 'approve')}
                           >
                             Approve
                           </Button>
                           <Button
                             variant="contained"
+                            color="warning"
+                            size="small"
+                            onClick={() => handleConfirmOpen(item.id, 'return')}
+                          >
+                            Return
+                          </Button>
+                          <Button
+                            variant="contained"
                             color="error"
                             size="small"
-                            onClick={() => handleReject(item.id)}
+                            onClick={() => handleConfirmOpen(item.id, 'reject')}
                           >
                             Reject
                           </Button>
@@ -174,6 +244,35 @@ function ApprovalPage() {
             </TableBody>
           </Table>
         </TableContainer>
+
+        <Dialog
+          open={confirmDialog.open}
+          onClose={handleConfirmClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            Confirm Action
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {getDialogContent()}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleConfirmClose} color="inherit">
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleConfirm} 
+              color="primary"
+              variant="contained"
+              autoFocus
+            >
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );
