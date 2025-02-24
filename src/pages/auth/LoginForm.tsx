@@ -39,7 +39,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="bg-white/70 flex  justify-center items-center absolute top-[50%] left-[50%] transform-[translate(-50%,-50%)] w-70 h-fit sm:w-170  rounded-4xl shadow-2xl">
+    <div className="bg-white-fig flex  justify-center items-center absolute top-[50%] left-[50%] transform-[translate(-50%,-50%)] w-70 h-fit sm:w-170 rounded-4xl shadow-fig ring-2 hover:shadow-fig-active duration-300 ease-in-out ">
       <Form
         name="Login"
         wrapperCol={{ span: 30 }}
@@ -55,7 +55,7 @@ function LoginForm() {
           </div>
         </div>
         <FormItem>
-          <h1 className="text-[1.2rem] mt-5 sm:text-3xl font-bold text-center">
+          <h1 className="text-[1.5rem] mt-5 sm:text-3xl font-bold text-center">
             Login
           </h1>
         </FormItem>
@@ -64,8 +64,8 @@ function LoginForm() {
           rules={[{ required: true, message: "Please input your username!" }]}
         >
           <Space.Compact style={{ width: "100%" }}>
-            <Button type="primary" style={{ height: "2.5rem" }}>
-              <UserIcon />
+            <Button style={{ height: "2.5rem",background:'black' }}>
+              <UserIcon sx={{color:'white'}} />
             </Button>
             <Input placeholder="username" />
           </Space.Compact>
@@ -76,8 +76,8 @@ function LoginForm() {
           rules={[{ required: true, message: "Please input your password!" }]}
         >
           <Space.Compact style={{ width: "100%" }}>
-            <Button type="primary" style={{ height: "2.5rem" }}>
-              <PasswordIcon />
+            <Button style={{ height: "2.5rem",background:'black' }}>
+              <PasswordIcon sx={{color:'white'}} />
             </Button>
             <Input.Password placeholder="password" />
           </Space.Compact>
@@ -85,17 +85,16 @@ function LoginForm() {
 
         <Form.Item className="h-10">
           <Button
-            type="primary"
             htmlType="submit"
             className="w-full"
-            style={{ padding: "1.2rem", borderRadius: "2rem" }}
+            style={{ padding: "1.2rem", borderRadius: "2rem",fontSize:15,border:'2px solid',background:'black',color:'white' }}
           >
             Login
           </Button>
         </Form.Item>
         <FormItem>
           <p className="text-[0.7rem] sm:text-[1rem]">
-            You not have an account?
+            You haven't an account?
             <span
               className="text-blue-500 cursor-pointer font-bold hover:underline ml-1"
               onClick={handleChangePage}

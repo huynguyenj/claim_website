@@ -5,7 +5,13 @@ import { PublicRoutes } from "../consts/RoutesConst";
 
 export const ProtectedRoute = () => {
 
-  const login = useAuthStore((state) => state.isLogin);
-
-  return login ? <Navigate to={PublicRoutes.LOGIN} replace /> : <Outlet />;
+  
+    const isLogin= useAuthStore((state) => state.isLogin); 
+  
+    if (!isLogin) {
+      return <Navigate to={PublicRoutes.LOGIN} replace />;
+    }
+  
+    return <Outlet />;
+  
 };

@@ -31,7 +31,6 @@ function Navbar() {
 
   const handlePopUpProfile = () =>{
       setIsProfilePopup((prev)=>!prev)
-      console.log('check1')
   }
   // const handlePopup = () => {
   //   setIsPopup((prev) => !prev);
