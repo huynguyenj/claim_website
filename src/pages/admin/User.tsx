@@ -2,6 +2,9 @@ import { Button, Col, Form, Input, Modal, Row, Spin, Table } from "antd";
 import { useState } from "react";
 import { PlusOutlined, SearchOutlined, StopFilled } from '../../components/Icon/AntdIcon';
 import { exportToExcel } from "../../consts/ExcelDowload";
+import UserCard from "../../components/Admin/UserCard";
+import { UserIcon } from "../../components/Icon/MuiIIcon";
+import { Article } from "@mui/icons-material";
 // import Title from "antd/es/typography/Title";
 
 interface User {
@@ -108,12 +111,47 @@ const UserDashboard = () => {
     );
 
     return (
-        <div className="p-6 bg-gray-100 h-screen overflow-x-scroll">
-            <div className="flex justify-between items-center">
-                <h1 className="text-4xl font-bold mb-4">User Management Dashboard</h1>
-            
+
+        <div className="overflow-y-scroll">
+            <div className="flex justify-end items-center p-5">
                 <div className="flex gap-2">
-                    <Button type="primary" onClick={()=>exportToExcel(users,['id','name','email','password','phone','role','department','salary','address'],'users')}>Export users file</Button>
+                    <Button type="primary" onClick={() => exportToExcel(users, ['id', 'name', 'email', 'password', 'phone', 'role', 'department', 'salary', 'address'], 'users')}>Export users file</Button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
+                {/* Users */}
+                <UserCard
+                    icon={<UserIcon />}
+                    title="Users"
+                    growth={25}
+                />
+                {/* Claims */}
+                <UserCard
+                    icon={<Article />}
+                    title="Claims"
+                    growth={42}
+                />
+                {/* Funds */}
+                <UserCard
+                    icon={<Article />}
+                    title="Funds"
+                    growth={42}
+                />
+            </div>
+
+            <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
+
+                <div className="mb-4 flex justify-between items-center">
+                    <Input
+                        placeholder="Search by name or email"
+                        prefix={<SearchOutlined />}
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                        size="large"
+                        className="max-w-md shadow-[9px_6px_0px_rgba(0,0,0,1)]"
+                        allowClear
+                    />
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
@@ -122,138 +160,126 @@ const UserDashboard = () => {
                         Add User
                     </Button>
                 </div>
-            </div>
 
 
-            <Modal
-                title="Add User"
-                visible={isAddModalVisible}
-                onCancel={handleAddCancel}
-                onOk={() => form.submit()}
-            >
-                <Form form={form} layout="vertical" onFinish={handleAddUser}>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Name"
-                                name="name"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Email"
-                                name="email"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Phone"
-                                name="phone"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Role"
-                                name="role"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Department"
-                                name="department"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Salary"
-                                name="salary"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Address"
-                                name="address"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Password"
-                                name="password"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </Form>
-            </Modal>
+                <Modal
+                    title="Add User"
+                    visible={isAddModalVisible}
+                    onCancel={handleAddCancel}
+                    onOk={() => form.submit()}
+                >
+                    <Form form={form} layout="vertical" onFinish={handleAddUser}>
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <Form.Item
+                                    label="Name"
+                                    name="name"
+                                    rules={[{ required: true }]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item
+                                    label="Email"
+                                    name="email"
+                                    rules={[{ required: true }]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <Form.Item
+                                    label="Phone"
+                                    name="phone"
+                                    rules={[{ required: true }]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item
+                                    label="Role"
+                                    name="role"
+                                    rules={[{ required: true }]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <Form.Item
+                                    label="Department"
+                                    name="department"
+                                    rules={[{ required: true }]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item
+                                    label="Salary"
+                                    name="salary"
+                                    rules={[{ required: true }]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <Form.Item
+                                    label="Address"
+                                    name="address"
+                                    rules={[{ required: true }]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item
+                                    label="Password"
+                                    name="password"
+                                    rules={[{ required: true }]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </Form>
+                </Modal>
 
-            <div className="mb-4">
-                <Input
-                    placeholder="Search by name or email"
-                    prefix={<SearchOutlined />}
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                    size="large"
-                    className="max-w-md"
-                    allowClear
-                />
-            </div>
+                <Modal title="Confirm Deletion" visible={passwordModalVisible} onCancel={() => setPasswordModalVisible(false)} onOk={handleConfirmDelete}>
+                    <p>Enter your password to ban the user:</p>
+                    <Input.Password value={password} onChange={(e) => setPassword(e.target.value)} />
+                </Modal>
 
-            <Modal title="Confirm Deletion" visible={passwordModalVisible} onCancel={() => setPasswordModalVisible(false)} onOk={handleConfirmDelete}>
-                <p>Enter your password to ban the user:</p>
-                <Input.Password value={password} onChange={(e) => setPassword(e.target.value)} />
-            </Modal>
-
-            {loading ? (
-                <div className="text-center py-12">
-                    <Spin size="large" />
-                </div>
-            ) : (
-                <div className="overflow-x">
-                    <Table
-                        columns={columns}
-                        dataSource={filteredUsers}
-                        rowKey="id"
-                        className="shadow-sm w-full p-2"
-                        pagination={{
-                            pageSize: pageSize,
-                            showSizeChanger: true,
-                            pageSizeOptions: ["5", "10"],
-                            showTotal: (total) => `Total ${total} users`,
-                            onShowSizeChange: (_, size) => setPageSize(size),
-                        }}
-                        scroll={{ x: true }}
-                    />
-                </div>
-            )}
+                {loading ? (
+                    <div className="text-center py-12">
+                        <Spin size="large" />
+                    </div>
+                ) : (
+                    <div className="overflow-x">
+                        <Table
+                            columns={columns}
+                            dataSource={filteredUsers}
+                            rowKey="id"
+                            className="shadow-sm w-full p-2"
+                            pagination={{
+                                pageSize: pageSize,
+                                showSizeChanger: true,
+                                pageSizeOptions: ["5", "10"],
+                                showTotal: (total) => `Total ${total} users`,
+                                onShowSizeChange: (_, size) => setPageSize(size),
+                            }}
+                            scroll={{ x: true }}
+                        />
+                    </div>
+                )}
+            </div >
         </div>
     )
 };

@@ -1,9 +1,10 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 interface AuthState {
-      userName: string | null
+      user: object,
       token: string | null;
       role: string | null;
+      isLogin: boolean;
       setAuth: (token: string, role: string) => void;
       removeExpired: () => void
 
@@ -16,11 +17,12 @@ interface Theme {
 export const useAuthStore = create<AuthState>()(
       persist(
             (set) => ({
-                  userName: null,
+                  user: {},
                   token: null,
                   role: null,
-                  setAuth: (token, role) => set({ token, role }),
-                  removeExpired: () => set({ token: null, role: null, userName: null })
+                  isLogin:false,
+                  setAuth: (token, role) => set({ token, role, isLogin:true }),
+                  removeExpired: () => set({ token: null, role: null, user: {}, isLogin:false })
             }),
             { name: "auth-storage" } //store in local storage
       ),

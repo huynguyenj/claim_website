@@ -1,30 +1,47 @@
-import { Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import Loading from "./components/Loading";
-import PrivateRoute from "./router/PrivateRoute";
 import { ProtectedRoute } from "./router/ProtectedRoute";
-import ListPublicRoute from "./router/PublicRoute";
+import { useAuthStore } from "./store/authStore";
+import getRoutesPublic from "./router/PublicRoute";
+import { RouteType } from "./model/RouteData";
+import getPrivateRoute from "./router/PrivateRoute";
+
+const MainLayout = lazy(() => import("./layouts/MainLayout"));
+const ErrorPage = lazy(() => import("./pages/error/ErrorPage"));
 
 function App() {
+  const login = useAuthStore((state) => state.isLogin);
+  const role = useAuthStore((state) => state.role);
+
+  const [publicRoutes, setPublicRoutes] = useState<RouteType[]>([]);
+  const [privateRoutes, setPrivateRoutes] = useState<RouteType[]>([]);
+
+  useEffect(() => {
+    setPublicRoutes(getRoutesPublic(login));
+    setPrivateRoutes(getPrivateRoute(role));
+  }, [login, role]);
+
   return (
-    <>
-      <Suspense fallback={<Loading />}>
-        <Routes>
-          
-        {ListPublicRoute.map((route,index)=>(
-          <Route key={index} path={route.path} element={route.element}/>
+    <Suspense fallback={<Loading />}>
+      <Routes>
+        {publicRoutes.map((route, index) => (
+          <Route path={route.path} element={route.element} key={index} />
         ))}
-
-
-        <Route element={<ProtectedRoute/>}>
-            
-            <Route path="/*" element={<PrivateRoute/>}></Route> 
+        <Route element={<ProtectedRoute />}>
+          <Route element={<MainLayout />}>
+            {privateRoutes.map((route, index) => (
+              <Route
+                path={route.path}
+                element={route.element}
+                key={index}
+              ></Route>
+            ))}
+          </Route>
         </Route>
-      
+        <Route path="*" element={<ErrorPage />}></Route>
       </Routes>
-      </Suspense>
-
-    </>
+    </Suspense>
   );
 }
 
