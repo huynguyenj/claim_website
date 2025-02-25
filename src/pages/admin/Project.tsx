@@ -594,13 +594,6 @@ const ProjectDashboard = () => {
                   <Option value="Staff">Staff</Option>
                   <Option value="PM">Project Manager</Option>
                 </Select>
-                <Input
-                  placeholder="Department"
-                  value={user.department}
-                  onChange={(e) =>
-                    handleUserChange(index, "department", e.target.value)
-                  }
-                />
               </div>
             ))}
             <Button onClick={addUser} type="dashed">
