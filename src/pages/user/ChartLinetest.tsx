@@ -29,9 +29,9 @@ export default function ProfitCard() {
                     233
                 </Typography>
                 <Chip
-                    label="24.5% ↑"
+                    label="24.5% ↓"
                     size="small"
-                    sx={{ bgcolor: "rgba(76, 175, 80, 0.2)", color: "green" }}
+                    sx={{ bgcolor: "rgba(211, 124, 10, 0.2)", color: "red" }}
                 />
             </Stack>
             <BarChart
