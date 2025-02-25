@@ -43,7 +43,7 @@ interface Project {
 const ProjectDashboard = () => {
   const [searchText, setSearchText] = useState<string>("");
   const [loading] = useState<boolean>(false);
-  const [pageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(5);
 
   const [projects, setProjects] = useState<Project[]>([
     {
@@ -487,216 +487,239 @@ const ProjectDashboard = () => {
 
 
 
-  // const filteredProjects = projects.filter((project) =>
-  //   project.projectName.toLowerCase().includes(searchText.toLowerCase())
-  // );
+  const filteredProjects = projects.filter((project) =>
+    project.projectName.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   return (
-    <div className="p-6 bg-gray-100 h-screen overflow-y-scroll">
-      <div className="flex justify-between items-center">
-        <h1 className="text-4xl font-bold mb-4">
-          Project Management Dashboard
-        </h1>
+    <>
+
+      <div className="flex justify-end items-center p-5">
         <div className="flex gap-2">
-        <Button type="primary" onClick={()=>exportToExcel(projects,['id','project name','start date','enddate','budget'],'project')}>Export project list</Button>
-        <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
-          Add Project
-        </Button>
+          <Button type="primary" onClick={() => exportToExcel(projects, ['id', 'project name', 'start date', 'enddate', 'budget'], 'project')}>Export project list</Button>
         </div>
       </div>
 
-      <div className="mb-4">
-        <Input
-          placeholder="Search project name"
-          prefix={<SearchOutlined />}
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          size="large"
-          className="max-w-md"
-          allowClear
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5 overflow-auto">
+        {/* Users */}
+        <div className="col-span-1 relative bg-white p-3 rounded-xl border border-gray-200 flex flex-col shadow-[9px_6px_0px_rgba(0,0,0,1)]">
+          <p className="text-md text-gray-600 font-bold">Total Projects</p>
+          <p className="text-sm text-gray-400">6</p>
+        </div>
+        {/* Claims */}
+        <div className="col-span-1 relative bg-white p-3 rounded-xl border border-gray-200 flex flex-col shadow-[9px_6px_0px_rgba(0,0,0,1)]">
+          <p className="text-md text-gray-600 font-bold">Recent Projects</p>
+          <p className="text-sm text-gray-400">2</p>
+        </div>
+        {/* Funds */}
+        <div className="col-span-1 relative bg-white p-3 rounded-xl border border-gray-200 flex flex-col shadow-[9px_6px_0px_rgba(0,0,0,1)]">
+          <p className="text-md text-gray-600 font-bold">Finished Projects</p>
+          <p className="text-sm text-gray-400">1</p>
+        </div>
       </div>
 
-      <Modal
-        title="Add Project"
-        visible={isAddModalVisible}
-        onCancel={handleAddCancel}
-        onOk={() => form.submit()}
-      >
-        <Form form={form} layout="vertical" onFinish={handleAddProject}>
-          <Form.Item
-            label="Project Name"
-            name="projectName"
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Start Date"
-            name="startDate"
-            rules={[{ required: true }]}
-          >
-            <DatePicker />
-          </Form.Item>
-          <Form.Item
-            label="End Date"
-            name="endDate"
-            rules={[{ required: true }]}
-          >
-            <DatePicker />
-          </Form.Item>
-          <Form.Item
-            label="Budget ($)"
-            name="budget"
-            rules={[{ required: true }]}
-          >
-            <InputNumber min={0} style={{ width: "100%" }} />
-          </Form.Item>
-          <h3>Users</h3>
-          {users.map((user, index) => (
-            <div key={index} className="flex space-x-2 mb-2">
-              <Input
-                placeholder="Name"
-                value={user.name}
-                onChange={(e) =>
-                  handleUserChange(index, "name", e.target.value)
-                }
-              />
-              <Select
-                placeholder="Role"
-                value={user.role}
-                onChange={(value) => handleUserChange(index, "role", value)}
-              >
-                <Option value="Staff">Staff</Option>
-                <Option value="PM">Project Manager</Option>
-              </Select>
-              <Input
-                placeholder="Department"
-                value={user.department}
-                onChange={(e) =>
-                  handleUserChange(index, "department", e.target.value)
-                }
-              />
-            </div>
-          ))}
-          <Button onClick={addUser} type="dashed">
-            + Add User
+
+      <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
+
+        <div className="mb-4 flex justify-between items-center">
+          <Input
+            placeholder="Search project name"
+            prefix={<SearchOutlined />}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            size="large"
+            className="max-w-md shadow-[9px_6px_0px_rgba(0,0,0,1)]"
+            allowClear
+          />
+          <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
+            Add Project
           </Button>
-        </Form>
-      </Modal>
-
-      <Modal
-        title="Confirm Deletion"
-        visible={passwordModalVisible}
-        onCancel={() => setPasswordModalVisible(false)}
-        onOk={handleConfirmDelete}
-      >
-        <p>Enter your password to delete the project:</p>
-        <Input.Password
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </Modal>
-
-      <Modal
-        title="Edit Project"
-        visible={isEditModalVisible}
-        onCancel={handleEditCancel}
-        onOk={() => form.submit()}
-      >
-        <Form form={form} onFinish={handleEditProject}>
-          <Form.Item label="Project Name" name="projectName" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item label="Start Date" name="startDate" rules={[{ required: true }]}>
-            <DatePicker />
-          </Form.Item>
-          <Form.Item label="End Date" name="endDate" rules={[{ required: true }]}>
-            <DatePicker />
-          </Form.Item>
-          <Form.Item label="Budget ($)" name="budget" rules={[{ required: true }]}>
-            <InputNumber min={0} style={{ width: "100%" }} />
-          </Form.Item>
-
-          {/* User Management Section */}
-          <h3>Project Staff</h3>
-          {users.map((user, index) => (
-            <div key={index} className="flex space-x-2 mb-2">
-              <Input
-                placeholder="Name"
-                value={user.name}
-                onChange={(e) => handleUserChange(index, "name", e.target.value)}
-              />
-              <Select
-                placeholder="Role"
-                value={user.role}
-                onChange={(value) => handleUserChange(index, "role", value)}
-              >
-                <Option value="Staff">Staff</Option>
-                <Option value="PM">Project Manager</Option>
-              </Select>
-              <Input
-                placeholder="Department"
-                value={user.department}
-                onChange={(e) => handleUserChange(index, "department", e.target.value)}
-              />
-              <Button type="text" danger onClick={() => removeUser(index)}>Remove</Button>
-            </div>
-          ))}
-          <Button onClick={addUser} type="dashed">
-            + Add User
-          </Button>
-        </Form>
-      </Modal>
-
-      {loading ? (
-        <div className="text-center py-12">
-          <Spin size="large" />
         </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 bg-[#FCFCFC] p-5 overflow-auto">
 
-          <div className="col-span-1 sm:col-span-2 lg:col-span-4">
-
-            <Table<Project>
-              columns={columns}
-              dataSource={projects}
-              rowKey="id"
-              pagination={{
-                pageSize: pageSize,
-                showSizeChanger: true,
-                pageSizeOptions: ["5", "10"],
-              }}
-            />
-            <Modal
-              title="Project Staff"
-              visible={isEmployeeModalVisible}
-              onCancel={handleCloseEmployeeModal}
-              footer={null}
+        <Modal
+          title="Add Project"
+          visible={isAddModalVisible}
+          onCancel={handleAddCancel}
+          onOk={() => form.submit()}
+        >
+          <Form form={form} layout="vertical" onFinish={handleAddProject}>
+            <Form.Item
+              label="Project Name"
+              name="projectName"
+              rules={[{ required: true }]}
             >
-              <Table<User>
-                columns={[
-                  { title: "Name", dataIndex: "name", key: "name" },
-                  { title: "Role", dataIndex: "role", key: "role" },
-                  { title: "Department", dataIndex: "department", key: "department" },
-                  {
-                    title: "Status",
-                    dataIndex: "blocked",
-                    key: "blocked",
-                    render: (blocked) => (
-                      <Tag color={blocked ? "red" : "green"}>{blocked ? "Blocked" : "Active"}</Tag>
-                    ),
-                  },
-                ]}
-                dataSource={selectedProjectUsers}
-                pagination={false}
-                rowKey="id"
-              />
-            </Modal>
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Start Date"
+              name="startDate"
+              rules={[{ required: true }]}
+            >
+              <DatePicker />
+            </Form.Item>
+            <Form.Item
+              label="End Date"
+              name="endDate"
+              rules={[{ required: true }]}
+            >
+              <DatePicker />
+            </Form.Item>
+            <Form.Item
+              label="Budget ($)"
+              name="budget"
+              rules={[{ required: true }]}
+            >
+              <InputNumber min={0} style={{ width: "100%" }} />
+            </Form.Item>
+            <h3>Users</h3>
+            {users.map((user, index) => (
+              <div key={index} className="flex space-x-2 mb-2">
+                <Input
+                  placeholder="Name"
+                  value={user.name}
+                  onChange={(e) =>
+                    handleUserChange(index, "name", e.target.value)
+                  }
+                />
+                <Select
+                  placeholder="Role"
+                  value={user.role}
+                  onChange={(value) => handleUserChange(index, "role", value)}
+                >
+                  <Option value="Staff">Staff</Option>
+                  <Option value="PM">Project Manager</Option>
+                </Select>
+                <Input
+                  placeholder="Department"
+                  value={user.department}
+                  onChange={(e) =>
+                    handleUserChange(index, "department", e.target.value)
+                  }
+                />
+              </div>
+            ))}
+            <Button onClick={addUser} type="dashed">
+              + Add User
+            </Button>
+          </Form>
+        </Modal>
+
+        <Modal
+          title="Confirm Deletion"
+          visible={passwordModalVisible}
+          onCancel={() => setPasswordModalVisible(false)}
+          onOk={handleConfirmDelete}
+        >
+          <p>Enter your password to delete the project:</p>
+          <Input.Password
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </Modal>
+
+        <Modal
+          title="Edit Project"
+          visible={isEditModalVisible}
+          onCancel={handleEditCancel}
+          onOk={() => form.submit()}
+        >
+          <Form form={form} onFinish={handleEditProject}>
+            <Form.Item label="Project Name" name="projectName" rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="Start Date" name="startDate" rules={[{ required: true }]}>
+              <DatePicker />
+            </Form.Item>
+            <Form.Item label="End Date" name="endDate" rules={[{ required: true }]}>
+              <DatePicker />
+            </Form.Item>
+            <Form.Item label="Budget ($)" name="budget" rules={[{ required: true }]}>
+              <InputNumber min={0} style={{ width: "100%" }} />
+            </Form.Item>
+
+            {/* User Management Section */}
+            <h3>Project Staff</h3>
+            {users.map((user, index) => (
+              <div key={index} className="flex space-x-2 mb-2">
+                <Input
+                  placeholder="Name"
+                  value={user.name}
+                  onChange={(e) => handleUserChange(index, "name", e.target.value)}
+                />
+                <Select
+                  placeholder="Role"
+                  value={user.role}
+                  onChange={(value) => handleUserChange(index, "role", value)}
+                >
+                  <Option value="Staff">Staff</Option>
+                  <Option value="PM">Project Manager</Option>
+                </Select>
+                <Input
+                  placeholder="Department"
+                  value={user.department}
+                  onChange={(e) => handleUserChange(index, "department", e.target.value)}
+                />
+                <Button type="text" danger onClick={() => removeUser(index)}>Remove</Button>
+              </div>
+            ))}
+            <Button onClick={addUser} type="dashed">
+              + Add User
+            </Button>
+          </Form>
+        </Modal>
+
+        {loading ? (
+          <div className="text-center py-12">
+            <Spin size="large" />
           </div>
-        </div>
-      )}
-    </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 bg-[#FCFCFC] p-5 overflow-auto">
+
+            <div className="col-span-1 sm:col-span-2 lg:col-span-4">
+
+              <Table<Project>
+                columns={columns}
+                dataSource={filteredProjects}
+                rowKey="id"
+                pagination={{
+                  pageSize: pageSize,
+                  showSizeChanger: true,
+                  pageSizeOptions: ["5", "10"],
+                  showTotal: (total) => `Total ${total} projects`,
+                  onShowSizeChange: (_, size) => setPageSize(size),
+                }}
+                scroll={{ x: true }}
+              />
+              <Modal
+                title="Project Staff"
+                visible={isEmployeeModalVisible}
+                onCancel={handleCloseEmployeeModal}
+                footer={null}
+              >
+                <Table<User>
+                  columns={[
+                    { title: "Name", dataIndex: "name", key: "name" },
+                    { title: "Role", dataIndex: "role", key: "role" },
+                    { title: "Department", dataIndex: "department", key: "department" },
+                    {
+                      title: "Status",
+                      dataIndex: "blocked",
+                      key: "blocked",
+                      render: (blocked) => (
+                        <Tag color={blocked ? "red" : "green"}>{blocked ? "Blocked" : "Active"}</Tag>
+                      ),
+                    },
+                  ]}
+                  dataSource={selectedProjectUsers}
+                  pagination={false}
+                  rowKey="id"
+                />
+              </Modal>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
