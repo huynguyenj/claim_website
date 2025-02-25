@@ -2,6 +2,9 @@ import { Button, Col, Form, Input, Modal, Row, Spin, Table } from "antd";
 import { useState } from "react";
 import { PlusOutlined, SearchOutlined, StopFilled } from '../../components/Icon/AntdIcon';
 import { exportToExcel } from "../../consts/ExcelDowload";
+import UserCard from "../../components/Admin/UserCard";
+import { UserIcon } from "../../components/Icon/MuiIIcon";
+import { Article } from "@mui/icons-material";
 // import Title from "antd/es/typography/Title";
 
 interface User {
@@ -114,6 +117,27 @@ const UserDashboard = () => {
                 <div className="flex gap-2">
                     <Button type="primary" onClick={() => exportToExcel(users, ['id', 'name', 'email', 'password', 'phone', 'role', 'department', 'salary', 'address'], 'users')}>Export users file</Button>
                 </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
+                {/* Users */}
+                <UserCard
+                    icon={<UserIcon />}
+                    title="Users"
+                    growth={25}
+                />
+                {/* Claims */}
+                <UserCard
+                    icon={<Article />}
+                    title="Claims"
+                    growth={42}
+                />
+                {/* Funds */}
+                <UserCard
+                    icon={<Article />}
+                    title="Funds"
+                    growth={42}
+                />
             </div>
 
             <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
