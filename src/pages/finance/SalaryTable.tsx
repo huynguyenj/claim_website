@@ -1,4 +1,4 @@
-import {  Button, Input, Select, Space, Table, Tag, Tooltip } from "antd";
+import { Button, Input, Select, Space, Table, Tag, Tooltip } from "antd";
 import { DollarOutlined, SearchOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
 import { useCallback, useMemo, useState } from "react";
@@ -294,43 +294,52 @@ function SalaryTable(): JSX.Element {
   };
 
   return (
-    <div className="p-6 mr-6 ml-6 h-full overflow-auto overflow-y-auto border-zinc-950 border-[1.5px] rounded-[12px] relative">
-      <div className="flex justify-end mr-[40px]">
-        <Button className="sm:text-[0.7rem] flex-row justify-around">Export Data <span><ArrowCircleDown/></span></Button>
+    <>
+      <div className="flex justify-end mr-[40px] mb-[20px]">
+        <Button
+          type="primary"
+          className="sm:text-[0.7rem] flex-row justify-around "
+          icon={<ArrowCircleDown />}
+          iconPosition="end"
+        >
+          Export Data
+        </Button>
       </div>
-      <div className="p-6 flex justify-around gap-2 mr-1">
-        <Input
-          prefix={<SearchOutlined className="text-gray-500" />}
-          placeholder="Search By Name"
-          className="max-w-xs mb-4 rounded-full mr-4 shadow-[7px_7px_0px_0px] duration-300 ease-in-out"
-          onChange={handleSearchChange}
-        />
-        <Select
-          mode="multiple"
-          allowClear
-          style={{ width: "30%", marginBottom: "1rem" }}
-          placeholder="Please select"
-          onChange={handleProjectChange}
-          options={options}
-        />
-        <DatePicker.RangePicker
-          style={{ width: "30%", marginBottom: "1rem", marginLeft: "1rem" }}
-          onChange={handleDatePicker}
-        />
+      <div className="p-6 mr-6 ml-6 h-full overflow-auto overflow-y-auto border-zinc-950 border-[1.5px] rounded-[12px] relative">
+        <div className="p-6 flex justify-around gap-2 mr-1">
+          <Input
+            prefix={<SearchOutlined className="text-gray-500" />}
+            placeholder="Search By Name"
+            className="max-w-xs mb-4 rounded-full mr-4 shadow-[7px_7px_0px_0px] duration-300 ease-in-out"
+            onChange={handleSearchChange}
+          />
+          <Select
+            mode="multiple"
+            allowClear
+            style={{ width: "30%", marginBottom: "1rem" }}
+            placeholder="Please select"
+            onChange={handleProjectChange}
+            options={options}
+          />
+          <DatePicker.RangePicker
+            style={{ width: "30%", marginBottom: "1rem", marginLeft: "1rem" }}
+            onChange={handleDatePicker}
+          />
+        </div>
+        <div className="h-full border-t-[1.2px]">
+          <Table
+            rowKey="key"
+            columns={columns}
+            dataSource={filteredData}
+            pagination={{ pageSize: 5 }}
+            style={{
+              tableLayout: "auto",
+            }}
+            components={components}
+          />
+        </div>
       </div>
-      <div className="h-full border-t-[1.2px]">
-        <Table
-          rowKey="key"
-          columns={columns}
-          dataSource={filteredData}
-          pagination={{ pageSize: 5 }}
-          style={{
-            tableLayout: "fixed",
-          }}
-          components={components}
-        />
-      </div>
-    </div>
+    </>
   );
 }
 export default SalaryTable;
