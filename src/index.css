@@ -7,32 +7,37 @@
   font-family: "Poppins", sans-serif;
 
 }
-::-webkit-scrollbar{
+
+::-webkit-scrollbar {
   width: 5px;
   background-color: black;
 }
 
-::-webkit-scrollbar-thumb{
+::-webkit-scrollbar-thumb {
   background-color: white;
   border-radius: 10px;
 
 }
+
 html {
   scroll-behavior: smooth;
 }
-@theme{
+
+@theme {
   --color-dark-fig: #000000;
-  --color-gray-fig:#939598;
-  --color-white-fig:#FFFFFF;
-  --shadow-fig: 9px 7px 0px rgba(0,0,0,1);
-  --shadow-fig-active: 0px 0px 0px rgba(0,0,0,1);
-  --bg-split:linear-gradient(to right, black 0%, black 50% , white 50%, white 100%);
+  --color-gray-fig: #939598;
+  --color-white-fig: #FFFFFF;
+  --shadow-fig: 9px 7px 0px rgba(0, 0, 0, 1);
+  --shadow-fig-active: 0px 0px 0px rgba(0, 0, 0, 1);
+  --bg-split: linear-gradient(to right, black 0%, black 50%, white 50%, white 100%);
 }
+
 @layer utilities {
   @keyframes spinAround {
     0% {
       transform: rotate(0deg);
     }
+
     100% {
       transform: rotate(360deg);
     }
@@ -47,6 +52,7 @@ html {
       opacity: 0;
       transform: translateX(-100px);
     }
+
     to {
       opacity: 1;
       transform: translateX(0px);
@@ -61,13 +67,14 @@ html {
     0% {
       transform: rotate(0turn);
     }
+
     100% {
       transform: rotate(1turn);
     }
   }
 
-  .animate-loading{
+  .animate-loading {
     animation: loading 2s linear infinite;
   }
-  
+
 }
