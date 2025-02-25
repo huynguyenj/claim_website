@@ -19,7 +19,7 @@ const UserManagement: React.FC = () => {
             const response = await apiService.get<{ data: User[] }>('/users');
             setUsers(response.data);
         } catch (error) {
-            message.error('Failed to fetch users');
+            message.error(`Failed to fetch users ${error}`);
         }
         setLoading(false);
     };
@@ -43,10 +43,10 @@ const UserManagement: React.FC = () => {
     const handleDeleteUser = async (id: string) => {
         try {
             await apiService.delete(`/users/${id}`);
-            message.success('User deleted successfully');
+            message.success(`User deleted successfully`);
             fetchUsers();
         } catch (error) {
-            message.error('Failed to delete user');
+            message.error(`Failed to delete user ${error}`);
         }
     };
 
@@ -54,10 +54,10 @@ const UserManagement: React.FC = () => {
         // Assume blocking a user means updating a “blocked” property.
         try {
             await apiService.put(`/users/${user.id}`, { ...user, blocked: true });
-            message.success('User blocked successfully');
+            message.success(`User blocked successfully`);
             fetchUsers();
         } catch (error) {
-            message.error('Failed to block user');
+            message.error(`Failed to block user ${error}`);
         }
     };
 
@@ -65,7 +65,7 @@ const UserManagement: React.FC = () => {
         try {
             if (editingUser) {
                 await apiService.put(`/users/${editingUser.id}`, values);
-                message.success('User updated successfully');
+                message.success(`User updated successfully`);
             } else {
                 await apiService.post('/users', values);
                 message.success('User added successfully');
@@ -73,7 +73,7 @@ const UserManagement: React.FC = () => {
             setIsModalVisible(false);
             fetchUsers();
         } catch (error) {
-            message.error('Failed to submit user form');
+            message.error(`Failed to submit user form ${error}`);
         }
     };
 
