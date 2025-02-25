@@ -45,7 +45,7 @@ function SignUpForm() {
   };
 
   return (
-    <div className="bg-white/70 flex  justify-center items-center absolute top-[50%] left-[50%] transform-[translate(-50%,-50%)] w-80 h-fit sm:w-170 sm:h-fit rounded-4xl shadow-2xl">
+    <div className="bg-white-fig flex  justify-center items-center absolute top-[50%] left-[50%] transform-[translate(-50%,-50%)] w-80 h-fit sm:w-170 sm:h-fit rounded-4xl shadow-fig ring-2 hover:shadow-fig-active duration-300 ease-in-out">
       <Form
         name="Register"
         form={form}
@@ -71,8 +71,8 @@ function SignUpForm() {
           rules={[{ required: true, message: "Please input your username!" }]}
         >
           <Space.Compact style={{ width: "100%" }}>
-            <Button type="primary" style={{ height: "2.5rem" }}>
-              <UserIcon />
+            <Button style={{ height: "2.5rem",background:'black' }}>
+              <UserIcon sx={{color:'white'}} />
             </Button>
             <Input placeholder="username" />
           </Space.Compact>
@@ -111,8 +111,8 @@ function SignUpForm() {
           ]}
         >
           <Space.Compact style={{ width: "100%" }}>
-            <Button type="primary" style={{ height: "2.5rem" }}>
-              <PasswordIcon />
+            <Button style={{ height: "2.5rem",background:'black' }}>
+              <PasswordIcon sx={{color:'white'}} />
             </Button>
             <Input.Password placeholder="password" />
           </Space.Compact>
@@ -126,8 +126,8 @@ function SignUpForm() {
           ]}
         >
           <Space.Compact style={{ width: "100%" }}>
-            <Button type="primary" style={{ height: "2.5rem" }}>
-              <EmailIcon />
+            <Button style={{ height: "2.5rem",background:'black' }}>
+              <EmailIcon sx={{color:'white'}}/>
             </Button>
             <Input placeholder="email" />
           </Space.Compact>
@@ -138,7 +138,7 @@ function SignUpForm() {
             rules={[{ required: true, message: "Please choose your gender!" }]}
           >
             <Space.Compact>
-              <Button type="primary">
+              <Button>
                 <GenderIcon />
               </Button>
               <Select
@@ -156,7 +156,7 @@ function SignUpForm() {
             //     rules={[{ required: true, message: "Please input your birthday!" }, {type:"date",message:'Please input vaild date!'}]}
           >
             <Space.Compact style={{ width: "100%" }}>
-              <Button type="primary">
+              <Button>
                 <BirthdayIcon />
               </Button>
               <DatePicker onChange={handleChangeDate} />
@@ -168,8 +168,8 @@ function SignUpForm() {
           rules={[{ required: true, message: "Please enter your address!" }]}
         >
           <Space.Compact style={{ width: "100%" }}>
-            <Button type="primary" style={{ height: "2.5rem" }}>
-              <AddressIcon />
+            <Button style={{ height: "2.5rem",background:'black' }}>
+              <AddressIcon sx={{color:'white'}}/>
             </Button>
             <Input placeholder="Address" />
           </Space.Compact>
@@ -177,10 +177,10 @@ function SignUpForm() {
 
         <Form.Item className="h-10">
           <Button
-            type="primary"
+          
             htmlType="submit"
             className="w-full"
-            style={{ padding: "1.2rem", borderRadius: "2rem" }}
+            style={{ padding: "1.2rem", borderRadius: "2rem", background:'black', color:'white' }}
           >
             Register
           </Button>

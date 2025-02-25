@@ -2,6 +2,7 @@ export const PublicRoutes = {
   HOME: "/",
   LOGIN: "/login",
   REGISTER: "/register",
+  VERIFY:'/verifyEmail'
 };
 
 export const AdminRoutes = {
