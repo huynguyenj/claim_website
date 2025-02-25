@@ -181,11 +181,11 @@ function ApprovalPage() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell>Title</TableCell>
-                <TableCell>Submitted By</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                <TableCell sx={{fontWeight: 'bold'}}>Title</TableCell>
+                <TableCell sx={{fontWeight: 'bold'}}>Submitted By</TableCell>
+                <TableCell sx={{fontWeight: 'bold'}}>Date</TableCell>
+                <TableCell sx={{fontWeight: 'bold'}}>Status</TableCell>
+                <TableCell sx={{fontWeight: 'bold'}} align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
