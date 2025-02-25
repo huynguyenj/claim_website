@@ -41,13 +41,12 @@ export default function ProfitCard() {
                     dataKey: "time",
                     tickLabelStyle: {
                         fontSize: 12,
-
                         textAnchor: 'end'
                     }
                 }]}
                 series={[{
                     dataKey: "value",
-                    color: "#4DD0E1",
+                    color: "rgba(77, 208, 225, 0.8)",
                 }]}
                 height={370}
                 margin={{ left: 40, right: 20, top: 10, bottom: 75 }}

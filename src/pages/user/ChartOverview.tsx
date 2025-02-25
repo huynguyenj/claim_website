@@ -46,7 +46,7 @@ export default function FunctionLabel() {
                         fill: '#666'
                     }
                 }]}
-                margin={{ left: 40, right: 20, top: 30, bottom: 10 }}
+                margin={{ left: 40, right: 20, top: 30, bottom: 20 }}
             />
         </Box>
     );

@@ -4,21 +4,21 @@ import { Box, Chip, Typography } from '@mui/material';
 
 const monthlyData = [
     { month: 'Jan', claims: 45 },
-    { month: 'Feb', claims: 38 },
+    { month: 'Feb', claims: 8 },
     { month: 'Mar', claims: 52 },
     { month: 'Apr', claims: 31 },
     { month: 'May', claims: 47 },
     { month: 'Jun', claims: 10 },
     { month: 'Jul', claims: 42 },
     { month: 'Aug', claims: 56 },
-    { month: 'Sep', claims: 39 },
+    { month: 'Sep', claims: 20 },
     { month: 'Oct', claims: 44 },
     { month: 'Nov', claims: 37 },
     { month: 'Dec', claims: 5 }
 ];
 
 const chartsParams = {
-    margin: { bottom: 50, left: 40, right: 10, top: 10 },
+    margin: { bottom: 55, left: 40, right: 10, top: 10 },
     height: 350,
 };
 
