@@ -18,8 +18,10 @@ import {
   StopFilled,
 } from "../../components/Icon/AntdIcon";
 import moment from "moment";
-import { EditOutlined } from "@mui/icons-material";
+import { Article, EditOutlined } from "@mui/icons-material";
 import { exportToExcel } from "../../consts/ExcelDowload";
+import ProjectCard from "../../components/Admin/ProjectCard";
+import { UserIcon } from "../../components/Icon/MuiIIcon";
 
 const { Option } = Select;
 
@@ -500,22 +502,25 @@ const ProjectDashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5 overflow-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
         {/* Users */}
-        <div className="col-span-1 relative bg-white p-3 rounded-xl border border-gray-200 flex flex-col shadow-[9px_6px_0px_rgba(0,0,0,1)]">
-          <p className="text-md text-gray-600 font-bold">Total Projects</p>
-          <p className="text-sm text-gray-400">6</p>
-        </div>
+        <ProjectCard
+          icon={<UserIcon />}
+          title="Users"
+          growth={25}
+        />
         {/* Claims */}
-        <div className="col-span-1 relative bg-white p-3 rounded-xl border border-gray-200 flex flex-col shadow-[9px_6px_0px_rgba(0,0,0,1)]">
-          <p className="text-md text-gray-600 font-bold">Recent Projects</p>
-          <p className="text-sm text-gray-400">2</p>
-        </div>
+        <ProjectCard
+          icon={<Article />}
+          title="Claims"
+          growth={42}
+        />
         {/* Funds */}
-        <div className="col-span-1 relative bg-white p-3 rounded-xl border border-gray-200 flex flex-col shadow-[9px_6px_0px_rgba(0,0,0,1)]">
-          <p className="text-md text-gray-600 font-bold">Finished Projects</p>
-          <p className="text-sm text-gray-400">1</p>
-        </div>
+        <ProjectCard
+          icon={<Article />}
+          title="Funds"
+          growth={42}
+        />
       </div>
 
 
@@ -589,13 +594,6 @@ const ProjectDashboard = () => {
                   <Option value="Staff">Staff</Option>
                   <Option value="PM">Project Manager</Option>
                 </Select>
-                <Input
-                  placeholder="Department"
-                  value={user.department}
-                  onChange={(e) =>
-                    handleUserChange(index, "department", e.target.value)
-                  }
-                />
               </div>
             ))}
             <Button onClick={addUser} type="dashed">

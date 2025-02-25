@@ -2,6 +2,9 @@ import { Button, Col, Form, Input, Modal, Row, Spin, Table } from "antd";
 import { useState } from "react";
 import { PlusOutlined, SearchOutlined, StopFilled } from '../../components/Icon/AntdIcon';
 import { exportToExcel } from "../../consts/ExcelDowload";
+import UserCard from "../../components/Admin/UserCard";
+import { UserIcon } from "../../components/Icon/MuiIIcon";
+import { Article } from "@mui/icons-material";
 // import Title from "antd/es/typography/Title";
 
 interface User {
@@ -116,22 +119,25 @@ const UserDashboard = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5 overflow-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
                 {/* Users */}
-                <div className="col-span-1 relative bg-white p-3 rounded-xl border border-gray-200 flex flex-col shadow-[9px_6px_0px_rgba(0,0,0,1)]">
-                    <p className="text-md text-gray-600 font-bold">Total Projects</p>
-                    <p className="text-sm text-gray-400">6</p>
-                </div>
+                <UserCard
+                    icon={<UserIcon />}
+                    title="Users"
+                    growth={25}
+                />
                 {/* Claims */}
-                <div className="col-span-1 relative bg-white p-3 rounded-xl border border-gray-200 flex flex-col shadow-[9px_6px_0px_rgba(0,0,0,1)]">
-                    <p className="text-md text-gray-600 font-bold">Recent Projects</p>
-                    <p className="text-sm text-gray-400">2</p>
-                </div>
+                <UserCard
+                    icon={<Article />}
+                    title="Claims"
+                    growth={42}
+                />
                 {/* Funds */}
-                <div className="col-span-1 relative bg-white p-3 rounded-xl border border-gray-200 flex flex-col shadow-[9px_6px_0px_rgba(0,0,0,1)]">
-                    <p className="text-md text-gray-600 font-bold">Finished Projects</p>
-                    <p className="text-sm text-gray-400">1</p>
-                </div>
+                <UserCard
+                    icon={<Article />}
+                    title="Funds"
+                    growth={42}
+                />
             </div>
 
             <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
