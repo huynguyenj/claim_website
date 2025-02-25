@@ -22,6 +22,20 @@ function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
       }
   },[location.pathname,itemList])
 
+  useEffect(()=>{
+    const handleResize = () =>{
+      if(window.innerWidth <= 687){
+        setIsOpen(false);
+      }else{
+        setIsOpen( true)
+      }
+  
+    }
+    window.addEventListener('resize',handleResize);
+    handleResize();
+    return ()=> { window.removeEventListener('resize',handleResize)};
+  },[])
+
   return (
     <aside
       className={`bg-black/100 h-screen ${
@@ -31,12 +45,12 @@ function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
       <nav className="flex flex-col ">
         <div className="w-full flex rounded-full mt-13 gap-3 items-center px-5">
           <img
-            className="w-7 h-7 sm:w-10 sm:h-10 bg-amber-50 rounded-full"
+            className="w-9 h-9 sm:w-14 sm:h-14"
             src={logo}
             alt="logo"
           />
           <p
-            className={`text-white font-bold text-[0.9rem] sm:text-[1.2rem] overflow-hidden ${
+            className={`text-white-fig font-bold text-[0.9rem] sm:text-[1.2rem] overflow-hidden ${
               !isOpen && "hidden"
             }`}
           >
@@ -50,7 +64,7 @@ function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
                 to={item.path as string}
                 className={`relative flex gap-x-5 p-2 items-center hover:bg-indigo-500 duration-500 ease-in-out 
                   before:absolute before:w-[0.1rem] before:bg-white before:left-0 before:origin-top before:transition-all before:duration-500 before:ease-in-out
-                  ${index === active ? "before:h-full" : "before:h-0"} 
+                  ${index === active ? "before:h-full text-white-fig" : "before:h-0 text-gray-fig"} 
                 }  ${item.gap && "mb-8"} relative`} 
               >
                 <div>
@@ -59,7 +73,7 @@ function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
                 <span
                   className={`text-[0.8rem] sm:text-[1.1rem] ${
                     !isOpen && "hidden"
-                  } text-cyan-400 origin-left`}
+                  } origin-left`}
                 >
                   {item.title}
                 </span>
@@ -69,14 +83,14 @@ function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
         </ul>
       </nav>
       <div className="w-10 h-10 bg-black bottom-10 right-6 absolute flex justify-center items-center ">
-        {isOpen && <p className="text-white">Collapse</p>}
         <div
           className={`${
             isOpen && "rotate-180"
-          } duration-300 ease-in-out hover:opacity-75 cursor-pointer`}
+          } duration-300 ease-in-out hover:opacity-75 cursor-pointer flex`}
           onClick={handleOpen}
         >
-          <BackRightKeyboardIcon sx={{ color: "white" }} />
+          <BackRightKeyboardIcon sx={{ color: "white"}} />
+          {isOpen && <p className="text-white-fig rotate-180">Collapse</p>}
         </div>
       </div>
     </aside>
