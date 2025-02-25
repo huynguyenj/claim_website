@@ -19,6 +19,7 @@ import { CheckCircleOutlined, SearchOutlined, StarOutlined } from "@mui/icons-ma
 import ChartLinetest from "./ChartLinetest";
 import Chartmonth from "./Chartmonth";
 import ChartOverview from "./ChartOverview";
+import { pagnitionAntd } from "../../consts/Pagination";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -263,7 +264,7 @@ const UserDashboard: React.FC = () => {
                 columns={columns}
                 rowKey="id"
                 scroll={{ x: true }}
-                pagination={{ pageSize: 5 }}
+                pagination={{ pageSize: pagnitionAntd.pageSize }}
               />
             </div>
           </div>
