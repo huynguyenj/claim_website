@@ -110,8 +110,7 @@ const UserDashboard = () => {
     return (
 
         <>
-            <div className="flex justify-between items-center p-5">
-                <div className="font-bold text-2xl">Welcome Back, John</div>
+            <div className="flex justify-end items-center p-5">
                 <div className="flex gap-2">
                     <Button type="primary" onClick={() => exportToExcel(users, ['id', 'name', 'email', 'password', 'phone', 'role', 'department', 'salary', 'address'], 'users')}>Export users file</Button>
                 </div>

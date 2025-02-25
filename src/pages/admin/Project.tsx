@@ -494,8 +494,7 @@ const ProjectDashboard = () => {
   return (
     <>
 
-      <div className="flex justify-between items-center p-5">
-        <div className="font-bold text-2xl">Welcome Back, John</div>
+      <div className="flex justify-end items-center p-5">
         <div className="flex gap-2">
           <Button type="primary" onClick={() => exportToExcel(projects, ['id', 'project name', 'start date', 'enddate', 'budget'], 'project')}>Export project list</Button>
         </div>
