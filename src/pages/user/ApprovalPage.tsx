@@ -1,4 +1,20 @@
 import { useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Chip,
+  Box
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import InputAdornment from '@mui/material/InputAdornment';
 
 interface ApprovalItem {
   id: string;
@@ -9,6 +25,7 @@ interface ApprovalItem {
 }
 
 function ApprovalPage() {
+  const [searchQuery, setSearchQuery] = useState('');
   const [items, setItems] = useState<ApprovalItem[]>([
     {
       id: '1',
@@ -31,6 +48,20 @@ function ApprovalPage() {
       submittedBy: 'Alex Brown',
       date: '2025-01-16',
     },
+    {
+      id: '4',
+      title: 'Salary Request D',
+      status: 'pending',
+      submittedBy: 'Tom Cruise',
+      date: '2025-01-17',
+    },
+    {
+      id: '5',
+      title: 'Project Proposal E',
+      status: 'pending',
+      submittedBy: 'Mary Jane',
+      date: '2025-01-17',
+    },
   ]);
 
   const handleApprove = (id: string) => {
@@ -45,55 +76,107 @@ function ApprovalPage() {
     ));
   };
 
+  const filteredItems = items.filter(item => 
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.submittedBy.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const getStatusChipColor = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return 'success';
+      case 'rejected':
+        return 'error';
+      default:
+        return 'warning';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Approval Dashboard</h1>
+    <Box sx={{height: "fit-content", bgcolor: '#f5f5f5', overflowY:'scroll', py: 2, px: { xs: 2, sm: 3, md: 4 } }}>
+      <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+        <Typography variant="h4" component="h1" sx={{ mb: 4, fontWeight: 'bold' }}>
+          Approval Dashboard
+        </Typography>
         
-        <div className="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul className="divide-y divide-gray-200">
-            {items.map((item) => (
-              <li key={item.id} className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-medium text-gray-900">{item.title}</h3>
-                    <div className="mt-1 flex items-center text-sm text-gray-500">
-                      <span>Submitted by {item.submittedBy}</span>
-                      <span className="mx-2">•</span>
-                      <span>{item.date}</span>
-                    </div>
-                    <span className={`inline-flex mt-2 items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                      ${item.status === 'approved' ? 'bg-green-100 text-green-800' : 
-                        item.status === 'rejected' ? 'bg-red-100 text-red-800' : 
-                        'bg-yellow-100 text-yellow-800'}`}>
-                      {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                    </span>
-                  </div>
-                  
-                  {item.status === 'pending' && (
-                    <div className="ml-4 flex-shrink-0 flex space-x-2">
-                      <button
-                        onClick={() => handleApprove(item.id)}
-                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleReject(item.id)}
-                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
+        <TextField
+          fullWidth
+          variant="outlined"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search by title or submitter name..."
+          sx={{ mb: 4 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell>Title</TableCell>
+                <TableCell>Submitted By</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredItems.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    No items found matching your search.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredItems.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>{item.title}</TableCell>
+                    <TableCell>{item.submittedBy}</TableCell>
+                    <TableCell>{item.date}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                        color={getStatusChipColor(item.status)}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell align="right">
+                      {item.status === 'pending' && (
+                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                          <Button
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            onClick={() => handleApprove(item.id)}
+                          >
+                            Approve
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            onClick={() => handleReject(item.id)}
+                          >
+                            Reject
+                          </Button>
+                        </Box>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </Box>
   );
 }
 
-export default ApprovalPage;
+export default ApprovalPage

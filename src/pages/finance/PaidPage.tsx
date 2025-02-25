@@ -1,3 +1,4 @@
+
 import SalaryTable from "./SalaryTable";
 
 const PaidPage: React.FC = () => {

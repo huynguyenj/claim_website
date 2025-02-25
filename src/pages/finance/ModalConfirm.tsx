@@ -3,27 +3,25 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 
 const { confirm } = Modal;
 
+interface ModalConfirmProps {
+  typeConfirm: React.CSSProperties;
+  text: string 
+}
 function showConfirm() {
   confirm({
     title: "Confirm",
     icon: <ExclamationCircleOutlined />,
-    content: "Bla bla ...", 
+    content: "Bla bla ...",
     okText: "Yes",
     cancelText: "No",
-    centered:true
+    centered: true,
   });
 }
 
-function ModalConfirm() {
+function ModalConfirm({ typeConfirm,text }:ModalConfirmProps) {
   return (
-    <Button
-      style={{
-        color: "#000",
-        borderColor: "#1D4",
-      }}
-      onClick={showConfirm}
-    >
-      Approve
+    <Button style={typeConfirm} onClick={showConfirm} className="text-[0.8rem] hover:tracking-[0.2rem] transition duration-300">
+      {text}
     </Button>
   );
 }
