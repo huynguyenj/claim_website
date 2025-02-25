@@ -1,4 +1,4 @@
-import { UserForm } from "../../model/UserData";
+import { UserForm, UserInfo } from "../../model/UserData";
 import { Button, Form, Input, Space } from "antd";
 import type { FormProps } from "antd";
 import { Notification } from "../../components/Notification";
@@ -6,24 +6,28 @@ import { PasswordIcon, UserIcon } from "../../components/Icon/MuiIIcon";
 import FormItem from "antd/es/form/FormItem";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-// import publicApiService from "../../services/BaseApi";
 import { PublicRoutes } from "../../consts/RoutesConst";
-import userCheck from '../../logindata.json'
+import publicApiService from "../../services/BaseApi";
+import apiService from "../../services/ApiService";
+import { ApiResponse } from "../../consts/ApiResponse";
+import { useState } from "react";
+import LoadingSpin from "../../components/LoadingSpin";
 function LoginForm() {
   const navigate = useNavigate();
   const addAuthInfo = useAuthStore((state) => state.setAuth);
+  const setUserInfo = useAuthStore((state) => state.setUserInfo);
+  const [loading,setLoading] = useState<boolean>(false);
 
   const handleSubmit: FormProps<UserForm>["onFinish"] = async (values) => {
     console.log(values)
     try {
-      // const response = await publicApiService.login(values);
-      // addAuthInfo(response.token, response.role);
-      const user = userCheck.find((u)=> u.userName == values.userName && u.password == values.password)
-      if(user){
-        Notification("success", "Login successful!");
-        navigate(PublicRoutes.HOME);
-        addAuthInfo(user.token,user.role);
-      }
+      setLoading((prev)=>!prev)
+      const response = await publicApiService.login(values);
+      addAuthInfo(response.data.token);
+      const userInfo = await apiService.get<ApiResponse<UserInfo>>('/auth');
+      setUserInfo(userInfo.data);
+      Notification("success", "Login successful!")
+      navigate(PublicRoutes.HOME)
     } catch (error) {
       console.log(error);
       Notification(
@@ -31,6 +35,8 @@ function LoginForm() {
         "Login fail!",
         "Please check your password or username!"
       );
+    }finally{
+      setLoading((prev)=>!prev)
     }
   };
 
@@ -60,7 +66,7 @@ function LoginForm() {
           </h1>
         </FormItem>
         <Form.Item<UserForm>
-          name="userName"
+          name="email"
           rules={[{ required: true, message: "Please input your username!" }]}
         >
           <Space.Compact style={{ width: "100%" }}>
@@ -89,7 +95,7 @@ function LoginForm() {
             className="w-full"
             style={{ padding: "1.2rem", borderRadius: "2rem",fontSize:15,border:'2px solid',background:'black',color:'white' }}
           >
-            Login
+            {loading ? <LoadingSpin width="1rem" height="1rem" border_color="white" border_top_clr="black"/> : 'Login'}
           </Button>
         </Form.Item>
         <FormItem>

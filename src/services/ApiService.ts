@@ -1,7 +1,7 @@
       import axios, { AxiosInstance, AxiosResponse } from 'axios'
       import { useAuthStore } from '../store/authStore'
 
-      const API_BASE_URL:string = ''
+      const API_BASE_URL:string = 'https://management-claim-request.vercel.app/api/'
 
       const apiClient:AxiosInstance = axios.create({
             baseURL:API_BASE_URL,
@@ -14,6 +14,7 @@
       apiClient.interceptors.request.use(
             (config)=>{
                   const token = useAuthStore.getState().token;
+                  console.log(token)
                   if(token){
                         config.headers.Authorization = `Bearer ${token}`;
                   }

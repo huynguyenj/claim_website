@@ -15,11 +15,12 @@ const OverView = lazy(() => import("../home/OverView"));
 function Home() {
   const [isPaused, setIsPaused] = useState(false);
   const navigate = useNavigate();
-  const role = useAuthStore((state) => state.role);
+  const userInfo = useAuthStore((state) => state.user);
   const handleChangePage = () => {
-    if (!role) {
+    console.log(userInfo?.role_code)
+    if (!userInfo) {
       navigate(PublicRoutes.LOGIN);
-    } else if (role == roleDefine.ADMIN_ROLE) {
+    } else if (userInfo.role_code == roleDefine.ADMIN_ROLE) {
       navigate(AdminRoutes.ADMIN_DASHBOARD);
     } else {
       navigate(UserRoutes.USER_DASHBOARD);

@@ -1,7 +1,16 @@
 export interface User{
-      id: string;
-      name: string;
+      _id: string;
       email: string;
+      user_name: string;
+      role_code:string;
+      is_verified:boolean;
+      verification_token:string;
+      verification_token_expires:string;
+      token_version:number;
+      is_blocked:boolean;
+      created_at:string;
+      updated_at:string;
+      isDelete:boolean;
       phone: string;
       department: string;
       salary: number;
@@ -9,8 +18,24 @@ export interface User{
       blocked?: boolean;
   }
 
+  export interface UserInfo{
+      _id: string;
+      email: string;
+      user_name: string;
+      role_code:string;
+      is_verified:boolean;
+      verification_token:string;
+      verification_token_expires:string;
+      token_version:number;
+      is_blocked:boolean;
+      created_at:string;
+      updated_at:string;
+      isDelete:boolean;
+      __v:number
+  }
+
 export type UserForm = {
-      userName:string,
+      email:string,
       password:string     
 }
 
