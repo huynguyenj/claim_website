@@ -18,20 +18,23 @@ const Profile = () => {
         }
     }
 
-    const genders : string[] = ['Male','Female','Others']
+    const genders : string[] = ['Male','Female','Other']
 
   return (
-    < div className = "flex flex-col items-center" > 
-        <div className="w-1/2 min-w-sm border-2 border-gray-300 rounded-lg flex flex-col items-center">
+    < div className = "flex flex-col items-center overflow-y-scroll" > 
+        <div className="w-3/4 flex-shrink border-1 border-black rounded-xl flex flex-col items-center
+        shadow-[2px_2px_0px_black]">
             
             <br/>
             <div className="relative w-28 h-28">
-                <div className="w-full h-full rounded-full overflow-hidden border-2 border-gray-300">
+                <div className="w-full h-full rounded-full overflow-hidden border-1 border-black
+                shadow-[2px_2px_0px_black]">
                     <img src={avatar}
                         alt="Your avatar"
                         className="w-full h-full object-cover bg-white"/>
                 </div>
-                <label className="absolute bottom-0 right-0 bg-cyan-400 text-black p-2 rounded-full shadow-md cursor-pointer hover:bg-blue-700 transition">
+                <label className="absolute top-0 right-0 bg-cyan-400 text-black p-2 rounded-full shadow-[2px_2px_0px_black]
+                cursor-pointer hover:bg-blue-700 transition">
                     <EditOutlined/>
                     <input type="file" accept="image/*" className="hidden"
                         onChange={avatarChange}/>
@@ -44,64 +47,71 @@ const Profile = () => {
                 </h1>
 
                 {/* First and Last Name */}
-                <div className="flex flex-row gap-2 w-full">
-                    <div className="flex flex-col mb-5 flex-grow">
+                <div className="grid grid-cols-1 md:grid-cols-2 w-full">
+                    <div className="flex flex-col mb-5 flex-grow mx-5 lg:mx-10">
                         <label className="text-black">First name</label>
-                        <input type="text" className="bg-white p-1 rounded-lg border-2 border-gray-300 w-full"/>
+                        <input type="text" className="bg-white p-1 rounded-sm border-1 border-black w-full
+                        shadow-[2px_2px_0px_black]"/>
                     </div>
-                    <div className="flex flex-col mb-5 flex-grow">
+                    <div className="flex flex-col mb-5 flex-grow mx-5 lg:mx-10">
                         <label className="text-black">Last name</label>
-                        <input type="text" className="bg-white p-1 rounded-lg border-2 border-gray-300 w-full"/>
+                        <input type="text" className="bg-white p-1 rounded-sm border-1 border-black w-full
+                        shadow-[2px_2px_0px_black]"/>
                     </div>
                 </div>
 
                 {/* Username and Password */}
-                <div className="flex flex-row gap-2 w-full">
-                    <div className="flex flex-col mb-5 flex-grow">
+                <div className="grid grid-cols-1 md:grid-cols-2 w-full">
+                    <div className="flex flex-col mb-5 flex-grow mx-5 lg:mx-10">
                         <label className="text-black">Username</label>
-                        <input type="text" className="bg-white p-1 rounded-lg border-2 border-gray-300 w-full"/>
+                        <input type="text" className="bg-white p-1 rounded-sm border-1 border-black w-full
+                        shadow-[2px_2px_0px_black]"/>
                     </div>
-                    <div className="flex flex-col mb-5 flex-grow">
+                    <div className="flex flex-col mb-5 flex-grow mx-5 lg:mx-10">
                         <label className="text-black">Email</label>
-                        <input type="text" className="bg-white p-1 rounded-lg border-2 border-gray-300 w-full"/>
+                        <input type="text" className="bg-white p-1 rounded-sm border-1 border-black w-full
+                        shadow-[2px_2px_0px_black]"/>
                     </div>
                 </div>
 
                 {/* Email and Phone */}
-                <div className="flex flex-row gap-2 w-full">
-                    <div className="flex flex-col mb-5 flex-grow">
+                <div className="grid grid-cols-1 md:grid-cols-2 w-full">
+                    <div className="flex flex-col mb-5 flex-grow mx-5 lg:mx-10">
                         <label className="text-black">Phone number</label>
                         <PhoneInput international placeholder="Enter phone number"
                             value={phone}
                             onChange={setPhone}
-                            className="bg-white p-1 rounded-lg border-2 border-gray-300 w-full"
+                            className="bg-white p-1 rounded-sm border-1 border-black w-full
+                            shadow-[2px_2px_0px_black]"
                         />
                     </div>
-                    <div className="flex flex-col mb-5 flex-grow">
+                    <div className="flex flex-col mb-5 flex-grow mx-5 lg:mx-10">
                         <label className="text-black">Address</label>
-                        <input type="text" className="bg-white p-1 rounded-lg border-2 border-gray-300 w-full"/>
+                        <input type="text" className="bg-white p-1 rounded-sm border-1 border-black w-full
+                        shadow-[2px_2px_0px_black]"/>
                     </div>
                 </div>
                 
 
                 {/* Birthdate, and Gender */}
-                <div className="flex flex-row gap-2 w-full">
-                    <div className="flex flex-col mb-5 flex-grow">
+                <div className="grid grid-cols-1 md:grid-cols-2 w-full">
+                    <div className="flex flex-col mb-5 flex-grow mx-5 lg:mx-10">
                         <label className="text-black">Birthdate</label>
-                        <DatePicker className="w-full"/>
+                        <DatePicker style={{ border: '1px solid black', borderRadius: '4px', boxShadow:'2px 2px 0px black' }}/>
                     </div>
-                    <div className="flex flex-col mb-5 flex-grow">
+                    <div className="flex flex-col mb-5 flex-grow mx-5 lg:mx-10">
                         <label className="text-black">Gender</label>
                         <Select placeholder="Unspecified"
                             options={
                                 genders.map((gender) => ({label: gender, value: gender}))
                             }
-                            className="w-full"    
+                            style={{ border: '1px solid black', borderRadius: '4px', boxShadow:'2px 2px 0px black' }}    
                         />
                     </div>
                 </div>
 
-                <button className='bg-cyan-400 hover:bg-blue-700 rounded-lg p-2 font-bold'>
+                <button className='bg-cyan-400 hover:bg-blue-700 rounded-lg p-2 m-5 font-bold
+                shadow-[4px_4px_0px_black]'>
                     Save Changes
                 </button>
             </div>

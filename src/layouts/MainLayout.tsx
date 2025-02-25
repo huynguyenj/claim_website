@@ -28,7 +28,6 @@ export default function MainLayout() {
   const [item, setItem] = useState<SidebarItem[]>([])
   const userRole = useAuthStore.getState().role;
   useEffect(() => {
-    console.log(userRole)
     setItem(sideBarUser.filter((item) => item.role === userRole || item.role === undefined));
   }, [userRole])
   return (

@@ -59,7 +59,7 @@ function Home() {
               onClick={handleChangePage}
               className="bg-transparent border-4 border-white hover:bg-blue-800 hover:px-10 p-3 sm:p-5 rounded-3xl text-white duration-300 ease-in-out cursor-pointer text-[1.2rem] active:opacity-70 z-10"
             >
-              Get stated <span className="font-bold">now</span>!
+              Get start <span className="font-bold">now</span>!
             </button>
           </div>
         </div>
