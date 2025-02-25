@@ -22,6 +22,20 @@ function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
       }
   },[location.pathname,itemList])
 
+  useEffect(()=>{
+    const handleResize = () =>{
+      if(window.innerWidth <= 687){
+        setIsOpen(false);
+      }else{
+        setIsOpen( true)
+      }
+  
+    }
+    window.addEventListener('resize',handleResize);
+    handleResize();
+    return ()=> { window.removeEventListener('resize',handleResize)};
+  },[])
+
   return (
     <aside
       className={`bg-black/100 h-screen ${
@@ -31,7 +45,7 @@ function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
       <nav className="flex flex-col ">
         <div className="w-full flex rounded-full mt-13 gap-3 items-center px-5">
           <img
-            className="w-7 h-7 sm:w-10 sm:h-10 bg-amber-50 rounded-full"
+            className="w-9 h-9 sm:w-14 sm:h-14"
             src={logo}
             alt="logo"
           />

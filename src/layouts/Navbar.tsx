@@ -40,10 +40,10 @@ function Navbar() {
     useAuthStore.getState().removeExpired();
   }
   return (
-    <nav className="mb-5 p-2 w-fit sm:w-[95%] bg-white-fig  mx-auto mt-5">
+    <nav className="mb-5 p-2 w-fit sm:w-[95%] bg-white-fig  sm:mx-auto mt-5">
       <div className="flex items-center w-full py-3 gap-5 justify-between sm:px-10">
         <div className="">
-          <h1 className="text-[0.7rem] sm:text-[1.8rem] text-dark-fig font-bold w-fit">
+          <h1 className="text-[0.9rem] sm:text-[1.8rem] text-dark-fig font-bold w-fit">
             Welcome! {user_Info.full_name}
           </h1>
         </div>
