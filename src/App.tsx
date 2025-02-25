@@ -20,26 +20,28 @@ function App() {
   useEffect(() => {
     setPublicRoutes(getRoutesPublic(login));
     setPrivateRoutes(getPrivateRoute(role));
-  }, [login,role]);
+  }, [login, role]);
 
-  return (   
-     
-      <Suspense fallback={<Loading />}>
-        <Routes>
-          {publicRoutes.map((route, index) => (
-            <Route path={route.path} element={route.element} key={index} />
-          ))}
-          <Route element={<ProtectedRoute/>}>
-              <Route element={<MainLayout/>}>
-                {privateRoutes.map((route,index)=>(
-                  <Route path={route.path} element={route.element} key={index}></Route>
-                ))}
-              </Route>
+  return (
+    <Suspense fallback={<Loading />}>
+      <Routes>
+        {publicRoutes.map((route, index) => (
+          <Route path={route.path} element={route.element} key={index} />
+        ))}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<MainLayout />}>
+            {privateRoutes.map((route, index) => (
+              <Route
+                path={route.path}
+                element={route.element}
+                key={index}
+              ></Route>
+            ))}
           </Route>
-          <Route path="*" element={<ErrorPage/>}></Route>
-        </Routes>
-       
-      </Suspense>
+        </Route>
+        <Route path="*" element={<ErrorPage />}></Route>
+      </Routes>
+    </Suspense>
   );
 }
 
