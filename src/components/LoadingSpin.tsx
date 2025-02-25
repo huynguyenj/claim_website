@@ -12,7 +12,7 @@ function LoadingSpin({
 }: StyleLoading) {
   return (
     <div
-      className="rounded-full animate-loading border-2"
+      className="rounded-full animate-loading border-4"
       style={{
         width: `${width}`,
         height: `${height}`,

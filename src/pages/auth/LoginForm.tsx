@@ -41,7 +41,7 @@ function LoginForm() {
   };
 
   const handleChangePage = (): void => {
-    navigate(PublicRoutes.REGISTER);
+    navigate(PublicRoutes.FORGOTPASS);
   };
 
   return (
@@ -100,12 +100,12 @@ function LoginForm() {
         </Form.Item>
         <FormItem>
           <p className="text-[0.7rem] sm:text-[1rem]">
-            You haven't an account?
+            You forget your an password?
             <span
               className="text-blue-500 cursor-pointer font-bold hover:underline ml-1"
               onClick={handleChangePage}
             >
-              Sign up
+              Forget
             </span>
           </p>
         </FormItem>

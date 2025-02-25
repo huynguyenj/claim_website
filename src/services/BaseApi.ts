@@ -17,6 +17,14 @@ const publicApiService = {
       register: async(infoRegister:object)=>{
             const response = await apiClient.post(API_BASE_URL+'/register',infoRegister)
             return response.data;
+      },
+      forgetPass: async(emailInfo: object) => {
+            const response = await apiClient.put(API_BASE_URL+'/auth/forgot-password',emailInfo)
+            return response.data
+      },
+      verifyToken: async (token:object) => {
+            const response = await apiClient.post(API_BASE_URL+'/auth/verify-token',token)
+            return response.data
       }
 }
 

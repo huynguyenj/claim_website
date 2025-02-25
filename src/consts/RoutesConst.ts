@@ -4,6 +4,7 @@ export const PublicRoutes = {
   LOGIN: "/login",
   REGISTER: "/register",
   VERIFY: "/verifyEmail",
+  FORGOTPASS:"/forgotPassword"
 };
 
 export const AdminRoutes = {
