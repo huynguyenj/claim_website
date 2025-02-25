@@ -55,27 +55,6 @@ const sideBarAdmin: SidebarItem[] = [
   },
 ];
 
-const sideBarAdmin: SidebarItem[] = [
-  {
-    title: "Dashboard",
-    icon: DashBoard,
-    path: AdminRoutes.ADMIN_DASHBOARD,
-    gap: true,
-  },
-  {
-    title: "User Management",
-    icon: UserList,
-    path: AdminRoutes.USER_LIST_PAGE,
-  },
-  {
-    title: "Project Management",
-    icon: CheckListIcon,
-    path: AdminRoutes.PROJECT_LIST_PAGE,
-    gap: true,
-  },
-  { title: "Setting", icon: SettingIcon, path: "/setting" },
-];
-
 export default function MainLayout() {
   const [item, setItem] = useState<SidebarItem[]>([]);
   const userRole = useAuthStore.getState().role;

@@ -9,6 +9,7 @@ import dataset from "../../model/AdminDashboard";
 import { ArrowDownwardOutlined, Article } from "@mui/icons-material";
 import LineChartComponent from "../../components/Admin/LineChart";
 import { UserIcon } from "../../components/Icon/MuiIIcon";
+import StatisticCard from "../../components/Admin/StatisticCard";
 
 export default function Dashboard() {
   return (
@@ -28,46 +29,33 @@ export default function Dashboard() {
       </div>
       {/* Statistics*/}
       {/* Users */}
-      <div className="col-span-1 relative bg-white  p-5 rounded-xl border border-black shadow-[8px_4px_black]">
-        <p className="text-md text-gray-600 font-bold flex items-center mb-5">
-          <span>
-            <UserIcon />
-          </span>
-          Users
-        </p>
-        <p className="text-3xl font-bold">{dataset.users.length}</p>
-        <p className="absolute top-10 right-3 text-sm text-center text-green-800 bg-green-100 border border-green-300 w-12  rounded-full">
-          +25%
-        </p>
-      </div>
+      <StatisticCard
+        icon={<UserIcon />}
+        title="Users"
+        data={dataset.users.length}
+        growth={25}
+      />
       {/* Claims */}
-      <div className="col-span-1 relative bg-white p-5 rounded-xl border shadow-[8px_4px_black]">
-        <p className="text-md text-gray-600 font-bold flex items-center mb-5">
-          <span>
-            <Article />
-          </span>
-          Claims
-        </p>
-        <p className="text-3xl font-bold">{dataset.claims.length}</p>
-        <p className="absolute top-10 right-3 text-sm text-center text-green-800 bg-green-100 border border-green-300 w-12  rounded-full">
-          +6%
-        </p>
-      </div>
+      <StatisticCard
+        icon={<Article />}
+        title="Claims"
+        data={dataset.claims.length}
+        growth={42}
+      />
       {/* Funds */}
-      <div className="col-span-1 relative bg-white p-5 rounded-xl border shadow-[8px_4px_black]">
-        <p className="text-md text-gray-600 font-bold">Funds</p>
-        <p className="text-3xl font-bold">${totalFunds()}</p>
-        <p className="absolute top-10 right-3 text-sm text-center text-green-800 bg-green-100 border border-green-300 w-12  rounded-full">
-          +42%
-        </p>
-      </div>
-      <div className="col-span-1 relative bg-white p-5 rounded-xl border shadow-[8px_4px_black]">
-        <p className="text-md text-gray-600 font-bold">Name</p>
-        <p className="text-3xl font-bold">Value</p>
-        <p className="absolute top-10 right-3 text-sm text-center text-green-800 bg-green-100 border border-green-300 w-12  rounded-full">
-          +25%
-        </p>
-      </div>
+      <StatisticCard
+        icon={<Article />}
+        title="Funds"
+        data={totalFunds()}
+        growth={42}
+      />
+      {/* Sessions */}
+      <StatisticCard
+        icon={<Article />}
+        title="Sessions"
+        data={dataset.users.length}
+        growth={42}
+      />
       {/* Charts Container */}
       <div className="col-span-1 sm:col-span-2 lg:col-span-4 grid grid-cols-1 lg:grid-cols-7 gap-4 lg:gap-0">
         {/* StackedAreaChart */}
