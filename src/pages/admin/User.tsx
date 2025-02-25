@@ -116,24 +116,6 @@ const UserDashboard = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5 overflow-auto">
-                {/* Users */}
-                <div className="col-span-1 relative bg-white p-3 rounded-xl border border-gray-200 flex flex-col shadow-[9px_6px_0px_rgba(0,0,0,1)]">
-                    <p className="text-md text-gray-600 font-bold">Total Projects</p>
-                    <p className="text-sm text-gray-400">6</p>
-                </div>
-                {/* Claims */}
-                <div className="col-span-1 relative bg-white p-3 rounded-xl border border-gray-200 flex flex-col shadow-[9px_6px_0px_rgba(0,0,0,1)]">
-                    <p className="text-md text-gray-600 font-bold">Recent Projects</p>
-                    <p className="text-sm text-gray-400">2</p>
-                </div>
-                {/* Funds */}
-                <div className="col-span-1 relative bg-white p-3 rounded-xl border border-gray-200 flex flex-col shadow-[9px_6px_0px_rgba(0,0,0,1)]">
-                    <p className="text-md text-gray-600 font-bold">Finished Projects</p>
-                    <p className="text-sm text-gray-400">1</p>
-                </div>
-            </div>
-
             <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
 
                 <div className="mb-4 flex justify-between items-center">
