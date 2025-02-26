@@ -4,7 +4,8 @@ export const PublicRoutes = {
   LOGIN: "/login",
   REGISTER: "/register",
   VERIFY: "/verifyEmail",
-  FORGOTPASS:"/forgotPassword"
+  FORGOTPASS:"/forgotPassword",
+  RESENDEMAIL:"/resendEmail"
 };
 
 export const AdminRoutes = {

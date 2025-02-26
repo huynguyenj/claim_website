@@ -9,7 +9,7 @@ import { useAuthStore } from "../../store/authStore";
 import { PublicRoutes } from "../../consts/RoutesConst";
 import publicApiService from "../../services/BaseApi";
 import apiService from "../../services/ApiService";
-import { ApiResponse } from "../../consts/ApiResponse";
+import { ApiResponse, getApiErrorMessage } from "../../consts/ApiResponse";
 import { useState } from "react";
 import LoadingSpin from "../../components/LoadingSpin";
 function LoginForm() {
@@ -29,11 +29,10 @@ function LoginForm() {
       Notification("success", "Login successful!")
       navigate(PublicRoutes.HOME)
     } catch (error) {
-      console.log(error);
       Notification(
         "error",
         "Login fail!",
-        "Please check your password or username!"
+        getApiErrorMessage(error)
       );
     }finally{
       setLoading((prev)=>!prev)

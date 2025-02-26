@@ -10,6 +10,8 @@ const HomePage = lazy(() => import("../pages/home/Home"));
 const VerifyPage = lazy(() => import("../pages/auth/VerifyPage"));
 const ErrorPage = lazy(() => import("../pages/error/ErrorPage"));
 const ForgotPassword = lazy(() => import ("../pages/auth/ForgotPassword"));
+const ResendEmailPage = lazy(() => import ("../pages/auth/ResendEmailPage"));
+
 
 const listPublicRoute: RouteType[] = [
   { path: PublicRoutes.HOME, element: <HomePage /> },
@@ -26,6 +28,7 @@ function PublicRoute({isLogin}:{isLogin:boolean}) {
         { path: PublicRoutes.LOGIN, element: <LoginPage /> },
         { path: PublicRoutes.VERIFY, element: <VerifyPage /> },
         { path: PublicRoutes.FORGOTPASS, element: <ForgotPassword/> },
+        { path:PublicRoutes.RESENDEMAIL, element:<ResendEmailPage/>}
 
       ]);
     }

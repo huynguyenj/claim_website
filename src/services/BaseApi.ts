@@ -25,7 +25,12 @@ const publicApiService = {
       verifyToken: async (token:object) => {
             const response = await apiClient.post(API_BASE_URL+'/auth/verify-token',token)
             return response.data
+      },
+      resendToken: async (emailInfo: object) => {
+            const response = await apiClient.post(API_BASE_URL+'/auth/resend-token',emailInfo);
+            return response.data;
       }
+
 }
 
 export default publicApiService

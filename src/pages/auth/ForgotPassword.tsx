@@ -2,36 +2,37 @@ import { useRef, useEffect, useState } from "react";
 import { Notification } from "../../components/Notification";
 import LoadingSpin from "../../components/LoadingSpin";
 import publicApiService from "../../services/BaseApi";
-
-type EmailData = {
-  email:string
-}
+import { BackArrowBackSpaceIcon } from "../../components/Icon/MuiIIcon";
+import { useNavigate } from "react-router-dom";
+import { PublicRoutes } from "../../consts/RoutesConst";
+import { getApiErrorMessage } from "../../consts/ApiResponse";
 
 function ForgotPassword() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const [isValid, setIsValid] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [email, setEmail] = useState<EmailData>();
-
+  const navigate = useNavigate();
   const handleForgotPass = async () => {
-    if(inputRef.current){
-      setEmail({email :inputRef.current.value});
+    if (inputRef.current?.value) {
       try {
-        setLoading((prev) => !prev)
-        await publicApiService.forgetPass(email as object)
-        Notification('info', 'Check your new password in email!')
+        setLoading((prev) => !prev);
+        const response = await publicApiService.forgetPass({ email: inputRef.current.value });
+        Notification("info", `${response.message}`);
       } catch (error) {
-        Notification('error', 'Check your email correctly!')
-        console.log('fail to call api',error)
-      }finally{
-        setLoading((prev) => !prev)
+        Notification("error", getApiErrorMessage(error));
+      } finally {
+        setLoading((prev) => !prev);
       }
-
     }
+  };
+  const handleChangePage = () => {
+    navigate(PublicRoutes.HOME);
   };
   useEffect(() => {
     const checkFocus = () => {
       setIsFocused(document.activeElement === inputRef.current);
+      setIsValid(inputRef.current?.value != "");
     };
 
     checkFocus();
@@ -56,9 +57,18 @@ function ForgotPassword() {
           </p>
         </div>
         <div className="relative mt-3">
-    <label htmlFor="inputPass" className={`absolute text-white mix-blend-difference left-3 text-3xl duration-300 transition-all ease-in-out ${isFocused || inputRef.current?.value!=null ? "top-[-14px] text-[1.3rem] bg-transparent w-fit":" top-[50%] transform-[translateY(-50%)]"}`}>Email</label>
+          <label
+            htmlFor="inputPass"
+            className={`absolute text-white mix-blend-difference left-3 text-3xl duration-300 transition-all ease-in-out ${
+              isFocused || isValid
+                ? "top-[-14px] text-[1.3rem] bg-transparent w-fit"
+                : " top-[50%] transform-[translateY(-50%)]"
+            }`}
+          >
+            Email
+          </label>
           <input
-            ref={inputRef}  
+            ref={inputRef}
             type="text"
             id="inputPass"
             className="w-70 sm:w-100 h-15 bg-white mix-blend-difference text-dark-fig text-3xl border-none outline-none p-2"
@@ -71,8 +81,24 @@ function ForgotPassword() {
           {!loading ? (
             <p>Submit</p>
           ) : (
-           <LoadingSpin width="2.5rem" height="2.5rem" border_color="black" border_top_clr="white" />
+            <LoadingSpin
+              width="2.5rem"
+              height="2.5rem"
+              border_color="black"
+              border_top_clr="white"
+            />
           )}
+        </button>
+        <button
+          onClick={handleChangePage}
+          className="w-40 sm:w-20 sm:h-20 hover:w-60 hover:h-20 flex items-center justify-center rounded-full py-2 mix border-dark-fig ring-1 border-2 text-3xl transform-[translateY(-5px)] active:shadow-fig-active active:transform-[translateY(5px)] duration-300 mt-4 bg-white-fig cursor-pointer shadow-fig hover:scale-[0.95] group"
+        >
+          <div className="transform-[translateX(120%)] group-hover:transform-[translateX(-10%)] duration-300 ease-in">
+            <BackArrowBackSpaceIcon sx={{ fontSize: 30 }} />
+          </div>
+          <p className="transform-[scale(0)] group-hover:transform-[scale(1)] duration-500 ease-in-out ">
+            Back
+          </p>
         </button>
       </div>
     </div>
