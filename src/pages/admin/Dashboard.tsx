@@ -17,15 +17,6 @@ export default function Dashboard() {
       {/* Search Section */}
       <div className="col-span-1 sm:col-span-2 lg:col-span-4 flex flex-col lg:flex-row items-center justify-between">
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <div className="flex gap-2">
-          <button className="bg-slate-800 text-white text-sm py-2 px-4 rounded-lg flex items-center gap-1 cursor-pointer">
-            Export Data
-            <ArrowDownwardOutlined fontSize="small" />
-          </button>
-          <button className="bg-blue-500 text-white text-sm py-2 px-4 rounded-lg flex items-center gap-1 cursor-pointer">
-            Create Report
-          </button>
-        </div>
       </div>
       {/* Statistics*/}
       {/* Users */}
