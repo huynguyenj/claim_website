@@ -24,7 +24,7 @@ const ProjectManagement: React.FC = () => {
             const response = await apiService.get<{ data: Project[] }>('/projects');
             setProjects(response.data);
         } catch (error) {
-            message.error('Failed to fetch projects');
+            message.error(`Failed to fetch projects ${error}`);
         }
         setLoading(false);
     };
@@ -34,7 +34,7 @@ const ProjectManagement: React.FC = () => {
             const response = await apiService.get<{ data: User[] }>('/users');
             setUsers(response.data);
         } catch (error) {
-            message.error('Failed to fetch users');
+            message.error(`Failed to fetch users ${error}`);
         }
     };
 
@@ -67,7 +67,7 @@ const ProjectManagement: React.FC = () => {
             message.success('Project deleted successfully');
             fetchProjects();
         } catch (error) {
-            message.error('Failed to delete project');
+            message.error(`Failed to delete project ${error}`);
         }
     };
 
@@ -106,7 +106,7 @@ const ProjectManagement: React.FC = () => {
             setIsModalVisible(false);
             fetchProjects();
         } catch (error) {
-            message.error('Failed to submit project form');
+            message.error(`Failed to submit project form ${error}`);
         }
     };
 
