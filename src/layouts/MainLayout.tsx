@@ -57,7 +57,7 @@ const sideBarAdmin: SidebarItem[] = [
 
 export default function MainLayout() {
   const [item, setItem] = useState<SidebarItem[]>([]);
-  const userRole = useAuthStore.getState().role;
+  const userRole = useAuthStore.getState().user?.role_code;
   useEffect(() => {
     setItem(
       sideBarUser.filter(
