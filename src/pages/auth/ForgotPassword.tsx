@@ -5,7 +5,6 @@ import publicApiService from "../../services/BaseApi";
 import { BackArrowBackSpaceIcon } from "../../components/Icon/MuiIIcon";
 import { useNavigate } from "react-router-dom";
 import { PublicRoutes } from "../../consts/RoutesConst";
-import { getApiErrorMessage } from "../../consts/ApiResponse";
 
 function ForgotPassword() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -19,14 +18,15 @@ function ForgotPassword() {
         setLoading((prev) => !prev);
         await publicApiService.forgetPass({ email: inputRef.current.value });
         Notification("info", "Successfully","Check your email to get password!");
+        setTimeout(()=> navigate(PublicRoutes.LOGIN), 2000)
       } catch (error) {
-        Notification("error", getApiErrorMessage(error));
+        Notification("error", error as string);
       } finally {
         setLoading((prev) => !prev);
       }
     }
   };
-  const handleChangePage = () => {
+  const handleChangePage = ():void => {
     navigate(PublicRoutes.HOME);
   };
   useEffect(() => {
@@ -47,7 +47,7 @@ function ForgotPassword() {
 
   return (
     <div className="relative h-screen w-full flex items-center justify-center bg-[linear-gradient(to_left_bottom,black_50%,white_50%)]">
-      <div className="leading-10 flex flex-col items-center justify-center relative">
+      {!loading ? <div className="leading-10 flex flex-col items-center justify-center relative">
         <div className="text-center relative">
           <h1 className="font-bold text-3xl sm:text-5xl uppercase mix-blend-difference text-white-fig">
             Forgot password
@@ -100,7 +100,16 @@ function ForgotPassword() {
             Back
           </p>
         </button>
-      </div>
+      </div>:
+        <div className="">
+          <LoadingSpin  
+              width="2.5rem"
+              height="2.5rem"
+              border_color="black"
+              border_top_clr="white"/>
+        </div>
+      }
+          
     </div>
   );
 }
