@@ -149,7 +149,7 @@ function SalaryTable(): JSX.Element {
   const columns: TableProps<DataType>["columns"] = [
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]  ">
+        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem] ">
           <DateRangeIcon />
           Date
         </div>
@@ -169,7 +169,7 @@ function SalaryTable(): JSX.Element {
       dataIndex: "name",
       key: "name",
       render: (text) => <a className="text-blue-500 font-medium">{text}</a>,
-      responsive: ["sm", "md", "lg"],
+      responsive: ["xs", "sm", "md", "lg"],
     },
     {
       title: (
@@ -180,7 +180,6 @@ function SalaryTable(): JSX.Element {
       ),
       dataIndex: "project",
       key: "project",
-      responsive: ["md", "lg"],
       render: (text) => (
         <Tooltip title={text}>
           <div className="text-gray-700 font-bold truncate max-w-[150px]">
@@ -189,6 +188,7 @@ function SalaryTable(): JSX.Element {
         </Tooltip>
       ),
       ellipsis: true,
+      responsive: ["xs", "sm", "md", "lg"],
     },
     {
       title: (
@@ -199,6 +199,7 @@ function SalaryTable(): JSX.Element {
       ),
       dataIndex: "salary",
       key: "salary",
+
       render: (salary) => (
         <p>
           {salary} <DollarOutlined />
@@ -215,7 +216,7 @@ function SalaryTable(): JSX.Element {
       dataIndex: "overtime",
       key: "overtime",
       render: (text) => <p>{text} Hours</p>,
-      responsive: ["md", "lg"],
+      responsive: ["sm", "md", "lg"],
     },
     {
       title: (
@@ -277,12 +278,12 @@ function SalaryTable(): JSX.Element {
         <Space size="small">
           <ModalConfirm
             typeConfirm={{ borderColor: "#6ef13c" }}
-            text="PAID"
+            text="PAY"
             userData={data}
           />
         </Space>
       ),
-      responsive: ["sm", "md", "lg"],
+      responsive: ["xs","sm", "md", "lg"],
     },
   ];
   const components = {
@@ -305,7 +306,7 @@ function SalaryTable(): JSX.Element {
           Export Data
         </Button>
       </div>
-      <div className="p-6 mr-6 ml-6 h-full overflow-auto overflow-y-auto border-zinc-950 border-[1.5px] rounded-[12px] relative">
+      <div className="p-6 mr-6 ml-6 mb-6 h-full overflow-y-auto border-zinc-950 border-[1.5px] rounded-[12px]">
         <div className="p-6 flex justify-around gap-2 mr-1">
           <Input
             prefix={<SearchOutlined className="text-gray-500" />}
@@ -326,8 +327,9 @@ function SalaryTable(): JSX.Element {
             onChange={handleDatePicker}
           />
         </div>
-        <div className="h-full border-t-[1.2px]">
+        <div>
           <Table
+          className="overflow-x-auto"
             rowKey="key"
             columns={columns}
             dataSource={filteredData}
