@@ -16,6 +16,7 @@ import {
 } from "../../components/Icon/MuiIIcon";
 import DataType from "./DataType";
 import { ArrowCircleDown } from "@mui/icons-material";
+import { pagnitionAntd } from "../../consts/Pagination";
 const initialData: DataType[] = [
   {
     key: "1",
@@ -333,7 +334,7 @@ function SalaryTable(): JSX.Element {
             rowKey="key"
             columns={columns}
             dataSource={filteredData}
-            pagination={{ pageSize: 5 }}
+            pagination={{ pageSize: pagnitionAntd.pageSize }}
             style={{
               tableLayout: "auto",
             }}
