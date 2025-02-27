@@ -1,45 +1,35 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
 import Loading from "./components/Loading";
-import { ProtectedRoute } from "./router/ProtectedRoute";
 import { useAuthStore } from "./store/authStore";
-import getRoutesPublic from "./router/PublicRoute";
-import { RouteType } from "./model/RouteData";
+
+import PublicRoute from "./router/PublicRoute";
+import { Route, Routes } from "react-router-dom";
 import getPrivateRoute from "./router/PrivateRoute";
+import { RouteType } from "./model/RouteData";
+import { ProtectedRoute } from "./router/ProtectedRoute";
 
 const MainLayout = lazy(() => import("./layouts/MainLayout"));
 const ErrorPage = lazy(() => import("./pages/error/ErrorPage"));
 
 function App() {
   const login = useAuthStore((state) => state.isLogin);
-  const role = useAuthStore((state) => state.role);
-
-  const [publicRoutes, setPublicRoutes] = useState<RouteType[]>([]);
-  const [privateRoutes, setPrivateRoutes] = useState<RouteType[]>([]);
-
+  const role = useAuthStore((state) => state.user?.role_code);
+  const [privateRouteList, setPrivateRouteList] = useState<RouteType[]>();
   useEffect(() => {
-    setPublicRoutes(getRoutesPublic(login));
-    setPrivateRoutes(getPrivateRoute(role));
-  }, [login, role]);
-
+    setPrivateRouteList(getPrivateRoute(role));
+  }, [role]);
   return (
     <Suspense fallback={<Loading />}>
       <Routes>
-        {publicRoutes.map((route, index) => (
-          <Route path={route.path} element={route.element} key={index} />
-        ))}
+        <Route path="/*" element={<PublicRoute isLogin={login} />} />
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
-            {privateRoutes.map((route, index) => (
-              <Route
-                path={route.path}
-                element={route.element}
-                key={index}
-              ></Route>
+            {privateRouteList?.map((route, index) => (
+              <Route key={index} path={route.path} element={route.element} />
             ))}
           </Route>
         </Route>
-        <Route path="*" element={<ErrorPage />}></Route>
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
     </Suspense>
   );
