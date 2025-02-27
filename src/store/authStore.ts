@@ -1,12 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { UserInfo } from '../model/UserData';
+import {UserInfo } from '../model/UserData';
 interface AuthState {
       user: UserInfo | null,
       token: string | null;
       isLogin: boolean;
       setAuth: (token: string) => void;
-      setUserInfo: (user:UserInfo) => void
+      setUserInfo: (user: UserInfo) => void
       removeExpired: () => void
 
 }
@@ -20,12 +20,12 @@ export const useAuthStore = create<AuthState>()(
             (set) => ({
                   user: null,
                   token: null,
-                  isLogin:false,
-                  setAuth: (token) => set({token, isLogin:true}),
+                  isLogin: false,
+                  setAuth: (token) => set({ token, isLogin: true }),
                   setUserInfo(user) {
-                      set({user})
+                        set({ user })
                   },
-                  removeExpired: () => set({ token: null, user: null, isLogin:false })
+                  removeExpired: () => set({ token: null, user: null, isLogin: false })
             }),
             { name: "auth-storage" } //store in local storage
       ),
