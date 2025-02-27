@@ -14,7 +14,7 @@ function VerifyPage() {
     if (inputRef.current) {
       try {
         setLoading((prev) => !prev);
-        await publicApiService.verifyToken({ email: inputRef.current.value });
+        await publicApiService.verifyToken({ token: inputRef.current.value });
         Notification("success", "Your email verified successfully!");
         navigate(PublicRoutes.LOGIN);
       } catch (error) {
