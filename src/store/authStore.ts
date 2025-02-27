@@ -1,12 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { User } from '../model/UserData';
+import {UserInfo } from '../model/UserData';
 interface AuthState {
-      user: User | null,
+      user: UserInfo | null,
       token: string | null;
       isLogin: boolean;
       setAuth: (token: string) => void;
-      setUserInfo: (user: User) => void
+      setUserInfo: (user: UserInfo) => void
       removeExpired: () => void
 
 }

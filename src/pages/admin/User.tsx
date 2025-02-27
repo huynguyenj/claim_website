@@ -9,12 +9,13 @@ import { Article, EditOutlined, SearchOutlined } from "@mui/icons-material";
 import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
 import { Notification } from "../../components/Notification";
 import { getApiErrorMessage } from "../../consts/ApiResponse";
+import { pagnitionAntd } from "../../consts/Pagination";
 
 export default function UserManagement() {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [pageSize, setPageSize] = useState<number>(10);
+    const [pageSize, setPageSize] = useState<number>(pagnitionAntd.pageSize);
     const [totalItems, setTotalItems] = useState<number>(0);
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
@@ -152,7 +153,7 @@ export default function UserManagement() {
         {
             title: "Actions",
             key: "actions",
-            render: (text: any, record: User) => (
+            render: (_: string, record: User) => (
                 <div className="flex gap-2">
                     <Button icon={<EditOutlined />} type="link" onClick={() => {
                         form.setFieldsValue(record);
@@ -168,7 +169,7 @@ export default function UserManagement() {
         {
             title: "Status",
             key: "status",
-            render: (text: any, record: User) => (
+            render: (_:string, record: User) => (
                 <div className="relative">
                     <button
                         className={`p-2 rounded-lg transition-all duration-500 w-24 ${record.is_blocked
