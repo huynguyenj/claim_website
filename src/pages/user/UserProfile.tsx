@@ -22,30 +22,51 @@ const Profile = () => {
     }
 
     const genders : string[] = ['Male','Female','Other']
-
-    const projects : Project[] = [
+    const projects: Project[] = [
         {
-            id: '001',
-            name: 'Project 1',
-            startDate: '1/1/2025',
-            endDate: '2/30/2025',
-            budget: 5000,
+          project_name: "AI Automation System",
+          project_code: "AI2025",
+          project_department: "Research & Development",
+          project_description: "A system to automate repetitive tasks using AI and machine learning.",
+          project_start_date: "2025-03-01",
+          project_end_date: "2025-12-31",
+          project_members: [
+            { user_id: "U001", project_role: "Project Manager" },
+            { user_id: "U002", project_role: "Lead Developer" },
+            { user_id: "U003", project_role: "Data Scientist" }
+          ]
         },
         {
-            id: '002',
-            name: 'Project 2',
-            startDate: '2/1/2025',
-            endDate: '3/30/2025',
-            budget: 50000,
+          project_name: "E-Commerce Platform",
+          project_code: "EC2025",
+          project_department: "IT & Sales",
+          project_description: "A scalable e-commerce platform with integrated payment systems.",
+          project_start_date: "2025-01-15",
+          project_end_date: "2025-11-30",
+          project_members: [
+            { user_id: "U004", project_role: "Product Owner" },
+            { user_id: "U005", project_role: "Frontend Developer" },
+            { user_id: "U006", project_role: "Backend Developer" }
+          ]
         },
         {
-            id: '003',
-            name: 'Project 3',
-            startDate: '5/1/2025',
-            endDate: '7/30/2025',
-            budget: 25000,
-        },
-    ]
+          project_name: "Healthcare Management System",
+          project_code: "HMS2025",
+          project_department: "Healthcare IT",
+          project_description: "A cloud-based healthcare management system for hospitals.",
+          project_start_date: "2025-04-10",
+          project_end_date: "2026-03-31",
+          project_members: [
+            { user_id: "U007", project_role: "System Architect" },
+            { user_id: "U008", project_role: "Security Analyst" },
+            { user_id: "U009", project_role: "Database Administrator" }
+          ]
+        }
+      ];
+      
+      
+      
+      
 
 
     return (
@@ -158,9 +179,9 @@ const Profile = () => {
                         {projects.map((project) => (
                         <li className='border-1 rounded-lg m-4 px-4 shadow-[2px_2px_0px_black]
                         cursor-pointer hover:bg-gray-200 transition'>
-                            <p className='font-bold text-2xl'>{project.name}</p>
-                            <p>{project.startDate}</p>
-                            <p>{project.endDate}</p>
+                            <p className='font-bold text-2xl'>{project.project_name}</p>
+                            <p>{project.project_start_date}</p>
+                            <p>{project.project_end_date}</p>
                             
                         </li>
                         ))}

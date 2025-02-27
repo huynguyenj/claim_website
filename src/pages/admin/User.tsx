@@ -52,8 +52,7 @@ export default function UserManagement() {
                 setTotalItems(response.data.pageInfo.totalItems);
             }
         } catch (error) {
-            console.error('Failed to fetch users:', error);
-            Notification("error", getApiErrorMessage(error));
+            Notification("error", error);
         } finally {
             setLoading(false);
         }

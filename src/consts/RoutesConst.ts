@@ -3,9 +3,8 @@ export const PublicRoutes = {
   HOME: "/",
   LOGIN: "/login",
   REGISTER: "/register",
-  VERIFY: "/verifyEmail",
+  VERIFY: "/verifyEmail/:token",
   FORGOTPASS:"/forgotPassword",
-  RESENDEMAIL:"/resendEmail"
 };
 
 export const AdminRoutes = {
