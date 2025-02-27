@@ -112,7 +112,7 @@ const UserDashboard = () => {
 
     return (
 
-        <>
+        <div className="overflow-y-scroll">
             <div className="flex justify-end items-center p-5">
                 <div className="flex gap-2">
                     <Button type="primary" onClick={() => exportToExcel(users, ['id', 'name', 'email', 'password', 'phone', 'role', 'department', 'salary', 'address'], 'users')}>Export users file</Button>
@@ -280,7 +280,7 @@ const UserDashboard = () => {
                     </div>
                 )}
             </div >
-        </>
+        </div>
     )
 };
 

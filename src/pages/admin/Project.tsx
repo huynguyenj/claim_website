@@ -494,9 +494,9 @@ const ProjectDashboard = () => {
   );
 
   return (
-    <>
+    <div className="overflow-y-scroll">
 
-      <div className="flex justify-end items-center p-5">
+      <div className="flex justify-end items-center p-5 over ">
         <div className="flex gap-2">
           <Button type="primary" onClick={() => exportToExcel(projects, ['id', 'project name', 'start date', 'enddate', 'budget'], 'project')}>Export project list</Button>
         </div>
@@ -717,9 +717,8 @@ const ProjectDashboard = () => {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 
 export default ProjectDashboard;
-
