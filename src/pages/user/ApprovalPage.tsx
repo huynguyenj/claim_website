@@ -163,7 +163,7 @@ function ApprovalPage() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search by title or submitter name..."
-          sx={{ mb: 4 }}
+          sx={{ mb: 2 }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -196,7 +196,7 @@ function ApprovalPage() {
                   <TableRow key={item.id}>
                     <TableCell>{item.title}</TableCell>
                     <TableCell>{item.submittedBy}</TableCell>
-                    <TableCell>{item.date}</TableCell>
+                    <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Chip
                         label={item.status.charAt(0).toUpperCase() + item.status.slice(1)}
