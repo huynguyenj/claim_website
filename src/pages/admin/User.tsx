@@ -339,8 +339,14 @@ export default function UserManagement() {
                         <Form.Item name="user_name" label="Username" rules={[{ required: true, message: "Username is required" }]}>
                             <Input />
                         </Form.Item>
-                        <Form.Item name="role_code" label="Role" rules={[{ required: false }]}>
-                        </Form.Item>
+                        {/* <Form.Item name="role_code" label="Role" rules={[{ required: true, message: "Role is required" }]}>
+                            <Select>
+                                <Select.Option value="A001">Administrator</Select.Option>
+                                <Select.Option value="A002">Finance</Select.Option>
+                                <Select.Option value="A003">BUL, PM</Select.Option>
+                                <Select.Option value="A004">All Members Remaining</Select.Option>
+                            </Select>
+                        </Form.Item> */}
                     </Form>
                 </Modal>
 
