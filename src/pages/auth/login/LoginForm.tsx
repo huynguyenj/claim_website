@@ -1,46 +1,15 @@
-import { UserForm} from "../../model/UserData";
+import { UserForm} from "../../../model/UserData";
 import { Button, Form, Input, Space } from "antd";
-import type { FormProps } from "antd";
-import { Notification } from "../../components/Notification";
-import { PasswordIcon, UserIcon } from "../../components/Icon/MuiIIcon";
+import { PasswordIcon, UserIcon } from "../../../components/Icon/MuiIIcon";
 import FormItem from "antd/es/form/FormItem";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore";
-import { AdminRoutes, PublicRoutes, UserRoutes } from "../../consts/RoutesConst";
-import publicApiService from "../../services/BaseApi";
-import { useState } from "react";
-import LoadingSpin from "../../components/LoadingSpin";
-import authService from "../../services/AuthService";
-import { roleDefine } from "../../consts/UserRole";
+import {  PublicRoutes } from "../../../consts/RoutesConst";
+import LoadingSpin from "../../../components/common/LoadingSpin";
+
+import useLogin from "../../../hooks/auth/useLogin";
 function LoginForm() {
   const navigate = useNavigate();
-  const addAuthInfo = useAuthStore((state) => state.setAuth);
-  const setUserInfo = useAuthStore((state) => state.setUserInfo);
-  const [loading,setLoading] = useState<boolean>(false);
-
-  const handleSubmit: FormProps<UserForm>["onFinish"] = async (values) => {
-    try {
-      setLoading((prev)=>!prev)
-      const response = await publicApiService.login(values);
-      addAuthInfo(response.data.token);
-      const userInfo = await authService.getInfo();
-      setUserInfo(userInfo.data);
-      Notification("success", "Login successful!")
-      if(useAuthStore.getState().user?.role_code === roleDefine.ADMIN_ROLE){
-        navigate(AdminRoutes.ADMIN_DASHBOARD)
-      }else(
-        navigate(UserRoutes.USER_DASHBOARD)
-      )
-    } catch (error) {
-      Notification(
-        "error",
-        "Login fail!",
-        error as string
-      );
-    }finally{
-      setLoading((prev)=>!prev)
-    }
-  };
+  const {handleSubmitLogin, loading} = useLogin();
 
   const handleChangePage = (): void => {
     navigate(PublicRoutes.FORGOTPASS);
@@ -52,7 +21,7 @@ function LoginForm() {
         name="Login"
         wrapperCol={{ span: 30 }}
         style={{ maxWidth: 500 }}
-        onFinish={handleSubmit}
+        onFinish={handleSubmitLogin}
         autoComplete="off"
         className="w-50 sm:w-100"
       >

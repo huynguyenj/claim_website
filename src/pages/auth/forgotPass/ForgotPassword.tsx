@@ -1,34 +1,22 @@
 import { useRef, useEffect, useState } from "react";
-import { Notification } from "../../components/Notification";
-import LoadingSpin from "../../components/LoadingSpin";
-import publicApiService from "../../services/BaseApi";
-import { BackArrowBackSpaceIcon } from "../../components/Icon/MuiIIcon";
-import { useNavigate } from "react-router-dom";
-import { PublicRoutes } from "../../consts/RoutesConst";
+import LoadingSpin from "../../../components/common/LoadingSpin";
+import { BackArrowBackSpaceIcon } from "../../../components/Icon/MuiIIcon";
+import useForgotPassword from "../../../hooks/auth/useForgotPassword";
+import useNavigateHome from "../../../hooks/navigate/useNavigateHome";
 
 function ForgotPassword() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [isValid, setIsValid] = useState(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const navigate = useNavigate();
-  const handleForgotPass = async () => {
-    if (inputRef.current?.value) {
-      try {
-        setLoading((prev) => !prev);
-        await publicApiService.forgetPass({ email: inputRef.current.value });
-        Notification("info", "Successfully","Check your email to get password!");
-        setTimeout(()=> navigate(PublicRoutes.LOGIN), 2000)
-      } catch (error) {
-        Notification("error", error as string);
-      } finally {
-        setLoading((prev) => !prev);
-      }
+  const {loading,handleForgotPass} = useForgotPassword();
+  const {changeToHomePage} = useNavigateHome();
+  
+
+  const handleForgotInput = ():void =>{
+    if(inputRef.current?.value){
+      handleForgotPass(inputRef.current.value)
     }
-  };
-  const handleChangePage = ():void => {
-    navigate(PublicRoutes.HOME);
-  };
+  }
   useEffect(() => {
     const checkFocus = () => {
       setIsFocused(document.activeElement === inputRef.current);
@@ -75,7 +63,7 @@ function ForgotPassword() {
           />
         </div>
         <button
-          onClick={handleForgotPass}
+          onClick={handleForgotInput}
           className="w-50 sm:w-70 flex items-center justify-center rounded-[0.5rem] py-2 mix border-dark-fig ring-1 border-2 text-3xl transform-[translateY(-5px)] active:shadow-fig-active active:transform-[translateY(5px)] duration-300 mt-4 bg-white-fig cursor-pointer shadow-fig hover:scale-[0.95]"
         >
           {!loading ? (
@@ -90,7 +78,7 @@ function ForgotPassword() {
           )}
         </button>
         <button
-          onClick={handleChangePage}
+          onClick={changeToHomePage}
           className="w-40 sm:w-20 sm:h-20 hover:w-60 hover:h-20 flex items-center justify-center rounded-full py-2 mix border-dark-fig ring-1 border-2 text-3xl transform-[translateY(-5px)] active:shadow-fig-active active:transform-[translateY(5px)] duration-300 mt-4 bg-white-fig cursor-pointer shadow-fig hover:scale-[0.95] group"
         >
           <div className="transform-[translateX(120%)] group-hover:transform-[translateX(-10%)] duration-300 ease-in">

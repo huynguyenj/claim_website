@@ -1,11 +1,11 @@
 import { EditIcon, LogoutIcon,UserIcon } from "../components/Icon/MuiIIcon";
 import profile from "../assets/logouser.png";
 import { useState } from "react";
-import Popup from "../components/Popup";
+import Popup from "../components/common/Popup";
 import { useAuthStore } from "../store/authStore";
 import apiService from "../services/ApiService";
 import { ApiResponse } from "../consts/ApiResponse";
-import { Notification } from "../components/Notification";
+import { Notification } from "../components/common/Notification";
 
 
 function Navbar() {
