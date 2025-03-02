@@ -15,11 +15,13 @@ const OverView = lazy(() => import("../home/OverView"));
 function Home() {
   const [isPaused, setIsPaused] = useState(false);
   const navigate = useNavigate();
-  const role = useAuthStore((state) => state.role);
-  const handleChangePage = () => {
-    if (!role) {
+  const userInfo = useAuthStore((state) => state.user);
+
+  const handleChangePage = ():void => {
+    console.log(userInfo?.role_code)
+    if (!userInfo) {
       navigate(PublicRoutes.LOGIN);
-    } else if (role == roleDefine.ADMIN_ROLE) {
+    } else if (userInfo.role_code == roleDefine.ADMIN_ROLE) {
       navigate(AdminRoutes.ADMIN_DASHBOARD);
     } else {
       navigate(UserRoutes.USER_DASHBOARD);
@@ -30,7 +32,7 @@ function Home() {
       const section = document.getElementById("section");
       if (section) {
         if (section.getBoundingClientRect().top < window.innerHeight * 0.2) {
-          setIsPaused(true); // Pause when scrolled down
+          setIsPaused(true); 
         } else {
           setIsPaused(false);
         }
@@ -41,18 +43,24 @@ function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleChangeVerifyPage = ():void => {
+        navigate(PublicRoutes.VERIFY);
+  }
   return (
     <main
       id="home"
       className="bg-gradient-to-b from-gray-800 via-black to-gray-900 min-h-screen w-full"
     >
+     
       <div className=" w-full h-screen flex flex-col justify-center items-center z-10 relative">
+      <ul className="absolute top-0 right-0 flex gap-5 justify-end mr-10 p-5 text-white-fig">
+        <li data-id="verify" onClick={handleChangeVerifyPage} className="cursor-pointer w-fit h-10 rounded-2xl relative after:duration-500 after:ease-in-out after:content-[''] after:absolute after:w-full after:h-[0.1rem] after:bg-white after:bottom-2 after:left-0 after:transform-[scale(0)] hover:after:transform-[scale(1)] z-20">Verify email</li>
+      </ul>
         <div>
           <h1 className="text-white text-4xl sm:text-6xl font-bold">
             Seamless Claims Processing, Faster Resolutions
           </h1>
           <h2 className="text-white text-[1rem] sm:text-2xl">
-            Effortless Claims Submission for a Stress-Free Experience{" "}
           </h2>
           <div className="w-full flex justify-center items-center mt-10">
             <button

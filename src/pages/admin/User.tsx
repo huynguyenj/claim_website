@@ -1,261 +1,349 @@
-import { Button, Col, Form, Input, Modal, Row, Spin, Table } from "antd";
-import { useState } from "react";
-import { PlusOutlined, SearchOutlined, StopFilled } from '../../components/Icon/AntdIcon';
+import { useEffect, useState } from "react";
+import apiService from "../../services/ApiService";
+import { Button, Input, message, Spin, Table, Form, Modal, Select } from "antd";
+import { PaginatedResponse, SearchRequest, User } from "../../model/UserData";
 import { exportToExcel } from "../../consts/ExcelDowload";
-// import Title from "antd/es/typography/Title";
+import UserCard from "../../components/Admin/UserCard";
+import { UserIcon } from "../../components/Icon/MuiIIcon";
+import { Article, EditOutlined, SearchOutlined } from "@mui/icons-material";
+import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
+import { Notification } from "../../components/Notification";
+import { pagnitionAntd } from "../../consts/Pagination";
 
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    password: string;
-    phone: string;
-    role: string;
-    department: string;
-    salary: number;
-    address: string;
-    blocked: boolean;
-}
-
-const UserDashboard = () => {
-
-    const [searchText, setSearchText] = useState<string>('');
-    const [loading] = useState<boolean>(false);
-    const [pageSize, setPageSize] = useState(5);
-    const [passwordModalVisible, setPasswordModalVisible] = useState<boolean>(false);
-    const [selectedProject, setSelectedProject] = useState<User | null>(null);
-    const [password, setPassword] = useState<string>("");
-    const [isAddModalVisible, setIsAddModalVisible] = useState<boolean>(false);
+export default function UserManagement() {
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [pageSize, setPageSize] = useState<number>(pagnitionAntd.pageSize);
+    const [totalItems, setTotalItems] = useState<number>(0);
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingUser, setEditingUser] = useState<User | null>(null);
+    const [showBanned, setShowBanned] = useState<boolean | null>(null);
     const [form] = Form.useForm();
 
-    const [users, setUsers] = useState<User[]>(
-        [
-            { id: "U001", name: "Lann", email: "lanng@gmail.com", password: "123", phone: "+84 - 91 251 8309", role: "Staff", department: "IT", salary: 5000, address: "25 St.Michael Str, Rockefeller Ave.", blocked: false },
-            { id: "U002", name: "Wenduag", email: "lanng@gmail.com", password: "123", phone: "+84 - 91 251 8309", role: "PM", department: "IT", salary: 5000, address: "25 St.Michael Str, Rockefeller Ave.", blocked: false },
-            { id: "U003", name: "Woljif", email: "lanng@gmail.com", password: "123", phone: "+84 - 91 251 8309", role: "BA", department: "IT", salary: 5000, address: "25 St.Michael Str, Rockefeller Ave.", blocked: false },
-            { id: "U004", name: "Camellia", email: "lanng@gmail.com", password: "123", phone: "+84 - 91 251 8309", role: "Finance", department: "Financing", salary: 5000, address: "25 St.Michael Str, Rockefeller Ave.", blocked: false },
-            { id: "U005", name: "Seelah", email: "lanng@gmail.com", password: "123", phone: "+84 - 91 251 8309", role: "Admin", department: "Management", salary: 5000, address: "25 St.Michael Str, Rockefeller Ave.", blocked: false },
-            { id: "U006", name: "Ember", email: "lanng@gmail.com", password: "123", phone: "+84 - 91 251 8309", role: "Admin", department: "Management", salary: 5000, address: "25 St.Michael Str, Rockefeller Ave.", blocked: false },
-        ]
-    );
+    const fetchUsers = async (page: number, size: number, keyword: string, isBlocked?: boolean | null) => {
+        setLoading(true);
+        try {
+            const searchParams: SearchRequest = {
+                searchCondition: {
+                    keyword,
+                    role_code: '',
+                    is_delete: false,
+                    is_verified: '',
+                },
+                pageInfo: {
+                    pageNum: page,
+                    pageSize: size,
+                },
+            };
 
 
-    const showAddModal = () => {
-        setIsAddModalVisible(true);
+            if (isBlocked !== null) {
+                searchParams.searchCondition.is_blocked = isBlocked;
+            }
+
+            const response = await apiService.post<PaginatedResponse>('/users/search', searchParams);
+            if (response) {
+                console.log('Fetched Users:', response.data.pageData);
+                setUsers(response.data.pageData);
+                setTotalItems(response.data.pageInfo.totalItems);
+            }
+        } catch (error) {
+            Notification("error", error as string);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleAddCancel = () => {
-        setIsAddModalVisible(false);
+
+    useEffect(() => {
+        fetchUsers(currentPage, pageSize, searchTerm, showBanned);
+    }, [currentPage, pageSize, searchTerm, showBanned]);
+
+    const handleTableChange = (pagination: any) => {
+        setCurrentPage(pagination.current);
+        setPageSize(pagination.pageSize);
+    };
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1);
+    };
+
+    const showModal = () => setIsAddModalOpen(true);
+    const handleCancel = () => {
+        setIsAddModalOpen(false);
         form.resetFields();
     };
 
-    const handleAddUser = (values: any) => {
-        const newUser: User = {
-            id: `P${users.length + 1}`.padStart(4, "0"),
-            name: values.name,
-            email: values.email,
-            password: values.password,
-            phone: values.phone,
-            role: values.role,
-            department: values.department,
-            salary: values.salary,
-            address: values.address,
-            blocked: false,
-        };
-        setUsers([...users, newUser]);
-        handleAddCancel();
+    const handleAddUser = async () => {
+
+        try {
+            const values = await form.validateFields();
+            console.log(values)
+            const response = await apiService.post("/users", values);
+            if (response) {
+                message.success("User added successfully!");
+                fetchUsers(currentPage, pageSize, searchTerm);
+                handleCancel();
+            }
+        } catch (error) {
+            console.error("Failed to add user:", error);
+            message.error("Error adding user.");
+        }
+    };
+
+    const handleUpdateUser = async () => {
+        try {
+            const values = await form.validateFields();
+            if (!editingUser) return;
+
+            setLoading(true);
+            await apiService.put(`/users/${editingUser._id}`, values);
+
+            message.success("User updated successfully!");
+            setIsEditModalOpen(false);
+            fetchUsers(currentPage, pageSize, searchTerm);
+        } catch (error) {
+            console.error("Update failed:", error);
+            message.error("Failed to update user.");
+        } finally {
+            setLoading(false);
+        }
     };
 
 
-    const handleDeleteClick = (project: User) => {
-        setSelectedProject(project);
-        setPasswordModalVisible(true);
+    const handleDeleteUser = async (id: string) => {
+        try {
+            await apiService.delete(`/users/${id}`);
+            message.success("User deleted successfully!");
+            fetchUsers(currentPage, pageSize, searchTerm);
+        } catch (error) {
+            message.error("Failed to delete user.");
+            console.error(error);
+        }
     };
 
-    const handleConfirmDelete = () => {
-        if (password === "adminpassword") { // Replace with actual authentication check
-            setUsers(users.filter(p => p.id !== selectedProject?.id));
-            setPasswordModalVisible(false);
-            setPassword("");
+    const handleChangeUserStatus = async (userId: string, isBlocked: boolean) => {
+        try {
+            setLoading(true);
+            await apiService.put(`/users/change-status`, {
+                user_id: userId,
+                is_blocked: isBlocked
+            });
 
-        } else {
-            alert("Incorrect password!");
+            message.success(`User ${isBlocked ? "banned" : "unbanned"} successfully!`);
+            fetchUsers(currentPage, pageSize, searchTerm);
+        } catch (error) {
+            console.error("Failed to change user status:", error);
+            message.error("Failed to change user status.");
+        } finally {
+            setLoading(false);
         }
     };
 
     const columns = [
-        { title: "ID", dataIndex: "id", key: "id" },
-        { title: "Name", dataIndex: "name", key: "name" },
         { title: "Email", dataIndex: "email", key: "email" },
-        { title: "Phone", dataIndex: "phone", key: "phone" },
-        { title: "Role", dataIndex: "role", key: "role" },
-        { title: "Department", dataIndex: "department", key: "department" },
-        { title: "Salary ($)", dataIndex: "salary", key: "salary", render: (text: number) => `$${text.toLocaleString()}` },
-        { title: "Address", dataIndex: "address", key: "address" },
+        { title: "Username", dataIndex: "user_name", key: "user_name" },
+        { title: "Role", dataIndex: "role_code", key: "role_code" },
         {
-            title: 'Actions',
-            key: 'actions',
+            title: "Actions",
+            key: "actions",
             render: (_: string, record: User) => (
-                <Button icon={<StopFilled />} danger onClick={() => handleDeleteClick(record)} />
+                <div className="flex gap-2">
+                    <Button icon={<EditOutlined />} type="link" onClick={() => {
+                        form.setFieldsValue(record);
+                        setEditingUser(record);
+                        setIsEditModalOpen(true);
+                    }}>
+                    </Button>
 
+                    <Button icon={<StopFilled />} type="link" danger onClick={() => handleDeleteUser(record._id)}></Button>
+                </div>
             ),
         },
+        {
+            title: "Status",
+            key: "status",
+            render: (_:string, record: User) => (
+                <div className="relative">
+                    <button
+                        className={`p-2 rounded-lg transition-all duration-500 w-24 ${record.is_blocked
+                            ? "bg-red-500 text-white hover:bg-green-500 hover:text-white"
+                            : "bg-green-500 text-white hover:bg-red-500 hover:text-white"
+                            }`}
+                        onMouseEnter={(e) => (e.currentTarget.innerText = record.is_blocked ? "Unban" : "Ban")}
+                        onMouseLeave={(e) => (e.currentTarget.innerText = record.is_blocked ? "Banned" : "Active")}
+                        onClick={() => handleChangeUserStatus(record._id, !record.is_blocked)}
+                    >
+                        {record.is_blocked ? "Banned" : "Active"}
+                    </button>
+                </div>
+            )
+        }
+
+
     ];
 
-    const filteredUsers = users.filter(user =>
-        user.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        user.department.toLowerCase().includes(searchText.toLowerCase())
-    );
-
     return (
-        <div className="p-6 bg-gray-100 h-screen overflow-x-scroll">
-            <div className="flex justify-between items-center">
-                <h1 className="text-4xl font-bold mb-4">User Management Dashboard</h1>
-            
+        <div className="overflow-y-scroll">
+            <div className="flex justify-end items-center p-5">
                 <div className="flex gap-2">
-                    <Button type="primary" onClick={()=>exportToExcel(users,['id','name','email','password','phone','role','department','salary','address'],'users')}>Export users file</Button>
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={showAddModal}
-                    >
-                        Add User
-                    </Button>
+                    <Button type="primary" onClick={() => exportToExcel(users, ['id', 'name', 'email', 'password', 'phone', 'role', 'department', 'salary', 'address'], 'users')}>Export users file</Button>
                 </div>
             </div>
 
-
-            <Modal
-                title="Add User"
-                visible={isAddModalVisible}
-                onCancel={handleAddCancel}
-                onOk={() => form.submit()}
-            >
-                <Form form={form} layout="vertical" onFinish={handleAddUser}>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Name"
-                                name="name"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Email"
-                                name="email"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Phone"
-                                name="phone"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Role"
-                                name="role"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Department"
-                                name="department"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Salary"
-                                name="salary"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Address"
-                                name="address"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Password"
-                                name="password"
-                                rules={[{ required: true }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </Form>
-            </Modal>
-
-            <div className="mb-4">
-                <Input
-                    placeholder="Search by name or email"
-                    prefix={<SearchOutlined />}
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                    size="large"
-                    className="max-w-md"
-                    allowClear
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
+                {/* Users */}
+                <UserCard
+                    icon={<UserIcon />}
+                    title="Total Users"
+                    growth={25}
+                />
+                {/* Claims */}
+                <UserCard
+                    icon={<Article />}
+                    title="New Users"
+                    growth={42}
+                />
+                {/* Funds */}
+                <UserCard
+                    icon={<Article />}
+                    title="Funds"
+                    growth={42}
                 />
             </div>
 
-            <Modal title="Confirm Deletion" visible={passwordModalVisible} onCancel={() => setPasswordModalVisible(false)} onOk={handleConfirmDelete}>
-                <p>Enter your password to ban the user:</p>
-                <Input.Password value={password} onChange={(e) => setPassword(e.target.value)} />
-            </Modal>
-
-            {loading ? (
-                <div className="text-center py-12">
-                    <Spin size="large" />
-                </div>
-            ) : (
-                <div className="overflow-x">
-                    <Table
-                        columns={columns}
-                        dataSource={filteredUsers}
-                        rowKey="id"
-                        className="shadow-sm w-full p-2"
-                        pagination={{
-                            pageSize: pageSize,
-                            showSizeChanger: true,
-                            pageSizeOptions: ["5", "10"],
-                            showTotal: (total) => `Total ${total} users`,
-                            onShowSizeChange: (_, size) => setPageSize(size),
-                        }}
-                        scroll={{ x: true }}
+            <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
+                <div className="mb-4 flex items-center">
+                    <Input
+                        placeholder="Search by name or email"
+                        prefix={<SearchOutlined />}
+                        value={searchTerm}
+                        onChange={handleSearch}
+                        size="large"
+                        className="max-w-md shadow-[9px_6px_0px_rgba(0,0,0,1)]"
+                        allowClear
                     />
+
+                    <div className="ml-auto flex gap-2">
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={showModal}
+                        >
+                            Add User
+                        </Button>
+
+                        <Select
+                            className="w-fit"
+                            placeholder="User Status"
+                            value={showBanned}
+                            onChange={(value) => {
+                                setShowBanned(value);
+                                setCurrentPage(1); // Reset pagination
+                                fetchUsers(1, pageSize, searchTerm, value);
+                            }}
+                            options={[
+                                { value: false, label: "Active Users" },
+                                { value: true, label: "Banned Users" },
+                            ]}
+                        />
+                    </div>
+
                 </div>
-            )}
+
+                <Modal
+                    title="Add New User"
+                    open={isAddModalOpen}
+                    onCancel={handleCancel}
+                    onOk={handleAddUser}
+                    okText="Add User"
+                    cancelText="Cancel"
+                >
+                    <Form form={form} layout="vertical">
+                        <Form.Item
+                            label="Email"
+                            name="email"
+                            rules={[{ required: true, message: "Please enter an email" }]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            label="Password"
+                            name="password"
+                            rules={[{ required: true, message: "Please enter a password" }]}
+                        >
+                            <Input.Password />
+                        </Form.Item>
+                        <Form.Item
+                            label="Username"
+                            name="user_name"
+                            rules={[{ required: true, message: "Please enter a username" }]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            label="Role"
+                            name="role_code"
+                            rules={[{ required: true, message: "Please select a role" }]}
+                        >
+                            <Select>
+                                <Select.Option value="A001">Administrator</Select.Option>
+                                <Select.Option value="A002">Finance</Select.Option>
+                                <Select.Option value="A003">BUL, PM</Select.Option>
+                                <Select.Option value="A004">All Members Remaining</Select.Option>
+                            </Select>
+                        </Form.Item>
+                    </Form>
+                </Modal>
+
+                {loading ? (
+                    <div className="text-center py-12">
+                        <Spin size="large" />
+                    </div>
+                ) : (
+                    <div className="overflow-x">
+                        <Table
+                            columns={columns}
+                            dataSource={users}
+                            loading={loading}
+                            rowKey="_id"
+                            pagination={{
+                                current: currentPage,
+                                pageSize: pageSize,
+                                total: totalItems,
+                                showSizeChanger: true,
+                                pageSizeOptions: ["5", "10", "20"],
+                            }}
+                            onChange={handleTableChange}
+                        />
+                    </div>
+                )}
+
+                <Modal
+                    title="Edit User"
+                    open={isEditModalOpen}
+                    onCancel={() => setIsEditModalOpen(false)}
+                    onOk={handleUpdateUser}
+                    okText="Save"
+                    cancelText="Cancel"
+                >
+                    <Form form={form} layout="vertical">
+                        <Form.Item name="email" label="Email" rules={[{ required: true, message: "Email is required" }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name="user_name" label="Username" rules={[{ required: true, message: "Username is required" }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name="role_code" label="Role" rules={[{ required: false }]}>
+                        </Form.Item>
+                    </Form>
+                </Modal>
+
+            </div>
         </div>
     )
 };
-
-export default UserDashboard;

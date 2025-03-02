@@ -14,6 +14,7 @@ export { default as RequestPageIcon } from '@mui/icons-material/RequestPage'
 export { default as SettingIcon } from '@mui/icons-material/Settings'
 export { default as MenuIcon } from '@mui/icons-material/Menu'
 export { default as BackArrowIcon } from '@mui/icons-material/KeyboardTab'
+export { default as BackArrowBackSpaceIcon } from '@mui/icons-material/KeyboardBackspace'
 export { default as ApprovalIcon } from '@mui/icons-material/FactCheck'
 export { default as PaidIcon } from '@mui/icons-material/Paid'
 export { default as LogoutIcon } from '@mui/icons-material/Logout'
@@ -37,10 +38,12 @@ export {default as DateRangeIcon } from "@mui/icons-material/DateRange";
 export {default as WorkIcon } from "@mui/icons-material/Work";
 export {default as AccountCircleIcon} from '@mui/icons-material/AccountCircle';
 export {default as DoneIcon} from '@mui/icons-material/Done';
+export {default as CheckBoxIcon} from '@mui/icons-material/CheckBox';
 
-
-
-
+export {default as TotalRequestIcon} from '@mui/icons-material/ContactMail';
+export {default as PendingRequestIcon} from '@mui/icons-material/MarkEmailUnread';
+export {default as ApprovedRequestIcon} from '@mui/icons-material/MarkEmailRead';
+export {default as RejectedRequestIcon} from '@mui/icons-material/LabelOff';
 
 
 

@@ -1,4 +1,4 @@
-import { Input, Select, Space, Table, Tag } from "antd";
+import { Button, Input, Select, Space, Table, Tag, Tooltip } from "antd";
 import { DollarOutlined, SearchOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
 import { useCallback, useMemo, useState } from "react";
@@ -12,16 +12,11 @@ import {
   PaidIcon,
   PersonIcon,
   WorkIcon,
+  CheckBoxIcon,
 } from "../../components/Icon/MuiIIcon";
-interface DataType {
-  key: string;
-  name: string;
-  roles: string[];
-  project: string;
-  overtime: number;
-  salary: number;
-  date: Date;
-}
+import DataType from "./DataType";
+import { ArrowCircleDown } from "@mui/icons-material";
+import { pagnitionAntd } from "../../consts/Pagination";
 const initialData: DataType[] = [
   {
     key: "1",
@@ -31,6 +26,7 @@ const initialData: DataType[] = [
     overtime: 5,
     salary: 5000,
     date: new Date("2025-02-15"),
+    status: "Approved",
   },
   {
     key: "2",
@@ -40,6 +36,7 @@ const initialData: DataType[] = [
     overtime: 2,
     salary: 4500,
     date: new Date("2025-01-20"),
+    status: "Approved",
   },
   {
     key: "3",
@@ -49,6 +46,7 @@ const initialData: DataType[] = [
     overtime: 3,
     salary: 4000,
     date: new Date("2025-01-25"),
+    status: "Approved",
   },
   {
     key: "4",
@@ -58,6 +56,7 @@ const initialData: DataType[] = [
     overtime: 4,
     salary: 4800,
     date: new Date("2025-01-30"),
+    status: "Approved",
   },
   {
     key: "5",
@@ -67,6 +66,7 @@ const initialData: DataType[] = [
     overtime: 6,
     salary: 5500,
     date: new Date("2025-02-05"),
+    status: "Approved",
   },
   {
     key: "6",
@@ -76,6 +76,7 @@ const initialData: DataType[] = [
     overtime: 1,
     salary: 4700,
     date: new Date("2025-02-10"),
+    status: "Approved",
   },
   {
     key: "7",
@@ -85,6 +86,7 @@ const initialData: DataType[] = [
     overtime: 8,
     salary: 4900,
     date: new Date("2025-02-15"),
+    status: "Approved",
   },
   {
     key: "8",
@@ -94,6 +96,7 @@ const initialData: DataType[] = [
     overtime: 0,
     salary: 4600,
     date: new Date("2025-02-20"),
+    status: "Approved",
   },
 ];
 
@@ -147,7 +150,7 @@ function SalaryTable(): JSX.Element {
   const columns: TableProps<DataType>["columns"] = [
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5 sm:text-[0.7rem]  ">
+        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]  ">
           <DateRangeIcon />
           Date
         </div>
@@ -159,7 +162,7 @@ function SalaryTable(): JSX.Element {
     },
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5 sm:text-[0.7rem]">
+        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
           <PersonIcon />
           Name
         </div>
@@ -171,7 +174,7 @@ function SalaryTable(): JSX.Element {
     },
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5 sm:text-[0.7rem]">
+        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
           <WorkIcon />
           Project
         </div>
@@ -180,15 +183,17 @@ function SalaryTable(): JSX.Element {
       key: "project",
       responsive: ["md", "lg"],
       render: (text) => (
-        <div className="text-gray-700 font-bold truncate max-w-[150px]">
-          {text}
-        </div>
+        <Tooltip title={text}>
+          <div className="text-gray-700 font-bold truncate max-w-[150px]">
+            {text}
+          </div>
+        </Tooltip>
       ),
       ellipsis: true,
     },
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5 sm:text-[0.7rem]">
+        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
           <PaidIcon />
           Salary
         </div>
@@ -204,7 +209,7 @@ function SalaryTable(): JSX.Element {
     },
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5 sm:text-[0.7rem]">
+        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
           <MoreTimeIcon /> Overtime
         </div>
       ),
@@ -215,7 +220,7 @@ function SalaryTable(): JSX.Element {
     },
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5 sm:text-[0.7rem] ">
+        <div className="font-bold flex items-center gap-0.5 text-[0.7rem]">
           <AccountCircleIcon />
           Role
         </div>
@@ -223,7 +228,7 @@ function SalaryTable(): JSX.Element {
       key: "role",
       dataIndex: "roles",
       render: (roles: string[]) => (
-        <>
+        <div className="flex flex-wrap gap-1 max-w-[150px] overflow-hidden truncate">
           {roles.map((role: string, index: number) => {
             let color: string;
             switch (role.toLowerCase()) {
@@ -243,69 +248,99 @@ function SalaryTable(): JSX.Element {
                 color = "gray";
             }
             return (
-              <Tag color={color} key={index}>
-                {role.toUpperCase()}
-              </Tag>
+              <Tooltip title={role} key={index}>
+                <Tag color={color} className="truncate max-w-[80px]">
+                  {role.toUpperCase()}
+                </Tag>
+              </Tooltip>
             );
           })}
-        </>
+        </div>
       ),
+      responsive: ["sm", "md", "lg"],
+    },
+
+    {
+      title: (
+        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem] ">
+          <CheckBoxIcon className="sm:hidden" /> Status
+        </div>
+      ),
+      key: "status",
+      dataIndex: "status",
+      render: (text) => <Tag color="success">{text}</Tag>,
       responsive: ["sm", "md", "lg"],
     },
     {
       title: "Action",
       key: "action",
-      width: 240,
-      render: () => (
+      render: (data: DataType) => (
         <Space size="small">
           <ModalConfirm
             typeConfirm={{ borderColor: "#6ef13c" }}
-            text="APPROVE"
-          />
-          <ModalConfirm
-            typeConfirm={{ borderColor: "#DC143C" }}
-            text="REJECT"
+            text="PAID"
+            userData={data}
           />
         </Space>
       ),
       responsive: ["sm", "md", "lg"],
     },
   ];
+  const components = {
+    body: {
+      cell: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
+        <td {...props} className="border-t-[1.2px] border-black" />
+      ),
+    },
+  };
 
   return (
-    <div className="p-6 rounded-xl shadow-lg bg-[#000] ">
-      {/* Bộ lọc - Căn chỉnh Responsive */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <Input
-          prefix={<SearchOutlined className="text-gray-500" />}
-          placeholder="Search By Name"
-          className="w-full rounded-lg shadow-sm"
-          onChange={handleSearchChange}
-        />
-        <Select
-          mode="multiple"
-          allowClear
-          style={{ width: "100%" }}
-          placeholder="Select Project"
-          onChange={handleProjectChange}
-          options={options}
-          className="rounded-lg shadow-sm"
-        />
-        <DatePicker.RangePicker
-          className="w-full rounded-lg shadow-sm"
-          onChange={handleDatePicker}
-        />
+    <>
+      <div className="flex justify-end mr-[40px] mb-[20px]">
+        <Button
+          type="primary"
+          className="sm:text-[0.7rem] flex-row justify-around "
+          icon={<ArrowCircleDown />}
+          iconPosition="end"
+        >
+          Export Data
+        </Button>
       </div>
-
-      {/* Bảng hiển thị dữ liệu */}
-      <Table
-        rowKey="key"
-        className="shadow-lg rounded-lg shadow-[#636466] hover:shadow-[0_0_50px_#636466] bg-[#C7C8CA]"
-        columns={columns}
-        dataSource={filteredData}
-        pagination={{ position: ["bottomCenter"], pageSize: 8}}
-      />
-    </div>
+      <div className="p-6 mr-6 ml-6 h-full overflow-auto overflow-y-auto border-zinc-950 border-[1.5px] rounded-[12px] relative">
+        <div className="p-6 flex justify-around gap-2 mr-1">
+          <Input
+            prefix={<SearchOutlined className="text-gray-500" />}
+            placeholder="Search By Name"
+            className="max-w-xs mb-4 rounded-full mr-4 shadow-[7px_7px_0px_0px] duration-300 ease-in-out"
+            onChange={handleSearchChange}
+          />
+          <Select
+            mode="multiple"
+            allowClear
+            style={{ width: "30%", marginBottom: "1rem" }}
+            placeholder="Please select"
+            onChange={handleProjectChange}
+            options={options}
+          />
+          <DatePicker.RangePicker
+            style={{ width: "30%", marginBottom: "1rem", marginLeft: "1rem" }}
+            onChange={handleDatePicker}
+          />
+        </div>
+        <div className="h-full border-t-[1.2px]">
+          <Table
+            rowKey="key"
+            columns={columns}
+            dataSource={filteredData}
+            pagination={{ pageSize: pagnitionAntd.pageSize }}
+            style={{
+              tableLayout: "auto",
+            }}
+            components={components}
+          />
+        </div>
+      </div>
+    </>
   );
 }
 export default SalaryTable;

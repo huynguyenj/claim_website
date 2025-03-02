@@ -1,7 +1,8 @@
       import axios, { AxiosInstance, AxiosResponse } from 'axios'
       import { useAuthStore } from '../store/authStore'
+      import { getApiErrorMessage } from '../consts/ApiResponse'
 
-      const API_BASE_URL:string = ''
+      const API_BASE_URL:string = 'https://management-claim-request.vercel.app/api/'
 
       const apiClient:AxiosInstance = axios.create({
             baseURL:API_BASE_URL,
@@ -14,6 +15,7 @@
       apiClient.interceptors.request.use(
             (config)=>{
                   const token = useAuthStore.getState().token;
+                  console.log(token)
                   if(token){
                         config.headers.Authorization = `Bearer ${token}`;
                   }
@@ -24,11 +26,9 @@
 
       apiClient.interceptors.response.use((response: AxiosResponse)=>response, 
             (error)=>{
-                  if(error.response.status === 401){
-                        console.log('token has expired!');
-                        useAuthStore.getState().removeExpired();
-                  }
-                  return Promise.reject(error)
+                  const errorMessage = getApiErrorMessage(error);
+                  if(errorMessage === 403 || errorMessage === 404){useAuthStore.getState().removeExpired()}
+                        return Promise.reject(errorMessage)
             }
       )
 

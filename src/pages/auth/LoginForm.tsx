@@ -1,4 +1,4 @@
-import { UserForm } from "../../model/UserData";
+import { UserForm} from "../../model/UserData";
 import { Button, Form, Input, Space } from "antd";
 import type { FormProps } from "antd";
 import { Notification } from "../../components/Notification";
@@ -6,36 +6,44 @@ import { PasswordIcon, UserIcon } from "../../components/Icon/MuiIIcon";
 import FormItem from "antd/es/form/FormItem";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-// import publicApiService from "../../services/BaseApi";
-import { PublicRoutes } from "../../consts/RoutesConst";
-import userCheck from '../../logindata.json'
+import { AdminRoutes, PublicRoutes, UserRoutes } from "../../consts/RoutesConst";
+import publicApiService from "../../services/BaseApi";
+import { useState } from "react";
+import LoadingSpin from "../../components/LoadingSpin";
+import authService from "../../services/AuthService";
+import { roleDefine } from "../../consts/UserRole";
 function LoginForm() {
   const navigate = useNavigate();
   const addAuthInfo = useAuthStore((state) => state.setAuth);
+  const setUserInfo = useAuthStore((state) => state.setUserInfo);
+  const [loading,setLoading] = useState<boolean>(false);
 
   const handleSubmit: FormProps<UserForm>["onFinish"] = async (values) => {
-    console.log(values)
     try {
-      // const response = await publicApiService.login(values);
-      // addAuthInfo(response.token, response.role);
-      const user = userCheck.find((u)=> u.userName == values.userName && u.password == values.password)
-      if(user){
-        Notification("success", "Login successful!");
-        navigate(PublicRoutes.HOME);
-        addAuthInfo(user.token,user.role);
-      }
+      setLoading((prev)=>!prev)
+      const response = await publicApiService.login(values);
+      addAuthInfo(response.data.token);
+      const userInfo = await authService.getInfo();
+      setUserInfo(userInfo.data);
+      Notification("success", "Login successful!")
+      if(useAuthStore.getState().user?.role_code === roleDefine.ADMIN_ROLE){
+        navigate(AdminRoutes.ADMIN_DASHBOARD)
+      }else(
+        navigate(UserRoutes.USER_DASHBOARD)
+      )
     } catch (error) {
-      console.log(error);
       Notification(
         "error",
         "Login fail!",
-        "Please check your password or username!"
+        error as string
       );
+    }finally{
+      setLoading((prev)=>!prev)
     }
   };
 
   const handleChangePage = (): void => {
-    navigate(PublicRoutes.REGISTER);
+    navigate(PublicRoutes.FORGOTPASS);
   };
 
   return (
@@ -60,14 +68,14 @@ function LoginForm() {
           </h1>
         </FormItem>
         <Form.Item<UserForm>
-          name="userName"
-          rules={[{ required: true, message: "Please input your username!" }]}
+          name="email"
+          rules={[{ required: true, message: "Please input your email!",type:"email" }]}
         >
           <Space.Compact style={{ width: "100%" }}>
             <Button style={{ height: "2.5rem",background:'black' }}>
               <UserIcon sx={{color:'white'}} />
             </Button>
-            <Input placeholder="username" />
+            <Input placeholder="email" />
           </Space.Compact>
         </Form.Item>
 
@@ -89,17 +97,17 @@ function LoginForm() {
             className="w-full"
             style={{ padding: "1.2rem", borderRadius: "2rem",fontSize:15,border:'2px solid',background:'black',color:'white' }}
           >
-            Login
+            {loading ? <LoadingSpin width="1rem" height="1rem" border_color="white" border_top_clr="black"/> : 'Login'}
           </Button>
         </Form.Item>
         <FormItem>
           <p className="text-[0.7rem] sm:text-[1rem]">
-            You haven't an account?
+            You forget your password?
             <span
               className="text-blue-500 cursor-pointer font-bold hover:underline ml-1"
               onClick={handleChangePage}
             >
-              Sign up
+              Forget
             </span>
           </p>
         </FormItem>
