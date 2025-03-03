@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect} from "react";
 import OverviewCard from "../../components/OverviewCard";
 import {
   AccessTimeFiledIcon,
@@ -8,8 +8,8 @@ import {
   SummarizeIcon,
   UserIcon,
 } from "../../components/Icon/MuiIIcon";
-import axios from "axios";
 import Footer from "../../layouts/Footer";
+import useCallApiGithub from "../../hooks/auth/useCallApiGithub";
 
 type ItemOverview = {
   title: string;
@@ -61,28 +61,9 @@ const steps: StepData[] = [
   { icon: AttachMoneyIcon, text: "Receive money OT" },
 ];
 
-type GithubType = {
-  login:string,
-  avatar_url:string
-}
 
 function OverView() {
-  const [contributors,setContributors] = useState<GithubType[]>([]);
-
-  useEffect(()=>{
-    const getContributors = async()=>{
-        try {
-          const response = await axios.get(
-            "https://api.github.com/repos/huynguyenj/claim_website/contributors"
-          );
-          setContributors(response.data);
-          console.log(contributors)
-        } catch (error) {
-          console.log('error can not get data',error)
-        }
-    }
-    getContributors();
-  },[])
+  const {contributors} = useCallApiGithub();
   useEffect(() => {
     console.log(window.innerHeight);
     const title = document.getElementById("title");

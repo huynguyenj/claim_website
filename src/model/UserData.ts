@@ -30,7 +30,13 @@ export type UserForm = {
       email:string,
       password:string     
 }
-
+export type Token = {
+      token:string
+}
+export type ApiResponseWithDataNull = {
+      success: boolean,
+      data:null
+}
 export interface SearchCondition {
       keyword?: string;
       role_code?: string;
