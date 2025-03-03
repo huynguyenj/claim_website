@@ -1,501 +1,227 @@
-import {
-  Button,
-  Input,
-  Spin,
-  Table,
-  Tag,
-  Modal,
-  Form,
-  DatePicker,
-  InputNumber,
-  Select,
-  TableProps,
-} from "antd";
-import { useState } from "react";
-import {
-  PlusOutlined,
-  SearchOutlined,
-  StopFilled,
-} from "../../components/Icon/AntdIcon";
-import moment from "moment";
-import { Article, EditOutlined } from "@mui/icons-material";
+import React, { useEffect, useState } from "react";
+import { PaginatedResponse, Project, SearchRequest } from "../../model/ProjectData";
+import { Notification } from "../../components/Notification";
+import { getApiErrorMessage } from "../../consts/ApiResponse";
+import apiService from "../../services/ApiService";
+import { pagnitionAntd } from "../../consts/Pagination";
+import { Button, Form, Input, message, Modal, Select, Spin, Table } from "antd";
 import { exportToExcel } from "../../consts/ExcelDowload";
 import ProjectCard from "../../components/Admin/ProjectCard";
 import { UserIcon } from "../../components/Icon/MuiIIcon";
+import { Article, EditOutlined, SearchOutlined } from "@mui/icons-material";
+import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
+import { User } from "../../model/UserData";
 
-const { Option } = Select;
+export default function ProjectManagement() {
 
-interface User {
-  id: string;
-  name: string;
-  role: string;
-  department: string;
-  blocked: boolean;
-}
-
-interface Project {
-  id: string;
-  projectName: string;
-  startDate: string;
-  endDate: string;
-  budget: number;
-  users: User[];
-}
-
-const ProjectDashboard = () => {
-  const [searchText, setSearchText] = useState<string>("");
-  const [loading] = useState<boolean>(false);
-  const [pageSize, setPageSize] = useState(5);
-
-  const [projects, setProjects] = useState<Project[]>([
-    {
-      id: "P001",
-      projectName: "Microsoft",
-      startDate: "2025-01-01",
-      endDate: "2025-12-31",
-      budget: 100000,
-      users: [
-        {
-          id: "U001",
-          name: "Lann",
-          role: "Staff",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U002",
-          name: "Wenduag",
-          role: "PM",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U003",
-          name: "Woljif",
-          role: "BA",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U004",
-          name: "Camellia",
-          role: "Finance",
-          department: "Financing",
-          blocked: false,
-        },
-        {
-          id: "U005",
-          name: "Seelah",
-          role: "Admin",
-          department: "Management",
-          blocked: false,
-        },
-      ],
-    },
-    {
-      id: "P002",
-      projectName: "Apple",
-      startDate: "2025-02-01",
-      endDate: "2025-11-30",
-      budget: 150000,
-      users: [
-        {
-          id: "U001",
-          name: "Lann",
-          role: "Staff",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U002",
-          name: "Wenduag",
-          role: "PM",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U003",
-          name: "Woljif",
-          role: "BA",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U004",
-          name: "Camellia",
-          role: "Finance",
-          department: "Financing",
-          blocked: false,
-        },
-        {
-          id: "U005",
-          name: "Seelah",
-          role: "Admin",
-          department: "Management",
-          blocked: false,
-        },
-      ],
-    },
-    {
-      id: "P003",
-      projectName: "Samsung",
-      startDate: "2025-02-01",
-      endDate: "2025-11-30",
-      budget: 150000,
-      users: [
-        {
-          id: "U001",
-          name: "Lann",
-          role: "Staff",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U002",
-          name: "Wenduag",
-          role: "PM",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U003",
-          name: "Woljif",
-          role: "BA",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U004",
-          name: "Camellia",
-          role: "Finance",
-          department: "Financing",
-          blocked: false,
-        },
-        {
-          id: "U005",
-          name: "Seelah",
-          role: "Admin",
-          department: "Management",
-          blocked: false,
-        },
-      ],
-    },
-    {
-      id: "P004",
-      projectName: "Huion",
-      startDate: "2025-02-01",
-      endDate: "2025-11-30",
-      budget: 150000,
-      users: [
-        {
-          id: "U001",
-          name: "Lann",
-          role: "Staff",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U002",
-          name: "Wenduag",
-          role: "PM",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U003",
-          name: "Woljif",
-          role: "BA",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U004",
-          name: "Camellia",
-          role: "Finance",
-          department: "Financing",
-          blocked: false,
-        },
-        {
-          id: "U005",
-          name: "Seelah",
-          role: "Admin",
-          department: "Management",
-          blocked: false,
-        },
-      ],
-    },
-    {
-      id: "P005",
-      projectName: "Walmart",
-      startDate: "2025-02-01",
-      endDate: "2025-11-30",
-      budget: 150000,
-      users: [
-        {
-          id: "U001",
-          name: "Lann",
-          role: "Staff",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U002",
-          name: "Wenduag",
-          role: "PM",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U003",
-          name: "Woljif",
-          role: "BA",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U004",
-          name: "Camellia",
-          role: "Finance",
-          department: "Financing",
-          blocked: false,
-        },
-        {
-          id: "U005",
-          name: "Seelah",
-          role: "Admin",
-          department: "Management",
-          blocked: false,
-        },
-      ],
-    },
-    {
-      id: "P006",
-      projectName: "Starbucks",
-      startDate: "2025-02-01",
-      endDate: "2025-11-30",
-      budget: 150000,
-      users: [
-        {
-          id: "U001",
-          name: "Lann",
-          role: "Staff",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U002",
-          name: "Wenduag",
-          role: "PM",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U003",
-          name: "Woljif",
-          role: "BA",
-          department: "IT",
-          blocked: false,
-        },
-        {
-          id: "U004",
-          name: "Camellia",
-          role: "Finance",
-          department: "Financing",
-          blocked: false,
-        },
-        {
-          id: "U005",
-          name: "Seelah",
-          role: "Admin",
-          department: "Management",
-          blocked: false,
-        },
-      ],
-    },
-  ]);
-  const [isAddModalVisible, setIsAddModalVisible] = useState<boolean>(false);
-  const [isEditModalVisible, setIsEditModalVisible] = useState<boolean>(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(pagnitionAntd.pageSize);
+  const [totalItems, setTotalItems] = useState<number>(0);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
+  const [projectMembers, setProjectMembers] = useState<Project["project_members"]>([]);
+  const [departments, setDepartments] = useState<{ _id: string; job_title: string }[]>([]);
   const [form] = Form.useForm();
-  const [users, setUsers] = useState<User[]>([]);
-  const [passwordModalVisible, setPasswordModalVisible] = useState<boolean>(false);
-  const [password, setPassword] = useState<string>("");
-  const [isEmployeeModalVisible, setIsEmployeeModalVisible] = useState<boolean>(false);
-  const [selectedProjectUsers, setSelectedProjectUsers] = useState<User[]>([]);
 
-  const handleShowEmployees = (users: User[]) => {
-    setSelectedProjectUsers(users);
-    setIsEmployeeModalVisible(true);
-  };
+  const fetchProjects = async (page: number, size: number, keyword: string) => {
+    setLoading(true);
+    try {
+      const searchParams: SearchRequest = {
+        searchCondition: {
+          keyword,
+          project_start_date: '',
+          project_end_date: '',
+          is_delete: false,
+          user_id: '',
+        },
+        pageInfo: {
+          pageNum: page,
+          pageSize: size
+        },
+      };
 
-  const handleCloseEmployeeModal = () => {
-    setIsEmployeeModalVisible(false);
-  };
+      const response = await apiService.post<PaginatedResponse>('projects/search', searchParams);
+      if (response) {
+        setProjects(response.data.pageData);
+        setTotalItems(response.data.pageInfo.totalItems);
+      }
 
-  const showAddModal = () => {
-    setIsAddModalVisible(true);
-  };
-
-  // const showEditModal = (project: Project) => {
-  //   setSelectedProject(project);
-  //   setIsEditModalVisible(true);
-  // };
-
-
-  const handleAddCancel = () => {
-    setIsAddModalVisible(false);
-    form.resetFields();
-    setUsers([]);
-  };
-
-  const handleEditCancel = () => {
-    setIsEditModalVisible(false);
-    setSelectedProject(null);
-  };
-
-
-  const handleAddProject = (values: any) => {
-    const newProject: Project = {
-      id: `P${projects.length + 1}`.padStart(4, "0"),
-      projectName: values.projectName,
-      startDate: values.startDate.format("YYYY-MM-DD"),
-      endDate: values.endDate.format("YYYY-MM-DD"),
-      budget: values.budget,
-      users: users,
-    };
-    setProjects([...projects, newProject]);
-    handleAddCancel();
-  };
-
-  const addUser = () => {
-    setUsers([
-      ...users,
-      {
-        id: `U${users.length + 1}`.padStart(4, "0"),
-        name: "",
-        role: "",
-        department: "",
-        blocked: false,
-      },
-    ]);
-  };
-
-  const removeUser = (index: number) => {
-    setUsers(users.filter((_, i) => i !== index));
-  };
-
-
-  const handleUserChange = (
-    index: number,
-    field: keyof User,
-    value: string | boolean
-  ) => {
-    const newUsers = [...users];
-    newUsers[index][field] = value as never;
-    setUsers(newUsers);
-  };
-
-  const handleDeleteClick = (project: Project) => {
-    setSelectedProject(project);
-    setPasswordModalVisible(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (password === "adminpassword") {
-      // Replace with actual authentication check
-      setProjects(projects.filter((p) => p.id !== selectedProject?.id));
-      setPasswordModalVisible(false);
-      setPassword("");
-    } else {
-      alert("Incorrect password!");
+    } catch (error) {
+      console.log('Failed to fetch projects:', error);
+      Notification('error', getApiErrorMessage(error));
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleEditClick = (project: Project) => {
-    setSelectedProject(project);
-    form.setFieldsValue({
-      projectName: project.projectName,
-      startDate: moment(project.startDate),
-      endDate: moment(project.endDate),
-      budget: project.budget,
-    });
-    setUsers([...project.users]); // Load existing employees
-    setIsEditModalVisible(true);
+  const fetchProjectMembers = async (projectId: string) => {
+    try {
+      setLoading(true);
+      const response = await apiService.get<{ data: Project }>(`/projects/${projectId}`);
+
+      if (response && response.data) {
+        setProjectMembers(response.data.project_members);
+        setIsMembersModalOpen(true);
+      }
+    } catch (error) {
+      message.error("Failed to fetch project details.");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const fetchDepartments = async () => {
+    setLoading(true);
+    try {
+      const response = await apiService.get<{
+        success: boolean;
+        data: { _id: string; job_title: string }[];
+      }>("/departments/get-all");
 
+      console.log("Departments:", response.data);
 
-  const handleEditProject = (values: any) => {
-    setProjects((prevProjects) =>
-      prevProjects.map((p) =>
-        p.id === selectedProject?.id
-          ? {
-            ...p,
-            projectName: values.projectName,
-            startDate: values.startDate.format("YYYY-MM-DD"),
-            endDate: values.endDate.format("YYYY-MM-DD"),
-            budget: values.budget,
-            users: users, // Save the edited users
-          }
-          : p
-      )
-    );
-    setIsEditModalVisible(false);
+      if (response?.data) {
+        setDepartments(response.data);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (error) {
+      message.error("Failed to fetch departments");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  useEffect(() => {
+    if (isAddModalOpen) {
+      fetchDepartments();
+    }
+  }, [isAddModalOpen]);
 
-  const columns: TableProps<Project>["columns"] = [
-    { title: "ID", dataIndex: "id", key: "id" },
+
+  useEffect(() => {
+    fetchProjects(currentPage, pageSize, searchTerm);
+  }, [currentPage, pageSize, searchTerm]);
+
+  const handleDeleteProject = async (id: string) => {
+    try {
+      await apiService.delete(`/projects/${id}`);
+      message.success("Project deleted successfully!");
+      fetchProjects(currentPage, pageSize, searchTerm);
+    } catch (error) {
+      message.error("Failed to delete project.");
+      console.error(error);
+    }
+  };
+
+  const handleTableChange = (pagination: any) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleCancel = () => {
+    setIsAddModalOpen(false);
+    form.resetFields();
+  };
+
+  const showModal = () => setIsAddModalOpen(true);
+
+  const handleAddProject = async () => {
+
+    try {
+      const values = await form.validateFields();
+      console.log(values)
+      const response = await apiService.post("/projects", values);
+      if (response) {
+        message.success("Project added successfully!");
+        fetchProjects(currentPage, pageSize, searchTerm);
+        handleCancel();
+      }
+    } catch (error) {
+      console.error("Failed to add user:", error);
+      message.error("Error adding user.");
+    }
+  };
+
+  const columns = [
     {
-      title: "Project Name", dataIndex: "projectName", key: "projectName",
-      render: (text, record) => (
-        <Button type="link" onClick={() => handleShowEmployees(record.users)}>
+      title: "Project Name",
+      dataIndex: "project_name",
+      key: "project_name",
+      render: (text: string, record: Project) => (
+        <button
+          className="text-blue-500 hover:underline"
+          onClick={() => fetchProjectMembers(record._id)}
+        >
           {text}
-        </Button>
+        </button>
       ),
     },
-    { title: "Start Date", dataIndex: "startDate", key: "startDate" },
-    { title: "End Date", dataIndex: "endDate", key: "endDate" },
+    { title: "Project Department", dataIndex: "project_department", key: "project_department", },
+    { title: "Project Code", dataIndex: "project_code", key: "project_code", },
+    { title: "Project Description", dataIndex: "project_description", key: "project_description" },
+    { title: "Project Start Date", dataIndex: "project_start_date", key: "project_start_date" },
+    { title: "Project End Date", dataIndex: "project_end_date", key: "project_end_date" },
+    { title: "Updated By", dataIndex: "updated_by", key: "updated_by" },
+    { title: "Created At", dataIndex: "created_at", key: "created_at" },
+    { title: "Updated At", dataIndex: "updated_at", key: "updated_at" },
+    { title: "Project Comment", dataIndex: "project_comment", key: "project_comment" },
     {
-      title: "Budget ($)",
-      dataIndex: "budget",
-      key: "budget",
-      render: (text: number) => `$${text.toLocaleString()}`,
+      title: "Project Status",
+      key: "project_status",
+      render: (_: string, record: Project) => {
+        const getStatusClasses = (status: string) => {
+          switch (status) {
+            case "New":
+              return "bg-amber-400 text-white";
+            case "Pending":
+              return "bg-blue-400 text-white";
+            case "Finished":
+              return "bg-green-400 text-white";
+            default:
+              return "bg-gray-400 text-white";
+          }
+        };
+
+        return (
+          <span className={`p-2 rounded-lg text-sm font-semibold ${getStatusClasses(record.project_status)}`}>
+            {record.project_status}
+          </span>
+        );
+      },
     },
+
     {
       title: "Actions",
       key: "actions",
       render: (_: string, record: Project) => (
-        <>
-          <div className="items-center flex gap-2">
+        <div className="flex gap-2">
+          <Button icon={<EditOutlined />} type="link" onClick={() => {
+            form.setFieldsValue(record);
+            setEditingProject(record);
+            setIsEditModalOpen(true);
+          }}>
+          </Button>
 
-            {/* Use handleEditClick here */}
-            <Button
-              onClick={() => handleEditClick(record)} // 👈 Call handleEditClick
-              icon={<EditOutlined />}
-            >
-            </Button>
-            <Button
-              icon={<StopFilled />}
-              danger
-              onClick={() => handleDeleteClick(record)}
-            />
-          </div>
-        </>
+          <Button icon={<StopFilled />} type="link" danger onClick={() => handleDeleteProject(record._id)}></Button>
+        </div>
       ),
     },
   ];
 
-
-
-  const filteredProjects = projects.filter((project) =>
-    project.projectName.toLowerCase().includes(searchText.toLowerCase())
-  );
-
   return (
     <div className="overflow-y-scroll">
-
       <div className="flex justify-end items-center p-5 over ">
         <div className="flex gap-2">
           <Button type="primary" onClick={() => exportToExcel(projects, ['id', 'project name', 'start date', 'enddate', 'budget'], 'project')}>Export project list</Button>
@@ -506,13 +232,13 @@ const ProjectDashboard = () => {
         {/* Users */}
         <ProjectCard
           icon={<UserIcon />}
-          title="Users"
+          title="Total Users"
           growth={25}
         />
         {/* Claims */}
         <ProjectCard
           icon={<Article />}
-          title="Claims"
+          title="New Users"
           growth={42}
         />
         {/* Funds */}
@@ -523,146 +249,96 @@ const ProjectDashboard = () => {
         />
       </div>
 
-
       <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
-
-        <div className="mb-4 flex justify-between items-center">
+        <div className="mb-4 flex items-center">
           <Input
-            placeholder="Search project name"
+            placeholder="Search by name or email"
             prefix={<SearchOutlined />}
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            value={searchTerm}
+            onChange={handleSearch}
             size="large"
             className="max-w-md shadow-[9px_6px_0px_rgba(0,0,0,1)]"
             allowClear
           />
-          <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
-            Add Project
-          </Button>
+
+          <div className="ml-auto flex gap-2">
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={showModal}
+            >
+              Add Project
+            </Button>
+          </div>
+
+
         </div>
 
         <Modal
-          title="Add Project"
-          visible={isAddModalVisible}
-          onCancel={handleAddCancel}
-          onOk={() => form.submit()}
+          title="Add New Project"
+          open={isAddModalOpen}
+          onCancel={handleCancel}
+          onOk={handleAddProject}
+          okText="Add Project"
+          cancelText="Cancel"
         >
-          <Form form={form} layout="vertical" onFinish={handleAddProject}>
+          <Form form={form} layout="vertical">
             <Form.Item
               label="Project Name"
-              name="projectName"
-              rules={[{ required: true }]}
+              name="project_name"
+              rules={[{ required: true, message: "Please enter the project name" }]}
             >
               <Input />
             </Form.Item>
-            <Form.Item
-              label="Start Date"
-              name="startDate"
-              rules={[{ required: true }]}
-            >
-              <DatePicker />
-            </Form.Item>
-            <Form.Item
-              label="End Date"
-              name="endDate"
-              rules={[{ required: true }]}
-            >
-              <DatePicker />
-            </Form.Item>
-            <Form.Item
-              label="Budget ($)"
-              name="budget"
-              rules={[{ required: true }]}
-            >
-              <InputNumber min={0} style={{ width: "100%" }} />
-            </Form.Item>
-            <h3>Users</h3>
-            {users.map((user, index) => (
-              <div key={index} className="flex space-x-2 mb-2">
-                <Input
-                  placeholder="Name"
-                  value={user.name}
-                  onChange={(e) =>
-                    handleUserChange(index, "name", e.target.value)
-                  }
-                />
-                <Select
-                  placeholder="Role"
-                  value={user.role}
-                  onChange={(value) => handleUserChange(index, "role", value)}
-                >
-                  <Option value="Staff">Staff</Option>
-                  <Option value="PM">Project Manager</Option>
-                </Select>
-              </div>
-            ))}
-            <Button onClick={addUser} type="dashed">
-              + Add User
-            </Button>
-          </Form>
-        </Modal>
 
-        <Modal
-          title="Confirm Deletion"
-          visible={passwordModalVisible}
-          onCancel={() => setPasswordModalVisible(false)}
-          onOk={handleConfirmDelete}
-        >
-          <p>Enter your password to delete the project:</p>
-          <Input.Password
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </Modal>
-
-        <Modal
-          title="Edit Project"
-          visible={isEditModalVisible}
-          onCancel={handleEditCancel}
-          onOk={() => form.submit()}
-        >
-          <Form form={form} onFinish={handleEditProject}>
-            <Form.Item label="Project Name" name="projectName" rules={[{ required: true }]}>
+            <Form.Item
+              label="Project Code"
+              name="project_code"
+              rules={[{ required: true, message: "Please enter the project code" }]}
+            >
               <Input />
             </Form.Item>
-            <Form.Item label="Start Date" name="startDate" rules={[{ required: true }]}>
-              <DatePicker />
-            </Form.Item>
-            <Form.Item label="End Date" name="endDate" rules={[{ required: true }]}>
-              <DatePicker />
-            </Form.Item>
-            <Form.Item label="Budget ($)" name="budget" rules={[{ required: true }]}>
-              <InputNumber min={0} style={{ width: "100%" }} />
+
+            <Form.Item label="Project Department" name="project_department">
+              <Select placeholder="Select a department" loading={loading}>
+                {departments.map((dept) => (
+                  <Select.Option key={dept._id} value={dept._id}>
+                    {dept.job_title}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
 
-            {/* User Management Section */}
-            <h3>Project Staff</h3>
-            {users.map((user, index) => (
-              <div key={index} className="flex space-x-2 mb-2">
-                <Input
-                  placeholder="Name"
-                  value={user.name}
-                  onChange={(e) => handleUserChange(index, "name", e.target.value)}
-                />
-                <Select
-                  placeholder="Role"
-                  value={user.role}
-                  onChange={(value) => handleUserChange(index, "role", value)}
-                >
-                  <Option value="Staff">Staff</Option>
-                  <Option value="PM">Project Manager</Option>
-                </Select>
-                <Input
-                  placeholder="Department"
-                  value={user.department}
-                  onChange={(e) => handleUserChange(index, "department", e.target.value)}
-                />
-                <Button type="text" danger onClick={() => removeUser(index)}>Remove</Button>
-              </div>
-            ))}
-            <Button onClick={addUser} type="dashed">
-              + Add User
-            </Button>
+
+
+
+            <Form.Item
+              label="Project Description"
+              name="project_description"
+              rules={[{ required: true, message: "Write the project description" }]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              label="Project Status"
+              name="project_status"
+              rules={[{ required: true, message: "Project Status is required" }]}
+            >
+              <Select placeholder="Select a status">
+                <Select.Option value="New">New</Select.Option>
+                <Select.Option value="Pending">Pending</Select.Option>
+                <Select.Option value="Finished">Finished</Select.Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item label="Project Start Date" name="project_start_date">
+              <Input />
+            </Form.Item>
+
+            <Form.Item label="Project End Date" name="project_end_date">
+              <Input />
+            </Form.Item>
           </Form>
         </Modal>
 
@@ -671,54 +347,43 @@ const ProjectDashboard = () => {
             <Spin size="large" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 bg-[#FCFCFC] p-5 overflow-auto">
+          <div className="overflow-x">
+            <Table
+              columns={columns}
+              dataSource={projects}
+              loading={loading}
+              rowKey="_id"
+              pagination={{
+                current: currentPage,
+                pageSize: pageSize,
+                total: totalItems,
+                showSizeChanger: true,
+                pageSizeOptions: ["5", "10", "20"],
+              }}
+              onChange={handleTableChange}
+            />
 
-            <div className="col-span-1 sm:col-span-2 lg:col-span-4">
-
-              <Table<Project>
-                columns={columns}
-                dataSource={filteredProjects}
-                rowKey="id"
-                pagination={{
-                  pageSize: pageSize,
-                  showSizeChanger: true,
-                  pageSizeOptions: ["5", "10"],
-                  showTotal: (total) => `Total ${total} projects`,
-                  onShowSizeChange: (_, size) => setPageSize(size),
-                }}
-                scroll={{ x: true }}
-              />
-              <Modal
-                title="Project Staff"
-                visible={isEmployeeModalVisible}
-                onCancel={handleCloseEmployeeModal}
-                footer={null}
-              >
-                <Table<User>
-                  columns={[
-                    { title: "Name", dataIndex: "name", key: "name" },
-                    { title: "Role", dataIndex: "role", key: "role" },
-                    { title: "Department", dataIndex: "department", key: "department" },
-                    {
-                      title: "Status",
-                      dataIndex: "blocked",
-                      key: "blocked",
-                      render: (blocked) => (
-                        <Tag color={blocked ? "red" : "green"}>{blocked ? "Blocked" : "Active"}</Tag>
-                      ),
-                    },
-                  ]}
-                  dataSource={selectedProjectUsers}
-                  pagination={false}
-                  rowKey="id"
-                />
-              </Modal>
-            </div>
+            <Modal
+              title="Project Members"
+              open={isMembersModalOpen}
+              onCancel={() => setIsMembersModalOpen(false)}
+              footer={null}
+            >
+              {projectMembers.length > 0 ? (
+                <ul>
+                  {projectMembers.map((member) => (
+                    <li key={member.user_id} className="p-2 border-b">
+                      <span className="font-bold">{member.user_name || "Unknown User"}</span> - {member.project_role}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No members found for this project.</p>
+              )}
+            </Modal>
           </div>
         )}
       </div>
     </div>
-  );
+  )
 };
-
-export default ProjectDashboard;
