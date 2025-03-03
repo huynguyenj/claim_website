@@ -17,8 +17,8 @@ function ForgotPassword() {
     if (inputRef.current?.value) {
       try {
         setLoading((prev) => !prev);
-        const response = await publicApiService.forgetPass({ email: inputRef.current.value });
-        Notification("info", `${response.message}`);
+        await publicApiService.forgetPass({ email: inputRef.current.value });
+        Notification("info", "Successfully","Check your email to get password!");
       } catch (error) {
         Notification("error", getApiErrorMessage(error));
       } finally {
