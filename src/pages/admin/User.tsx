@@ -7,7 +7,7 @@ import UserCard from "../../components/Admin/UserCard";
 import { UserIcon } from "../../components/Icon/MuiIIcon";
 import { Article, EditOutlined, SearchOutlined } from "@mui/icons-material";
 import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
-import { Notification } from "../../components/Notification";
+import { Notification } from "../../components/common/Notification";
 import { pagnitionAntd } from "../../consts/Pagination";
 
 export default function UserManagement() {

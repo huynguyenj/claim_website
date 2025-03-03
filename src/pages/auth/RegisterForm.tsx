@@ -1,7 +1,7 @@
 import { RegisterForm } from "../../model/UserData";
 import { Button, DatePicker, Form, Input, Select, Space } from "antd";
 import type { DatePickerProps, FormProps } from "antd";
-import { Notification } from "../../components/Notification";
+import { Notification } from "../../components/common/Notification";
 import {
   AddressIcon,
   BirthdayIcon,
