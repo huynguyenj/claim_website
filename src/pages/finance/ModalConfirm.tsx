@@ -1,14 +1,14 @@
 import { Button, message, Modal, Tag } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-import DataType from "./DataType";
 import React from "react";
+import { FinanceClaim } from "./DataType";
 
 const { confirm } = Modal;
 
 interface ModalConfirmProps {
   typeConfirm: React.CSSProperties;
   text: string;
-  userData: DataType;
+  userData: FinanceClaim;
 }
 
 function ModalConfirm({ typeConfirm, text, userData }: ModalConfirmProps) {
@@ -25,21 +25,17 @@ function ModalConfirm({ typeConfirm, text, userData }: ModalConfirmProps) {
 
           <div className="p-3 bg-gray-100 rounded-lg">
             <p className="font-semibold text-gray-900">
-              PAY FOR: <span className="text-blue-600">{user.name}</span>
+              PAY FOR: <span className="text-blue-600">{user.staff_name}</span>
             </p>
-            <p className="text-gray-700">
+            {/* <p className="text-gray-700">
               Project:
               <span className="font-medium text-gray-900">{user.project}</span>
-            </p>
+            </p> */}
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-gray-700">Position:</span>
-              {user.roles.map((role, index) => (
-                <Tag key={index} color="blue">
-                  {role}
-                </Tag>
-              ))}
+              <Tag color="blue">{user.role_in_project}</Tag>
             </div>
-            <p className="text-gray-700">
+            {/* <p className="text-gray-700">
               Total Overtime Hours:
               <span className="font-medium text-gray-900">{user.overtime}</span>
             </p>
@@ -48,7 +44,7 @@ function ModalConfirm({ typeConfirm, text, userData }: ModalConfirmProps) {
               <span className="font-medium text-green-600">
                 ${user.salary.toLocaleString()}
               </span>
-            </p>
+            </p> */}
           </div>
 
           <ul className="list-disc pl-5">
@@ -65,10 +61,10 @@ function ModalConfirm({ typeConfirm, text, userData }: ModalConfirmProps) {
       cancelText: "CANCEL",
       centered: true,
       onOk() {
-        message.success(`PAY FOR ${user.name} success`);
+        message.success(`PAY FOR ${user.staff_name} success`);
       },
       onCancel() {
-        message.error(`PAY FOR ${user.name} IS CANCELED`);
+        message.error(`PAY FOR ${user.staff_name} IS CANCELED`);
       },
     });
   }

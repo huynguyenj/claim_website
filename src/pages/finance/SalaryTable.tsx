@@ -1,162 +1,167 @@
-import { Button, Input, Select, Space, Table, Tag, Tooltip } from "antd";
-import { DollarOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, DatePicker, Input, Space, Table, Tag, Tooltip } from "antd";
 import type { TableProps } from "antd";
-import { useCallback, useMemo, useState } from "react";
 import ModalConfirm from "./ModalConfirm";
 import dayjs from "dayjs";
-import { DatePicker } from "antd";
 import {
   AccountCircleIcon,
   DateRangeIcon,
-  MoreTimeIcon,
-  PaidIcon,
+  // MoreTimeIcon,
+  // PaidIcon,
   PersonIcon,
   WorkIcon,
-  CheckBoxIcon,
 } from "../../components/Icon/MuiIIcon";
-import DataType from "./DataType";
-import { ArrowCircleDown } from "@mui/icons-material";
+import { ArrowCircleDown, SearchOutlined } from "@mui/icons-material";
 import { pagnitionAntd } from "../../consts/Pagination";
-const initialData: DataType[] = [
-  {
-    key: "1",
-    name: "Nguyễn Văn A",
-    roles: ["Developer", "Team Lead"],
-    project: "E-commerce Website",
-    overtime: 5,
-    salary: 5000,
-    date: new Date("2025-02-15"),
-    status: "Approved",
-  },
-  {
-    key: "2",
-    name: "Trần Thị B",
-    roles: ["Designer"],
-    project: "Mobile App UI",
-    overtime: 2,
-    salary: 4500,
-    date: new Date("2025-01-20"),
-    status: "Approved",
-  },
-  {
-    key: "3",
-    name: "Lê Hoàng C",
-    roles: ["QA Tester"],
-    project: "Banking System",
-    overtime: 3,
-    salary: 4000,
-    date: new Date("2025-01-25"),
-    status: "Approved",
-  },
-  {
-    key: "4",
-    name: "Phạm Minh D",
-    roles: ["Developer"],
-    project: "CRM System",
-    overtime: 4,
-    salary: 4800,
-    date: new Date("2025-01-30"),
-    status: "Approved",
-  },
-  {
-    key: "5",
-    name: "Đỗ Thanh E",
-    roles: ["Project Manager"],
-    project: "Healthcare System",
-    overtime: 6,
-    salary: 5500,
-    date: new Date("2025-02-05"),
-    status: "Approved",
-  },
-  {
-    key: "6",
-    name: "Võ Hải F",
-    roles: ["HR Manager"],
-    project: "Internal HR System",
-    overtime: 1,
-    salary: 4700,
-    date: new Date("2025-02-10"),
-    status: "Approved",
-  },
-  {
-    key: "7",
-    name: "Bùi Văn G",
-    roles: ["Developer"],
-    project: "AI Chatbot",
-    overtime: 8,
-    salary: 4900,
-    date: new Date("2025-02-15"),
-    status: "Approved",
-  },
-  {
-    key: "8",
-    name: "Ngô Thị H",
-    roles: ["Data Analyst"],
-    project: "Sales Dashboard",
-    overtime: 0,
-    salary: 4600,
-    date: new Date("2025-02-20"),
-    status: "Approved",
-  },
-];
-
-const options = initialData.map((item) => ({
-  label: item.project,
-  value: item.project,
-}));
+import { FinanceClaim, FinanceSearchCondition } from "./DataType";
+import { useCallback, useState } from "react";
+import { privateApiService } from "../../services/BaseApi";
 
 function SalaryTable(): JSX.Element {
-  const [searchText, setSearchText] = useState("");
-  const [listProject, setListProject] = useState<string[]>([]);
-  const [selectedDate, setSelectedDate] = useState<
-    [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
-  >(null);
-  const filteredData = useMemo(() => {
-    return initialData
-      .filter((item) =>
-        searchText
-          ? item.name.toLowerCase().includes(searchText.toLowerCase())
-          : true
-      )
-      .filter((item) =>
-        listProject.length > 0 ? listProject.includes(item.project) : true
-      )
-      .filter((item) =>
-        selectedDate && selectedDate[0] && selectedDate[1]
-          ? dayjs(item.date).isAfter(selectedDate[0].startOf("day")) &&
-            dayjs(item.date).isBefore(selectedDate[1].endOf("day"))
-          : true
-      )
-      .sort((a, b) => b.date.getTime() - a.date.getTime());
-  }, [searchText, listProject, selectedDate]);
+  const [filteredData, setFilteredData] = useState<FinanceClaim[]>([]);
+
+  const handleTableChange = (page: number, pageSize: number): void => {
+    setSearchCondition((prev) => ({
+      ...prev,
+      pageInfo: {
+        pageNum: page,
+        pageSize: pageSize,
+      },
+    }));
+  };
+  const [searchCondition, setSearchCondition] =
+    useState<FinanceSearchCondition>({
+      searchCondition: {},
+      pageInfo: {
+        pageNum: 1,
+        pageSize: pagnitionAntd.pageSize,
+      },
+    });
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchText(e.target.value);
+      setSearchCondition((prev) => ({
+        ...prev,
+        searchCondition: {
+          ...prev?.searchCondition,
+          keyword: e.target.value,
+        },
+      }));
     },
     []
   );
+
   const handleDatePicker = useCallback(
     (dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null) => {
-      setSelectedDate(dates ?? [null, null]);
+      setSearchCondition((prev) => ({
+        ...prev,
+        searchCondition: {
+          ...prev?.searchCondition,
+          claim_start_date: dates?.[0] || undefined,
+          claim_end_date: dates?.[1] || undefined,
+        },
+      }));
     },
     []
   );
 
-  const handleProjectChange = useCallback((value: string[]) => {
-    setListProject(value);
-  }, []);
+  useCallback(() => {
+    fetchFinanceClaimData(searchCondition);
+  }, [searchCondition]);
 
-  const columns: TableProps<DataType>["columns"] = [
+  const fetchFinanceClaimData = async (
+    searchCondition: FinanceSearchCondition
+  ) => {
+    try {
+      const response = await privateApiService.getFinanceClaimList(
+        searchCondition
+      );
+      setFilteredData(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // const filteredData: FinanceClaim[] = [
+  //   {
+  //     _id: "clm001",
+  //     staff_id: "stf123",
+  //     staff_name: "Nguyễn Văn A",
+  //     staff_email: "nguyenvana@example.com",
+  //     staff_role: null,
+  //     role_in_project: "Project Manager",
+  //     claim_name: "Travel Reimbursement",
+  //     claim_start_date: "2024-02-01",
+  //     claim_end_date: "2024-02-05",
+  //     is_deleted: false,
+  //     created_at: "2024-02-01T10:00:00Z",
+  //     updated_at: "2024-02-05T15:30:00Z",
+  //   },
+  //   {
+  //     _id: "clm002",
+  //     staff_id: "stf124",
+  //     staff_name: "Trần Thị B",
+  //     staff_email: "tranthib@example.com",
+  //     staff_role: null,
+  //     role_in_project: "Software Engineer",
+  //     claim_name: "Work From Home Setup",
+  //     claim_start_date: "2024-01-15",
+  //     claim_end_date: "2024-01-20",
+  //     is_deleted: false,
+  //     created_at: "2024-01-15T09:30:00Z",
+  //     updated_at: "2024-01-20T14:45:00Z",
+  //   },
+  //   {
+  //     _id: "clm003",
+  //     staff_id: "stf125",
+  //     staff_name: "Lê Văn C",
+  //     staff_email: "levanc@example.com",
+  //     staff_role: null,
+  //     role_in_project: "QA Tester",
+  //     claim_name: "Conference Fee",
+  //     claim_start_date: "2024-03-10",
+  //     claim_end_date: "2024-03-12",
+  //     is_deleted: true,
+  //     created_at: "2024-03-10T08:45:00Z",
+  //     updated_at: "2024-03-12T16:20:00Z",
+  //   },
+  // ];
+  const getColor = (role_in_project: string): string => {
+    switch (role_in_project.toLowerCase()) {
+      case "developer":
+        return "blue";
+      case "designer":
+        return "green";
+      case "qa tester":
+        return "red";
+      case "project manager":
+        return "purple";
+      default:
+        return "gray";
+    }
+  };
+
+  const columns: TableProps<FinanceClaim>["columns"] = [
     {
       title: (
         <div className="font-bold flex align-middle gap-0.5 text-[0.7rem] ">
           <DateRangeIcon />
-          Date
+          Start Date
         </div>
       ),
-      dataIndex: "date",
-      key: "date",
+      dataIndex: "claim_start_date",
+      key: "claim_start_date",
+      render: (date) => dayjs(date).format("DD/MM/YYYY"),
+      responsive: ["xs", "sm", "md", "lg"],
+    },
+    {
+      title: (
+        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem] ">
+          <DateRangeIcon />
+          End Date
+        </div>
+      ),
+      dataIndex: "claim_end_date",
+      key: "claim_end_date",
       render: (date) => dayjs(date).format("DD/MM/YYYY"),
       responsive: ["xs", "sm", "md", "lg"],
     },
@@ -164,11 +169,11 @@ function SalaryTable(): JSX.Element {
       title: (
         <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
           <PersonIcon />
-          Name
+          Staff Name
         </div>
       ),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "staff_name",
+      key: "staff_name",
       render: (text) => <a className="text-blue-500 font-medium">{text}</a>,
       responsive: ["xs", "sm", "md", "lg"],
     },
@@ -176,11 +181,11 @@ function SalaryTable(): JSX.Element {
       title: (
         <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
           <WorkIcon />
-          Project
+          Email
         </div>
       ),
-      dataIndex: "project",
-      key: "project",
+      dataIndex: "staff_email",
+      key: "staff_email",
       render: (text) => (
         <Tooltip title={text}>
           <div className="text-gray-700 font-bold truncate max-w-[150px]">
@@ -193,89 +198,31 @@ function SalaryTable(): JSX.Element {
     },
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
-          <PaidIcon />
-          Salary
-        </div>
-      ),
-      dataIndex: "salary",
-      key: "salary",
-
-      render: (salary) => (
-        <p>
-          {salary} <DollarOutlined />
-        </p>
-      ),
-      responsive: ["sm", "md", "lg"],
-    },
-    {
-      title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
-          <MoreTimeIcon /> Overtime
-        </div>
-      ),
-      dataIndex: "overtime",
-      key: "overtime",
-      render: (text) => <p>{text} Hours</p>,
-      responsive: ["sm", "md", "lg"],
-    },
-    {
-      title: (
         <div className="font-bold flex items-center gap-0.5 text-[0.7rem]">
           <AccountCircleIcon />
           Role
         </div>
       ),
-      key: "role",
-      dataIndex: "roles",
-      render: (roles: string[]) => (
+      key: "role_in_project",
+      dataIndex: "role_in_project",
+      render: (role_in_project: string) => (
         <div className="flex flex-wrap gap-1 max-w-[150px] overflow-hidden truncate">
-          {roles.map((role: string, index: number) => {
-            let color: string;
-            switch (role.toLowerCase()) {
-              case "developer":
-                color = "blue";
-                break;
-              case "designer":
-                color = "green";
-                break;
-              case "qa tester":
-                color = "red";
-                break;
-              case "project manager":
-                color = "purple";
-                break;
-              default:
-                color = "gray";
-            }
-            return (
-              <Tooltip title={role} key={index}>
-                <Tag color={color} className="truncate max-w-[80px]">
-                  {role.toUpperCase()}
-                </Tag>
-              </Tooltip>
-            );
-          })}
+          <Tooltip title={role_in_project}>
+            <Tag
+              color={getColor(role_in_project)}
+              className="truncate max-w-[80px]"
+            >
+              {role_in_project.toUpperCase()}
+            </Tag>
+          </Tooltip>
         </div>
       ),
-      responsive: ["sm", "md", "lg"],
-    },
-
-    {
-      title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem] ">
-          <CheckBoxIcon className="sm:hidden" /> Status
-        </div>
-      ),
-      key: "status",
-      dataIndex: "status",
-      render: (text) => <Tag color="success">{text}</Tag>,
       responsive: ["sm", "md", "lg"],
     },
     {
       title: "Action",
       key: "action",
-      render: (data: DataType) => (
+      render: (data: FinanceClaim) => (
         <Space size="small">
           <ModalConfirm
             typeConfirm={{ borderColor: "#6ef13c" }}
@@ -284,7 +231,7 @@ function SalaryTable(): JSX.Element {
           />
         </Space>
       ),
-      responsive: ["xs","sm", "md", "lg"],
+      responsive: ["xs", "sm", "md", "lg"],
     },
   ];
   const components = {
@@ -315,14 +262,6 @@ function SalaryTable(): JSX.Element {
             className="max-w-xs mb-4 rounded-full mr-4 shadow-[7px_7px_0px_0px] duration-300 ease-in-out"
             onChange={handleSearchChange}
           />
-          <Select
-            mode="multiple"
-            allowClear
-            style={{ width: "30%", marginBottom: "1rem" }}
-            placeholder="Please select"
-            onChange={handleProjectChange}
-            options={options}
-          />
           <DatePicker.RangePicker
             style={{ width: "30%", marginBottom: "1rem", marginLeft: "1rem" }}
             onChange={handleDatePicker}
@@ -330,11 +269,13 @@ function SalaryTable(): JSX.Element {
         </div>
         <div>
           <Table
-          className="overflow-x-auto"
-            rowKey="key"
+            className="overflow-x-auto"
             columns={columns}
             dataSource={filteredData}
-            pagination={{ pageSize: pagnitionAntd.pageSize }}
+            pagination={{
+              pageSize: pagnitionAntd.pageSize,
+              onChange: handleTableChange,
+            }}
             style={{
               tableLayout: "auto",
             }}
