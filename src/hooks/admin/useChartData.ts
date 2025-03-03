@@ -3,7 +3,6 @@ import useDashboardData from "./useDashboardData";
 export default function useChartData() {
 // Hooks
 const { users, claims, projects, contracts } = useDashboardData();
-console.log("users", users);
 // List of months
 const months = [
   "Jan",

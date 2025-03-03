@@ -3,7 +3,6 @@ import apiService from "../../services/ApiService";
 import { Notification } from "../../components/common/Notification";
 import { PaginatedResponse, SearchRequest, User } from "../../model/UserData";
 import { Claim, ClaimResponse, SearchClaimRequest } from "../../model/ClaimData";
-import { pagnitionAntd } from "../../consts/Pagination";
 import { Project, ProjectResponse, SearchProjectRequest } from "../../model/ProjectData";
 import { Contract, ContractResponse } from "../../model/ContractData";
 
@@ -18,9 +17,9 @@ export default function useDashboardData() {
   const [totalContracts, setTotalContracts] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10000);
+  const [pageSize] = useState<number>(10000);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [showBanned, setShowBanned] = useState<boolean | null>(null);
+  const [showBanned] = useState<boolean | null>(null);
   
   
   const fetchUsers = async () => {
