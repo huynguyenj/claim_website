@@ -1,4 +1,4 @@
-import shiba from "../assets/loadingshiba.png";
+import shiba from "../../assets/loadingshiba.png";
 function Loading() {
   return (
     <div className="relative w-full h-screen bg-black">

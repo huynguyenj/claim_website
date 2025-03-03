@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx'
-import { Notification } from '../components/Notification';
+import { Notification } from '../components/common/Notification';
 
 export const exportToExcel = <T>(data: T[],columnsName:string[],fileName:string):void => {
       if(data.length === 0){
