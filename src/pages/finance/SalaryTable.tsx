@@ -5,16 +5,14 @@ import dayjs from "dayjs";
 import {
   AccountCircleIcon,
   DateRangeIcon,
-  // MoreTimeIcon,
-  // PaidIcon,
   PersonIcon,
   WorkIcon,
 } from "../../components/Icon/MuiIIcon";
 import { ArrowCircleDown, SearchOutlined } from "@mui/icons-material";
 import { pagnitionAntd } from "../../consts/Pagination";
 import { FinanceClaim, FinanceSearchCondition } from "./DataType";
-import { useCallback, useState } from "react";
-import { privateApiService } from "../../services/BaseApi";
+import { useCallback, useEffect, useState } from "react";
+import { privateApiService } from "../../services/ApiService";
 
 function SalaryTable(): JSX.Element {
   const [filteredData, setFilteredData] = useState<FinanceClaim[]>([]);
@@ -64,22 +62,25 @@ function SalaryTable(): JSX.Element {
     []
   );
 
-  useCallback(() => {
-    fetchFinanceClaimData(searchCondition);
+  const fetchFinanceClaimData = useCallback(() => {
+    privateApiService
+      .getFinanceClaimList(searchCondition)
+      .then((response) => {
+        console.log("📌 API Response:", response?.data?.pageData);
+
+        const safeData = Array.isArray(response?.data?.pageData)
+          ? response.data.pageData
+          : [];
+        setFilteredData(safeData);
+      })
+      .catch((error) => {
+        console.error("❌ Error fetching finance claims:", error);
+      });
   }, [searchCondition]);
 
-  const fetchFinanceClaimData = async (
-    searchCondition: FinanceSearchCondition
-  ) => {
-    try {
-      const response = await privateApiService.getFinanceClaimList(
-        searchCondition
-      );
-      setFilteredData(response);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  useEffect(() => {
+    fetchFinanceClaimData();
+  }, [fetchFinanceClaimData]);
 
   // const filteredData: FinanceClaim[] = [
   //   {
@@ -143,26 +144,26 @@ function SalaryTable(): JSX.Element {
   const columns: TableProps<FinanceClaim>["columns"] = [
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem] ">
+        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
           <DateRangeIcon />
           Start Date
         </div>
       ),
       dataIndex: "claim_start_date",
       key: "claim_start_date",
-      render: (date) => dayjs(date).format("DD/MM/YYYY"),
+      render: (date) => (date ? dayjs(date).format("DD/MM/YYYY") : "N/A"),
       responsive: ["xs", "sm", "md", "lg"],
     },
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem] ">
+        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
           <DateRangeIcon />
           End Date
         </div>
       ),
       dataIndex: "claim_end_date",
       key: "claim_end_date",
-      render: (date) => dayjs(date).format("DD/MM/YYYY"),
+      render: (date) => (date ? dayjs(date).format("DD/MM/YYYY") : "N/A"),
       responsive: ["xs", "sm", "md", "lg"],
     },
     {
@@ -174,7 +175,9 @@ function SalaryTable(): JSX.Element {
       ),
       dataIndex: "staff_name",
       key: "staff_name",
-      render: (text) => <a className="text-blue-500 font-medium">{text}</a>,
+      render: (text) => (
+        <a className="text-blue-500 font-medium">{text || "Unknown"}</a>
+      ),
       responsive: ["xs", "sm", "md", "lg"],
     },
     {
@@ -189,7 +192,7 @@ function SalaryTable(): JSX.Element {
       render: (text) => (
         <Tooltip title={text}>
           <div className="text-gray-700 font-bold truncate max-w-[150px]">
-            {text}
+            {text || "N/A"}
           </div>
         </Tooltip>
       ),
@@ -200,19 +203,19 @@ function SalaryTable(): JSX.Element {
       title: (
         <div className="font-bold flex items-center gap-0.5 text-[0.7rem]">
           <AccountCircleIcon />
-          Role
+          Role in Project
         </div>
       ),
       key: "role_in_project",
       dataIndex: "role_in_project",
-      render: (role_in_project: string) => (
+      render: (role_in_project: string | null) => (
         <div className="flex flex-wrap gap-1 max-w-[150px] overflow-hidden truncate">
-          <Tooltip title={role_in_project}>
+          <Tooltip title={role_in_project || "No Role"}>
             <Tag
-              color={getColor(role_in_project)}
+              color={getColor(role_in_project || "default")}
               className="truncate max-w-[80px]"
             >
-              {role_in_project.toUpperCase()}
+              {role_in_project ? role_in_project.toUpperCase() : "N/A"}
             </Tag>
           </Tooltip>
         </div>
@@ -234,6 +237,7 @@ function SalaryTable(): JSX.Element {
       responsive: ["xs", "sm", "md", "lg"],
     },
   ];
+
   const components = {
     body: {
       cell: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
@@ -271,7 +275,7 @@ function SalaryTable(): JSX.Element {
           <Table
             className="overflow-x-auto"
             columns={columns}
-            dataSource={filteredData}
+            dataSource={filteredData || []}
             pagination={{
               pageSize: pagnitionAntd.pageSize,
               onChange: handleTableChange,
