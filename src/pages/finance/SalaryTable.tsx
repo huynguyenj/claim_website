@@ -13,9 +13,24 @@ import { pagnitionAntd } from "../../consts/Pagination";
 import { FinanceClaim, FinanceSearchCondition } from "./DataType";
 import { useCallback, useEffect, useState } from "react";
 import { privateApiService } from "../../services/ApiService";
+import debounce from "lodash/debounce";
 
 function SalaryTable(): JSX.Element {
   const [filteredData, setFilteredData] = useState<FinanceClaim[]>([]);
+
+  const [searchCondition, setSearchCondition] =
+    useState<FinanceSearchCondition>({
+      searchCondition: {
+        claim_status: "Approved",
+        is_delete: false,
+        claim_end_date: "",
+        claim_start_date: "",
+      },
+      pageInfo: {
+        pageNum: 1,
+        pageSize: pagnitionAntd.pageSize,
+      },
+    });
 
   const handleTableChange = (page: number, pageSize: number): void => {
     setSearchCondition((prev) => ({
@@ -26,51 +41,60 @@ function SalaryTable(): JSX.Element {
       },
     }));
   };
-  const [searchCondition, setSearchCondition] =
-    useState<FinanceSearchCondition>({
-      searchCondition: {},
-      pageInfo: {
-        pageNum: 1,
-        pageSize: pagnitionAntd.pageSize,
+
+  const debouncedSearch = debounce((value: string) => {
+    setSearchCondition((prev) => ({
+      ...prev,
+      searchCondition: {
+        ...prev?.searchCondition,
+        keyword: value,
       },
-    });
+    }));
+  }, 1000);
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchCondition((prev) => ({
-        ...prev,
+      debouncedSearch(e.target.value);
+    },
+    [debouncedSearch]
+  );
+
+  const debounceDatePicker = debounce(
+    (dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null) => {
+      setSearchCondition((pre) => ({
+        ...pre,
         searchCondition: {
-          ...prev?.searchCondition,
-          keyword: e.target.value,
+          ...pre?.searchCondition,
+          claim_start_date: dates?.[0] ? dates[0].toISOString() : undefined,
+          claim_end_date: dates?.[1] ? dates[1].toISOString() : undefined,
         },
       }));
     },
-    []
+    1000
   );
 
   const handleDatePicker = useCallback(
     (dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null) => {
-      setSearchCondition((prev) => ({
-        ...prev,
-        searchCondition: {
-          ...prev?.searchCondition,
-          claim_start_date: dates?.[0] || undefined,
-          claim_end_date: dates?.[1] || undefined,
-        },
-      }));
+      debounceDatePicker(dates);
     },
-    []
+    [debounceDatePicker]
   );
 
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+      debounceDatePicker.cancel();
+    };
+  }, [debouncedSearch, debounceDatePicker]);
+
   const fetchFinanceClaimData = useCallback(() => {
+    console.log(searchCondition);
     privateApiService
       .getFinanceClaimList(searchCondition)
       .then((response) => {
         console.log("📌 API Response:", response?.data?.pageData);
 
-        const safeData = Array.isArray(response?.data?.pageData)
-          ? response.data.pageData
-          : [];
+        const safeData = response?.data?.pageData ? response.data.pageData : [];
         setFilteredData(safeData);
       })
       .catch((error) => {
@@ -82,7 +106,6 @@ function SalaryTable(): JSX.Element {
     fetchFinanceClaimData();
   }, [fetchFinanceClaimData]);
 
-  // const filteredData: FinanceClaim[] = [
   //   {
   //     _id: "clm001",
   //     staff_id: "stf123",
@@ -263,7 +286,7 @@ function SalaryTable(): JSX.Element {
           <Input
             prefix={<SearchOutlined className="text-gray-500" />}
             placeholder="Search By Name"
-            className="max-w-xs mb-4 rounded-full mr-4 shadow-[7px_7px_0px_0px] duration-300 ease-in-out"
+            className="max-w-xs mb-4 rounded-full mr-4 shadow-[7px_7px_0px_0px] duration-1000 ease-in-out"
             onChange={handleSearchChange}
           />
           <DatePicker.RangePicker

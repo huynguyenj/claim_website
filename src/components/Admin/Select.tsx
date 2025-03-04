@@ -10,8 +10,8 @@ export default function SelectComponent() {
       options={[
         { value: "all", label: "All" },
         { value: "users", label: "Users" },
-        { value: "claims", label: "Claims" },
-        { value: "funds", label: "Funds" },
+        { value: "claims", label: "Projects" },
+        { value: "funds", label: "Contracts" },
       ]}
     />
   );
