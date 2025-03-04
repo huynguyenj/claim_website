@@ -13,80 +13,49 @@ import {
   Table,
   theme,
 } from "antd";
-import { ArrowDownOutlined, ArrowUpOutlined, CaretLeftOutlined, CloseCircleOutlined, DownOutlined, EyeOutlined } from "@ant-design/icons";
+import { ArrowDownOutlined, ArrowUpOutlined, CaretLeftOutlined, ClockCircleOutlined, CloseCircleOutlined, DownOutlined, EyeOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { CheckCircleOutlined, SearchOutlined, StarOutlined } from "@mui/icons-material";
-import ChartLinetest from "./ChartLinetest";
 import Chartmonth from "./Chartmonth";
 import ChartOverview from "./ChartOverview";
 import { pagnitionAntd } from "../../consts/Pagination";
+import useDashboardData from "../../hooks/user/Userdata";
+import { Claim } from "../../model/ClaimData";
+import { formatToGMTPlus7 } from '../../utils/dateUtils';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
 const { Option } = Select;
 
 enum ClaimStatus {
-  Pending = "pending",
-  Approved = "approved",
-  Rejected = "rejected",
+  Draft = "Draft",
+  Approved = "Approved",
+  Canceled = "Canceled",
+  PendingApproval = "Pending Approval",
 }
-
-enum ClaimType {
-  Travel = "Travel",
-  Food = "Food",
-  Equipment = "Equipment",
-  Others = "Others",
-}
-
-interface Claim {
-  id: string;
-  status: ClaimStatus;
-  type: ClaimType;
-  amount: number;
-  date: string;
-  createdAt?: string;
-}
-
-
 
 type FilterStatus = "all" | ClaimStatus;
-
-const mockClaims: Claim[] = [
-  { id: "1", status: ClaimStatus.Pending, type: ClaimType.Travel, amount: 120, date: new Date().toISOString().split("T")[0] },
-  { id: "2", status: ClaimStatus.Approved, type: ClaimType.Food, amount: 50, date: "2025-02-15" },
-  { id: "3", status: ClaimStatus.Pending, type: ClaimType.Equipment, amount: 200, date: "2025-02-15" },
-  { id: "4", status: ClaimStatus.Approved, type: ClaimType.Travel, amount: 75, date: "2025-02-15" },
-  { id: "5", status: ClaimStatus.Pending, type: ClaimType.Others, amount: 180, date: "2025-02-15" },
-  { id: "6", status: ClaimStatus.Rejected, type: ClaimType.Food, amount: 60, date: "2025-02-15" },
-  { id: "7", status: ClaimStatus.Rejected, type: ClaimType.Equipment, amount: 90, date: "2025-02-15" },
-  { id: "8", status: ClaimStatus.Pending, type: ClaimType.Others, amount: 150, date: "2025-02-15" },
-  { id: "9", status: ClaimStatus.Approved, type: ClaimType.Travel, amount: 95, date: "2025-02-15" },
-  { id: "10", status: ClaimStatus.Rejected, type: ClaimType.Travel, amount: 203, date: "2025-02-15" },
-  { id: "11", status: ClaimStatus.Approved, type: ClaimType.Travel, amount: 95, date: "2025-02-15" },
-  { id: "12", status: ClaimStatus.Rejected, type: ClaimType.Travel, amount: 203, date: "2025-02-15" },
-  { id: "13", status: ClaimStatus.Rejected, type: ClaimType.Travel, amount: 95, date: "2025-02-15" },
-  { id: "14", status: ClaimStatus.Rejected, type: ClaimType.Travel, amount: 203, date: "2025-02-15" },
-];
 
 const cardStyle = {
   border: "1px solid black",
   boxShadow: "10px 5px rgb(66, 65, 65)",
 };
+
 const UserDashboard: React.FC = () => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
-  const [loading] = useState<boolean>(false);
+  const { claims, totalClaims, loading, error } = useDashboardData();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
 
   const filteredClaims: Claim[] = useMemo(() => {
-    return mockClaims.filter((claim) => {
+    return claims.filter((claim) => {
       return (
-        (searchTerm ? claim.id.includes(searchTerm) : true) &&
-        (statusFilter === "all" ? true : claim.status === statusFilter)
+        (searchTerm ? claim._id.includes(searchTerm) : true) &&
+        (statusFilter === "all" ? true : claim.claim_status === statusFilter)
       );
     });
-  }, [searchTerm, statusFilter]);
+  }, [claims, searchTerm, statusFilter]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -96,35 +65,52 @@ const UserDashboard: React.FC = () => {
     setStatusFilter(value);
   };
 
-  const getStatusCount = useMemo(() => (status: Exclude<FilterStatus, "all">): number => {
-    return mockClaims.filter((c) => c.status === status).length;
-  }, [mockClaims]);
+  const getStatusCount = (status: Exclude<FilterStatus, "all">): number => {
+    console.log("Checking status:", status);
+    console.log("Claims:", claims);
+    const count = claims.filter((c) => c.claim_status === status).length;
+    console.log(`Count for ${status}:`, count);
+    return count;
+  };
+
+
 
   const columns = [
-    { title: "Claim ID", dataIndex: "id", key: "id" },
+    { title: "Claim ID", dataIndex: "_id", key: "_id" },
     {
       title: "Status",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "claim_status",
+      key: "claim_status",
       render: (status: ClaimStatus) => (
         <span
           style={{
             color:
               status === ClaimStatus.Approved
                 ? "#52c41a"
-                : status === ClaimStatus.Rejected
+                : status === ClaimStatus.Canceled
                   ? "#ff4d4f"
-                  : "black",
+                  : status === ClaimStatus.PendingApproval
+                    ? "#faad14"
+                    : "black",
           }}
         >
           {status.charAt(0).toUpperCase() + status.slice(1)}
         </span>
       ),
     },
-    { title: "Type", dataIndex: "type", key: "type" },
-    { title: "Date", dataIndex: "date", key: "date" },
+    {
+      title: "Start Date",
+      dataIndex: "claim_start_date",
+      key: "claim_start_date",
+      render: (date: string) => formatToGMTPlus7(date)
+    },
+    {
+      title: "End Date",
+      dataIndex: "claim_end_date",
+      key: "claim_end_date",
+      render: (date: string) => formatToGMTPlus7(date)
+    },
   ];
-
 
   return (
     <Layout style={{ minHeight: "50vh", padding: "20px", overflow: "scroll" }}>
@@ -139,34 +125,45 @@ const UserDashboard: React.FC = () => {
         </Button>
         <Title level={1}>Dashboard</Title>
 
+        {error && <div style={{ color: "red", marginBottom: "20px" }}>{error}</div>}
+
         <Spin spinning={loading}>
           <Row gutter={[24, 24]} style={{ marginBottom: "48px" }}>
             {[
               {
                 icon: <EyeOutlined />,
-                title: "Pending Claims",
-                value: getStatusCount(ClaimStatus.Pending),
+                title: "Draft Claims",
+                value: getStatusCount(ClaimStatus.Draft),
                 color: token.colorWarning,
                 trend: "up",
               },
               {
                 icon: <CheckCircleOutlined />,
                 title: "Approved Claims",
-                value: getStatusCount(ClaimStatus.Approved),
+                value: getStatusCount(ClaimStatus.Approved).toString(),
                 color: token.colorSuccess,
                 trend: "up",
               },
+
               {
                 icon: <CloseCircleOutlined />,
-                title: "Rejected Claims",
-                value: getStatusCount(ClaimStatus.Rejected),
+                title: "Canceled Claims",
+                value: getStatusCount(ClaimStatus.Canceled),
                 color: token.colorError,
                 trend: "down",
               },
               {
+                icon: <ClockCircleOutlined />,
+                title: "Pending Approval",
+                value: getStatusCount(ClaimStatus.PendingApproval),
+                color: token.colorWarning,
+                trend: "up",
+              },
+
+              {
                 icon: <StarOutlined />,
                 title: "Total Claims",
-                value: mockClaims.length,
+                value: totalClaims,
                 color: token.colorPrimary,
                 trend: "up",
               },
@@ -251,9 +248,9 @@ const UserDashboard: React.FC = () => {
                   suffixIcon={<DownOutlined style={{ fontSize: "16px", color: "black" }} />}
                 >
                   <Option value="all">All</Option>
-                  <Option value={ClaimStatus.Pending}>Pending</Option>
+                  <Option value={ClaimStatus.Draft}>Draft</Option>
                   <Option value={ClaimStatus.Approved}>Approved</Option>
-                  <Option value={ClaimStatus.Rejected}>Rejected</Option>
+                  <Option value={ClaimStatus.Canceled}>Rejected</Option>
                 </Select>
               </Col>
             </Row>
@@ -262,31 +259,47 @@ const UserDashboard: React.FC = () => {
               <Table<Claim>
                 dataSource={filteredClaims}
                 columns={columns}
-                rowKey="id"
+                rowKey="_id"
                 scroll={{ x: true }}
                 pagination={{ pageSize: pagnitionAntd.pageSize }}
               />
             </div>
           </div>
 
-          <div style={{ border: "2px solid rgb(132, 130, 130)", borderRadius: "12px", padding: "16px", background: "#fff", marginTop: "100px" }}>
+          <div style={{ border: "2px solid rgb(132, 130, 130)", borderRadius: "12px", padding: "24px", background: "#fff", marginTop: "100px" }}>
             <Row gutter={[24, 24]}>
               {/* First Chart */}
-              <Col xs={24} lg={8}>
-                <Chartmonth />
+              <Col xs={24} lg={12}>
+                <div style={{
+                  background: '#f8f9fa',
+                  padding: '20px',
+                  borderRadius: '10px',
+                  height: '100%',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  border: '1px solid #e8e8e8'
+                }}>
+                  <Chartmonth />
+                </div>
               </Col>
 
               {/* Second Chart */}
-              <Col xs={24} lg={8}>
-                <ChartLinetest />
-              </Col>
-
-              {/* Third Chart */}
-              <Col xs={24} lg={8}>
-                <ChartOverview />
+              <Col xs={24} lg={12}>
+                <div style={{
+                  background: '#f8f9fa',
+                  padding: '20px',
+                  borderRadius: '10px',
+                  height: '100%',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  border: '1px solid #e8e8e8'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'center', paddingRight: '30px' }}>
+                    <ChartOverview />
+                  </div>
+                </div>
               </Col>
             </Row>
           </div>
+
           <br></br>
         </Spin>
       </Content>
