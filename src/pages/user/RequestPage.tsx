@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -21,66 +21,11 @@ import {
   Grid,
 } from '@mui/material';
 import { Add as AddIcon, Search as SearchIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import type { ClaimRequest } from '../../model/Claim';
+import type { ClaimRequest, NewClaimRequest } from '../../model/Claim';
+import authService from '../../services/AuthService';
 
 const RequestPage: React.FC = () => {
-  const [requests, setRequests] = useState<ClaimRequest[]>([
-    {
-      id: '1',
-      title: 'Overtime Salary - John Doe',
-      description: 'Overtime work on project XYZ',
-      status: 'DRAFT',
-      createdAt: new Date().toISOString(),
-      projectName: 'Project XYZ',
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date().toISOString().split('T')[0],
-      workTime: '8 hours',
-    },
-    {
-      id: '2',
-      title: 'Overtime Salary - Jane Smith',
-      description: 'Weekend work for client meeting preparation',
-      status: 'PENDING_APPROVAL',
-      createdAt: new Date().toISOString(),
-      projectName: 'Client Meeting',
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date().toISOString().split('T')[0],
-      workTime: '6 hours',
-    },
-    {
-      id: '3',
-      title: 'Overtime Salary - Alice Johnson',
-      description: 'Extra hours for project ABC',
-      status: 'APPROVED',
-      createdAt: new Date().toISOString(),
-      projectName: 'Project ABC',
-      startDate: '2023-10-01',
-      endDate: '2023-10-05',
-      workTime: '10 hours',
-    },
-    {
-      id: '4',
-      title: 'Overtime Salary - Bob Brown',
-      description: 'Additional work for report preparation',
-      status: 'REJECTED',
-      createdAt: new Date().toISOString(),
-      projectName: 'Report Preparation',
-      startDate: '2023-10-06',
-      endDate: '2023-10-07',
-      workTime: '5 hours',
-    },
-    {
-      id: '5',
-      title: 'Overtime Salary - Charlie Green',
-      description: 'Work on client feedback',
-      status: 'PENDING_PAYMENT',
-      createdAt: new Date().toISOString(),
-      projectName: 'Client Feedback',
-      startDate: '2023-10-08',
-      endDate: '2023-10-09',
-      workTime: '7 hours',
-    }
-  ]);
+  const [requests, setRequests] = useState<ClaimRequest[]>([]);
   const [searchText, setSearchText] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -94,6 +39,16 @@ const RequestPage: React.FC = () => {
   const [endDate, setEndDate] = useState('');
   const [workTime, setWorkTime] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string | ''>('');
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  const [selectedProjectName, setSelectedProjectName] = useState<string>('');
+
+
+  const projects = [
+    { id: 'project_a_001', name: 'Project A' },
+    { id: 'project_b_002', name: 'Project B' },
+    { id: 'project_c_003', name: 'Project C' }, 
+
+  ];
 
   const statusOptions = [
     { value: 'DRAFT', label: 'Draft' },
@@ -104,66 +59,86 @@ const RequestPage: React.FC = () => {
     { value: 'PAID', label: 'Paid' },
   ];
 
-  const handleSubmit = () => {
-    try {
-      if (editingId) {
-        setRequests(requests.map(request =>
-          request.id === editingId
-            ? {
-              ...request,
-              title: formData.title,
-              description: formData.description,
-              status: "DRAFT",
-              createdAt: new Date().toISOString(),
-              projectName,
-              startDate,
-              endDate,
-              workTime: `${workTime} hours`, // Thêm "hours" vào workTime
-            }
-            : request
-        ));
-      } else {
-        const newRequest: ClaimRequest = {
-          id: Date.now().toString(),
-          title: formData.title,
-          description: formData.description,
-          status: "DRAFT",
-          createdAt: new Date().toISOString(),
-          projectName,
-          startDate,
-          endDate,
-          workTime: `${workTime} hours`, // Thêm "hours" vào workTime
-        };
-        setRequests([...requests, newRequest]);
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const response = await authService.getRequests();
+        setRequests(response);
+      } catch (error) {
+        console.error('Failed to fetch requests', error);
       }
-      setIsModalOpen(false);
-      setFormData({ title: '', description: '', amount: '' });
-      setProjectName('');
-      setStartDate('');
-      setEndDate('');
-      setWorkTime('');
+    };
+
+    fetchRequests();
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const newRequest: NewClaimRequest = {
+        project_id: selectedProjectId,
+        approval_id: '67b2fd17f6afc068678f14b5',
+        claim_name: formData.title,
+        claim_start_date: new Date(startDate).toISOString(),
+        claim_end_date: new Date(endDate).toISOString(),
+        total_work_time: parseInt(workTime),
+        remark: formData.description,
+        user_id: '',
+        claim_status: '',
+        _id: ''
+      };
+
+      const response = await authService.createClaim(newRequest);
+      if (response) {
+        const completeRequest: ClaimRequest = {
+          ...response,
+          claim_status: 'DRAFT',
+          is_deleted: false,
+          _id: response._id || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          __v: 0
+        };
+
+        console.log('New Request Data:', completeRequest);
+        setRequests([...requests, completeRequest]);
+        setIsModalOpen(false);
+        setFormData({ title: '', description: '', amount: '' });
+        setStartDate('');
+        setEndDate('');
+        setWorkTime('');
+      }
     } catch (error) {
       console.error('Operation failed', error);
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure?')) {
-      setRequests(requests.filter(request => request.id !== id));
+      try {
+        await authService.deleteClaim(id);
+        setRequests(requests.filter(request => request._id !== id));
+      } catch (error) {
+        console.error('Failed to delete request', error);
+      }
     }
   };
 
-  const handleRequestApproval = (id: string) => {
-    setRequests(requests.map(request =>
-      request.id === id
-        ? { ...request, status: 'PENDING_APPROVAL' }
-        : request
-    ));
+  const handleRequestApproval = async (id: string) => {
+    try {
+      const updatedRequest = requests.find(request => request._id === id);
+      if (updatedRequest) {
+        updatedRequest.claim_status = 'PENDING_APPROVAL';
+        await authService.updateClaim(updatedRequest);
+        setRequests(requests.map(request => request._id === id ? updatedRequest : request));
+      }
+    } catch (error) {
+      console.error('Failed to update request status', error);
+    }
   };
 
   const filteredRequests = requests.filter(request => {
-    const matchesSearchText = request.title.toLowerCase().includes(searchText.toLowerCase());
-    const matchesStatus = selectedStatus ? request.status === selectedStatus : true;
+    const matchesSearchText = request.claim_name.toLowerCase().includes(searchText.toLowerCase());
+    const matchesStatus = selectedStatus ? request.claim_status === selectedStatus : true;
     return matchesSearchText && matchesStatus;
   });
 
@@ -174,7 +149,7 @@ const RequestPage: React.FC = () => {
           <Box className="mb-4 flex flex-col md:flex-row justify-between items-center">
             <Box className="flex gap-4">
               <TextField
-                placeholder="Search by claim ID..."
+                placeholder="Search by claim name..."
                 size="small"
                 InputProps={{
                   startAdornment: <SearchIcon />,
@@ -250,9 +225,8 @@ const RequestPage: React.FC = () => {
               </TableHead>
               <TableBody>
                 {filteredRequests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell>{request.projectName}</TableCell>
-                    <TableCell>{request.workTime}</TableCell>
+                  <TableRow key={request._id}>
+
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-sm ${{
                         DRAFT: 'bg-gray-200',
@@ -261,21 +235,21 @@ const RequestPage: React.FC = () => {
                         REJECTED: 'bg-red-200',
                         PENDING_PAYMENT: 'bg-blue-200',
                         PAID: 'bg-purple-200',
-                      }[request.status]}`}>
-                        {request.status.replace('_', ' ')}
+                      }[request.claim_status]}`}>
+                        {request.claim_status.replace('_', ' ')}
                       </span>
                     </TableCell>
-                    <TableCell>{new Date(request.startDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(request.endDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(request.claim_start_date).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(request.claim_end_date).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Box className="flex gap-2">
                         <Button
                           variant="outlined"
                           onClick={() => {
-                            setEditingId(request.id);
+                            setEditingId(request._id);
                             setFormData({
-                              title: request.title,
-                              description: request.description,
+                              title: request.claim_name,
+                              description: request.remark,
                               amount: '',
                             });
                             setIsModalOpen(true);
@@ -286,14 +260,14 @@ const RequestPage: React.FC = () => {
                         <Button
                           variant="outlined"
                           color="error"
-                          onClick={() => handleDelete(request.id)}
+                          onClick={() => handleDelete(request._id)}
                           startIcon={<DeleteIcon />}
                           sx={{ padding: '4px 8px', fontSize: '0.875rem' }}
                         />
                         <Button
                           variant="contained"
-                          onClick={() => handleRequestApproval(request.id)}
-                          disabled={request.status === 'PENDING_APPROVAL'}
+                          onClick={() => handleRequestApproval(request._id)}
+                          disabled={request.claim_status === 'PENDING_APPROVAL'}
                           sx={{ padding: '4px 8px', fontSize: '0.875rem' }}
                         >
                           Request Approval
@@ -312,10 +286,39 @@ const RequestPage: React.FC = () => {
             </DialogTitle>
             <DialogContent>
               <Box className="flex flex-col gap-4 pt-4">
+                <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
+                  <InputLabel>Project</InputLabel>
+                  <Select
+                    value={selectedProjectId}
+                    onChange={(e) => {
+                      const projectId = e.target.value;
+                      setSelectedProjectId(projectId);
+                      const project = projects.find(p => p.id === projectId);
+                      setSelectedProjectName(project ? project.name : '');
+                    }}
+                    label="Project"
+                  >
+                    {projects.map(project => (
+                      <MenuItem key={project.id} value={project.id}>
+                        {project.id}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
                 <TextField
                   label="Project Name"
-                  value={projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
+                  value={selectedProjectName}
+                  disabled
+                  fullWidth
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                />
+                
+                <TextField
+                  label="Title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
                   fullWidth
                   variant="outlined"
@@ -355,22 +358,9 @@ const RequestPage: React.FC = () => {
                   />
                 </FormControl>
                 <TextField
-                  label="Title"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  required
-                  fullWidth
-                  variant="outlined"
-                  sx={{ mb: 2 }}
-                />
-                <TextField
                   label="Description"
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   required
                   multiline
                   rows={4}

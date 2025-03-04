@@ -17,7 +17,7 @@ function Home() {
   const navigate = useNavigate();
   const userInfo = useAuthStore((state) => state.user);
 
-  const handleChangePage = () => {
+  const handleChangePage = ():void => {
     console.log(userInfo?.role_code)
     if (!userInfo) {
       navigate(PublicRoutes.LOGIN);
@@ -43,16 +43,8 @@ function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleChangeVerifyPage = (element:React.MouseEvent<HTMLElement>) => {
-    switch(element.currentTarget.getAttribute("data-id")){
-      case "verify":
+  const handleChangeVerifyPage = ():void => {
         navigate(PublicRoutes.VERIFY);
-        break;
-      case "resend":
-        navigate(PublicRoutes.RESENDEMAIL)
-        break;
-      default: console.log('not the main element')
-    }
   }
   return (
     <main
@@ -63,7 +55,6 @@ function Home() {
       <div className=" w-full h-screen flex flex-col justify-center items-center z-10 relative">
       <ul className="absolute top-0 right-0 flex gap-5 justify-end mr-10 p-5 text-white-fig">
         <li data-id="verify" onClick={handleChangeVerifyPage} className="cursor-pointer w-fit h-10 rounded-2xl relative after:duration-500 after:ease-in-out after:content-[''] after:absolute after:w-full after:h-[0.1rem] after:bg-white after:bottom-2 after:left-0 after:transform-[scale(0)] hover:after:transform-[scale(1)] z-20">Verify email</li>
-        <li data-id="resend" onClick={handleChangeVerifyPage} className="cursor-pointer w-fit h-10 rounded-2xl relative after:duration-500 after:ease-in-out after:content-[''] after:absolute after:w-full after:h-[0.1rem] after:bg-white after:bottom-2 after:left-0 after:transform-[scale(0)] hover:after:transform-[scale(1)] z-20">Resend email</li>
       </ul>
         <div>
           <h1 className="text-white text-4xl sm:text-6xl font-bold">
