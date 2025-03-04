@@ -15,7 +15,11 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  DialogContentText
+  DialogContentText,
+  MenuItem,
+  InputLabel,
+  Select,
+  FormControl
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -36,6 +40,7 @@ interface ConfirmDialogState {
 
 function ApprovalPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [status, setStatus] = useState<string | "">("");
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>({
     open: false,
     itemId: '',
@@ -78,6 +83,12 @@ function ApprovalPage() {
       date: '2025-01-17',
     },
   ]);
+  const statusOptions = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'rejected', label: 'Rejected' },
+    { value: 'returned', label: 'Returned' }
+  ];
 
   const handleConfirmOpen = (id: string, action: 'approve' | 'return' | 'reject') => {
     setConfirmDialog({
@@ -119,10 +130,12 @@ function ApprovalPage() {
     handleConfirmClose();
   };
 
-  const filteredItems = items.filter(item => 
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.submittedBy.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredItems = items.filter(item => {
+      const matchTitle = item.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchUser = item.submittedBy.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchStatus = status ? item.status === status : true;
+      return (matchTitle || matchUser) && matchStatus;
+  });
 
   const getStatusChipColor = (status: string) => {
     switch (status) {
@@ -154,34 +167,62 @@ function ApprovalPage() {
   };
 
   return (
-    <Box sx={{height: "fit-content", bgcolor: '#f5f5f5', overflowY:'scroll', py: 2, px: { xs: 2, sm: 3, md: 4 } }}>
+    <Box sx={{ height: "fit-content", bgcolor: '#f5f5f5', overflowY: 'scroll', py: 2, px: { xs: 2, sm: 3, md: 4 } }}>
       <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
-        
-        <TextField
-          fullWidth
-          variant="outlined"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by title or submitter name..."
-          sx={{ mb: 2 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
+        <Box className="flex gap-4" sx={{ marginBottom: '10px' }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by title or submitter name..."
+            sx={{ width: { xs: "100%", sm: "250px", md: "400px" } }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <FormControl
+            size="medium"
+            sx={{ minWidth: { xs: "100%", sm: "150px" } }}
+          >
+            <InputLabel>Status</InputLabel>
+            <Select
+              label="Status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              sx={{
+                borderRadius: "4px",
+                "& .MuiSelect-select": {
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                },
+              }}
+            >
+              <MenuItem value="">All</MenuItem>
+              {statusOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+
+          </FormControl>
+        </Box>
 
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{fontWeight: 'bold'}}>Title</TableCell>
-                <TableCell sx={{fontWeight: 'bold'}}>Submitted By</TableCell>
-                <TableCell sx={{fontWeight: 'bold'}}>Date</TableCell>
-                <TableCell sx={{fontWeight: 'bold'}}>Status</TableCell>
-                <TableCell sx={{fontWeight: 'bold'}} align="right">Actions</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Title</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Submitted By</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Date</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }} align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -259,8 +300,8 @@ function ApprovalPage() {
             <Button onClick={handleConfirmClose} color="inherit">
               Cancel
             </Button>
-            <Button 
-              onClick={handleConfirm} 
+            <Button
+              onClick={handleConfirm}
               color="primary"
               variant="contained"
               autoFocus
