@@ -1,291 +1,200 @@
-import { Button, Input, Select, Space, Table, Tag, Tooltip } from "antd";
-import { DollarOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, DatePicker, Input, Space, Table, Tag, Tooltip } from "antd";
 import type { TableProps } from "antd";
-import { useCallback, useMemo, useState } from "react";
 import ModalConfirm from "./ModalConfirm";
 import dayjs from "dayjs";
-import { DatePicker } from "antd";
 import {
   AccountCircleIcon,
   DateRangeIcon,
-  MoreTimeIcon,
-  PaidIcon,
   PersonIcon,
   WorkIcon,
-  CheckBoxIcon,
 } from "../../components/Icon/MuiIIcon";
-import DataType from "./DataType";
-import { ArrowCircleDown } from "@mui/icons-material";
+import { ArrowCircleDown, SearchOutlined } from "@mui/icons-material";
 import { pagnitionAntd } from "../../consts/Pagination";
-const initialData: DataType[] = [
-  {
-    key: "1",
-    name: "Nguyễn Văn A",
-    roles: ["Developer", "Team Lead"],
-    project: "E-commerce Website",
-    overtime: 5,
-    salary: 5000,
-    date: new Date("2025-02-15"),
-    status: "Approved",
-  },
-  {
-    key: "2",
-    name: "Trần Thị B",
-    roles: ["Designer"],
-    project: "Mobile App UI",
-    overtime: 2,
-    salary: 4500,
-    date: new Date("2025-01-20"),
-    status: "Approved",
-  },
-  {
-    key: "3",
-    name: "Lê Hoàng C",
-    roles: ["QA Tester"],
-    project: "Banking System",
-    overtime: 3,
-    salary: 4000,
-    date: new Date("2025-01-25"),
-    status: "Approved",
-  },
-  {
-    key: "4",
-    name: "Phạm Minh D",
-    roles: ["Developer"],
-    project: "CRM System",
-    overtime: 4,
-    salary: 4800,
-    date: new Date("2025-01-30"),
-    status: "Approved",
-  },
-  {
-    key: "5",
-    name: "Đỗ Thanh E",
-    roles: ["Project Manager"],
-    project: "Healthcare System",
-    overtime: 6,
-    salary: 5500,
-    date: new Date("2025-02-05"),
-    status: "Approved",
-  },
-  {
-    key: "6",
-    name: "Võ Hải F",
-    roles: ["HR Manager"],
-    project: "Internal HR System",
-    overtime: 1,
-    salary: 4700,
-    date: new Date("2025-02-10"),
-    status: "Approved",
-  },
-  {
-    key: "7",
-    name: "Bùi Văn G",
-    roles: ["Developer"],
-    project: "AI Chatbot",
-    overtime: 8,
-    salary: 4900,
-    date: new Date("2025-02-15"),
-    status: "Approved",
-  },
-  {
-    key: "8",
-    name: "Ngô Thị H",
-    roles: ["Data Analyst"],
-    project: "Sales Dashboard",
-    overtime: 0,
-    salary: 4600,
-    date: new Date("2025-02-20"),
-    status: "Approved",
-  },
-];
-
-const options = initialData.map((item) => ({
-  label: item.project,
-  value: item.project,
-}));
+import { FinanceClaim, FinanceSearchCondition } from "./DataType";
+import { useCallback, useEffect, useState } from "react";
+import { privateApiService } from "../../services/ApiService";
 
 function SalaryTable(): JSX.Element {
-  const [searchText, setSearchText] = useState("");
-  const [listProject, setListProject] = useState<string[]>([]);
-  const [selectedDate, setSelectedDate] = useState<
-    [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
-  >(null);
-  const filteredData = useMemo(() => {
-    return initialData
-      .filter((item) =>
-        searchText
-          ? item.name.toLowerCase().includes(searchText.toLowerCase())
-          : true
-      )
-      .filter((item) =>
-        listProject.length > 0 ? listProject.includes(item.project) : true
-      )
-      .filter((item) =>
-        selectedDate && selectedDate[0] && selectedDate[1]
-          ? dayjs(item.date).isAfter(selectedDate[0].startOf("day")) &&
-            dayjs(item.date).isBefore(selectedDate[1].endOf("day"))
-          : true
-      )
-      .sort((a, b) => b.date.getTime() - a.date.getTime());
-  }, [searchText, listProject, selectedDate]);
+  const [filteredData, setFilteredData] = useState<FinanceClaim[]>([]);
+
+  const handleTableChange = (page: number, pageSize: number): void => {
+    setSearchCondition((prev) => ({
+      ...prev,
+      pageInfo: {
+        pageNum: page,
+        pageSize: pageSize,
+      },
+    }));
+  };
+  const [searchCondition, setSearchCondition] =
+    useState<FinanceSearchCondition>({
+      searchCondition: {},
+      pageInfo: {
+        pageNum: 1,
+        pageSize: pagnitionAntd.pageSize,
+      },
+    });
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchText(e.target.value);
+      setSearchCondition((prev) => ({
+        ...prev,
+        searchCondition: {
+          ...prev?.searchCondition,
+          keyword: e.target.value,
+        },
+      }));
     },
     []
   );
+
   const handleDatePicker = useCallback(
     (dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null) => {
-      setSelectedDate(dates ?? [null, null]);
+      setSearchCondition((prev) => ({
+        ...prev,
+        searchCondition: {
+          ...prev?.searchCondition,
+          claim_start_date: dates?.[0] || undefined,
+          claim_end_date: dates?.[1] || undefined,
+        },
+      }));
     },
     []
   );
 
-  const handleProjectChange = useCallback((value: string[]) => {
-    setListProject(value);
-  }, []);
+  const fetchFinanceClaimData = useCallback(() => {
+    privateApiService
+      .getFinanceClaimList(searchCondition)
+      .then((response) => {
+        console.log("📌 API Response:", response?.data?.pageData);
 
-  const columns: TableProps<DataType>["columns"] = [
+        const safeData = Array.isArray(response?.data?.pageData)
+          ? response.data.pageData
+          : [];
+        setFilteredData(safeData);
+      })
+      .catch((error) => {
+        console.error("❌ Error fetching finance claims:", error);
+      });
+  }, [searchCondition]);
+
+  useEffect(() => {
+    fetchFinanceClaimData();
+  }, [fetchFinanceClaimData]);
+
+  
+  const getColor = (role_in_project: string): string => {
+    switch (role_in_project.toLowerCase()) {
+      case "developer":
+        return "blue";
+      case "designer":
+        return "green";
+      case "qa tester":
+        return "red";
+      case "project manager":
+        return "purple";
+      default:
+        return "gray";
+    }
+  };
+
+  const columns: TableProps<FinanceClaim>["columns"] = [
     {
       title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]  ">
+        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
           <DateRangeIcon />
-          Date
+          Start Date
         </div>
       ),
-      dataIndex: "date",
-      key: "date",
-      render: (date) => dayjs(date).format("DD/MM/YYYY"),
+      dataIndex: "claim_start_date",
+      key: "claim_start_date",
+      render: (date) => (date ? dayjs(date).format("DD/MM/YYYY") : "N/A"),
+      responsive: ["xs", "sm", "md", "lg"],
+    },
+    {
+      title: (
+        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
+          <DateRangeIcon />
+          End Date
+        </div>
+      ),
+      dataIndex: "claim_end_date",
+      key: "claim_end_date",
+      render: (date) => (date ? dayjs(date).format("DD/MM/YYYY") : "N/A"),
       responsive: ["xs", "sm", "md", "lg"],
     },
     {
       title: (
         <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
           <PersonIcon />
-          Name
+          Staff Name
         </div>
       ),
-      dataIndex: "name",
-      key: "name",
-      render: (text) => <a className="text-blue-500 font-medium">{text}</a>,
-      responsive: ["sm", "md", "lg"],
+      dataIndex: "staff_name",
+      key: "staff_name",
+      render: (text) => (
+        <a className="text-blue-500 font-medium">{text || "Unknown"}</a>
+      ),
+      responsive: ["xs", "sm", "md", "lg"],
     },
     {
       title: (
         <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
           <WorkIcon />
-          Project
+          Email
         </div>
       ),
-      dataIndex: "project",
-      key: "project",
-      responsive: ["md", "lg"],
+      dataIndex: "staff_email",
+      key: "staff_email",
       render: (text) => (
         <Tooltip title={text}>
           <div className="text-gray-700 font-bold truncate max-w-[150px]">
-            {text}
+            {text || "N/A"}
           </div>
         </Tooltip>
       ),
       ellipsis: true,
-    },
-    {
-      title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
-          <PaidIcon />
-          Salary
-        </div>
-      ),
-      dataIndex: "salary",
-      key: "salary",
-      render: (salary) => (
-        <p>
-          {salary} <DollarOutlined />
-        </p>
-      ),
-      responsive: ["sm", "md", "lg"],
-    },
-    {
-      title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
-          <MoreTimeIcon /> Overtime
-        </div>
-      ),
-      dataIndex: "overtime",
-      key: "overtime",
-      render: (text) => <p>{text} Hours</p>,
-      responsive: ["md", "lg"],
+      responsive: ["xs", "sm", "md", "lg"],
     },
     {
       title: (
         <div className="font-bold flex items-center gap-0.5 text-[0.7rem]">
           <AccountCircleIcon />
-          Role
+          Role in Project
         </div>
       ),
-      key: "role",
-      dataIndex: "roles",
-      render: (roles: string[]) => (
+      key: "role_in_project",
+      dataIndex: "role_in_project",
+      render: (role_in_project: string | null) => (
         <div className="flex flex-wrap gap-1 max-w-[150px] overflow-hidden truncate">
-          {roles.map((role: string, index: number) => {
-            let color: string;
-            switch (role.toLowerCase()) {
-              case "developer":
-                color = "blue";
-                break;
-              case "designer":
-                color = "green";
-                break;
-              case "qa tester":
-                color = "red";
-                break;
-              case "project manager":
-                color = "purple";
-                break;
-              default:
-                color = "gray";
-            }
-            return (
-              <Tooltip title={role} key={index}>
-                <Tag color={color} className="truncate max-w-[80px]">
-                  {role.toUpperCase()}
-                </Tag>
-              </Tooltip>
-            );
-          })}
+          <Tooltip title={role_in_project || "No Role"}>
+            <Tag
+              color={getColor(role_in_project || "default")}
+              className="truncate max-w-[80px]"
+            >
+              {role_in_project ? role_in_project.toUpperCase() : "N/A"}
+            </Tag>
+          </Tooltip>
         </div>
       ),
-      responsive: ["sm", "md", "lg"],
-    },
-
-    {
-      title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem] ">
-          <CheckBoxIcon className="sm:hidden" /> Status
-        </div>
-      ),
-      key: "status",
-      dataIndex: "status",
-      render: (text) => <Tag color="success">{text}</Tag>,
       responsive: ["sm", "md", "lg"],
     },
     {
       title: "Action",
       key: "action",
-      render: (data: DataType) => (
+      render: (data: FinanceClaim) => (
         <Space size="small">
           <ModalConfirm
             typeConfirm={{ borderColor: "#6ef13c" }}
-            text="PAID"
+            text="PAY"
             userData={data}
           />
         </Space>
       ),
-      responsive: ["sm", "md", "lg"],
+      responsive: ["xs", "sm", "md", "lg"],
     },
   ];
+
   const components = {
     body: {
       cell: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
@@ -306,7 +215,7 @@ function SalaryTable(): JSX.Element {
           Export Data
         </Button>
       </div>
-      <div className="p-6 mr-6 ml-6 h-full overflow-auto overflow-y-auto border-zinc-950 border-[1.5px] rounded-[12px] relative">
+      <div className="p-6 mr-6 ml-6 mb-6 h-full overflow-y-auto border-zinc-950 border-[1.5px] rounded-[12px]">
         <div className="p-6 flex justify-around gap-2 mr-1">
           <Input
             prefix={<SearchOutlined className="text-gray-500" />}
@@ -314,25 +223,20 @@ function SalaryTable(): JSX.Element {
             className="max-w-xs mb-4 rounded-full mr-4 shadow-[7px_7px_0px_0px] duration-300 ease-in-out"
             onChange={handleSearchChange}
           />
-          <Select
-            mode="multiple"
-            allowClear
-            style={{ width: "30%", marginBottom: "1rem" }}
-            placeholder="Please select"
-            onChange={handleProjectChange}
-            options={options}
-          />
           <DatePicker.RangePicker
             style={{ width: "30%", marginBottom: "1rem", marginLeft: "1rem" }}
             onChange={handleDatePicker}
           />
         </div>
-        <div className="h-full border-t-[1.2px]">
+        <div>
           <Table
-            rowKey="key"
+            className="overflow-x-auto"
             columns={columns}
-            dataSource={filteredData}
-            pagination={{ pageSize: pagnitionAntd.pageSize }}
+            dataSource={filteredData || []}
+            pagination={{
+              pageSize: pagnitionAntd.pageSize,
+              onChange: handleTableChange,
+            }}
             style={{
               tableLayout: "auto",
             }}

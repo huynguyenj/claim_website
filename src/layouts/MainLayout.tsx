@@ -26,13 +26,14 @@ const sideBarUser: SidebarItem[] = [
     role: roleDefine.APPROVAL_ROLE,
     gap: true,
   },
-  { title: "Profile", icon: UserProfile, path: "/userprofile" },
   {
     title: "Paid",
     icon: PaidIcon,
     path: "/paidPage",
     role: roleDefine.FINANCE,
+    gap:true
   },
+  { title: "Profile", icon: UserProfile, path: "/userprofile" },
 ];
 
 const sideBarAdmin: SidebarItem[] = [

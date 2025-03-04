@@ -11,6 +11,18 @@ import { Notification } from "../../components/common/Notification";
 import { pagnitionAntd } from "../../consts/Pagination";
 
 export default function UserManagement() {
+
+    const roleMap: Record<string, string> = {
+        A001: "Administrator",
+        A002: "Finance",
+        A003: "BUL, PM",
+        A004: "All Members Remaining",
+    };
+
+    const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+    const [selectedRole, setSelectedRole] = useState<string | null>(null);
+
+
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -46,10 +58,10 @@ export default function UserManagement() {
 
             const response = await apiService.post<PaginatedResponse>('/users/search', searchParams);
             if (response) {
-                console.log('Fetched Users:', response.data.pageData);
                 setUsers(response.data.pageData);
                 setTotalItems(response.data.pageInfo.totalItems);
             }
+
         } catch (error) {
             Notification("error", error as string);
         } finally {
@@ -73,6 +85,7 @@ export default function UserManagement() {
     };
 
     const showModal = () => setIsAddModalOpen(true);
+
     const handleCancel = () => {
         setIsAddModalOpen(false);
         form.resetFields();
@@ -144,10 +157,53 @@ export default function UserManagement() {
         }
     };
 
+    const handleChangeUserRole = async () => {
+        if (!editingUser || !selectedRole) return;
+
+        try {
+            setLoading(true);
+            const response = await apiService.put("/users/change-role", {
+                user_id: editingUser._id,
+                role_code: selectedRole,
+            });
+
+            message.success("User role updated successfully!");
+            fetchUsers(currentPage, pageSize, searchTerm);
+            setIsRoleModalOpen(false);
+        } catch (error) {
+            console.error("Failed to change role:", error);
+            message.error("Error updating user role.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const columns = [
         { title: "Email", dataIndex: "email", key: "email" },
-        { title: "Username", dataIndex: "user_name", key: "user_name" },
+        {
+            title: "Username", dataIndex: "user_name", key: "user_name",
+        },
         { title: "Role", dataIndex: "role_code", key: "role_code" },
+        {
+            title: "Status",
+            key: "status",
+            render: (_: string, record: User) => (
+                <div className="relative">
+                    <button
+                        className={`p-2 rounded-lg transition-all duration-500 w-24 border ${record.is_blocked
+                            ? "border-red-500 text-black hover:border-green-500 hover:text-black"
+                            : "border-green-500 text-black hover:border-red-500 hover:text-black"
+                            }`}
+                        onMouseEnter={(e) => (e.currentTarget.innerText = record.is_blocked ? "Unban" : "Ban")}
+                        onMouseLeave={(e) => (e.currentTarget.innerText = record.is_blocked ? "Banned" : "Active")}
+                        onClick={() => handleChangeUserStatus(record._id, !record.is_blocked)}
+                    >
+                        {record.is_blocked ? "Banned" : "Active"}
+                    </button>
+
+                </div>
+            )
+        },
         {
             title: "Actions",
             key: "actions",
@@ -164,27 +220,6 @@ export default function UserManagement() {
                 </div>
             ),
         },
-        {
-            title: "Status",
-            key: "status",
-            render: (_:string, record: User) => (
-                <div className="relative">
-                    <button
-                        className={`p-2 rounded-lg transition-all duration-500 w-24 ${record.is_blocked
-                            ? "bg-red-500 text-white hover:bg-green-500 hover:text-white"
-                            : "bg-green-500 text-white hover:bg-red-500 hover:text-white"
-                            }`}
-                        onMouseEnter={(e) => (e.currentTarget.innerText = record.is_blocked ? "Unban" : "Ban")}
-                        onMouseLeave={(e) => (e.currentTarget.innerText = record.is_blocked ? "Banned" : "Active")}
-                        onClick={() => handleChangeUserStatus(record._id, !record.is_blocked)}
-                    >
-                        {record.is_blocked ? "Banned" : "Active"}
-                    </button>
-                </div>
-            )
-        }
-
-
     ];
 
     return (
@@ -338,7 +373,39 @@ export default function UserManagement() {
                         <Form.Item name="user_name" label="Username" rules={[{ required: true, message: "Username is required" }]}>
                             <Input />
                         </Form.Item>
-                        <Form.Item name="role_code" label="Role" rules={[{ required: false }]}>
+                        <Form.Item name="role_code" label="Role">
+                            <Input value={roleMap[editingUser?.role_code || ""]} readOnly />
+                            <div
+                                className="text-blue-500 flex justify-end font-medium p-2 hover:text-blue-600 hover:underline cursor-pointer"
+                                onClick={() => {
+                                    setSelectedRole(editingUser?.role_code || "");
+                                    setIsRoleModalOpen(true);
+                                }}
+                            >
+                                Change role
+                            </div>
+
+                            <Modal
+                                title="Change User Role"
+                                open={isRoleModalOpen}
+                                onCancel={() => setIsRoleModalOpen(false)}
+                                onOk={handleChangeUserRole}
+                                okText="Update Role"
+                                cancelText="Cancel"
+                            >
+                                <Form layout="vertical">
+                                    <Form.Item label="Select New Role">
+                                        <Select value={selectedRole} onChange={setSelectedRole}>
+                                            <Select.Option value="A001">Administrator</Select.Option>
+                                            <Select.Option value="A002">Finance</Select.Option>
+                                            <Select.Option value="A003">BUL, PM</Select.Option>
+                                            <Select.Option value="A004">All Members Remaining</Select.Option>
+                                        </Select>
+                                    </Form.Item>
+                                </Form>
+                            </Modal>
+
+
                         </Form.Item>
                     </Form>
                 </Modal>
