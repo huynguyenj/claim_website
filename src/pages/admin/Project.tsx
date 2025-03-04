@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { PaginatedResponse, Project, SearchRequest } from "../../model/ProjectData";
 import { Notification } from "../../components/common/Notification";
-import { getApiErrorMessage } from "../../consts/ApiResponse";
+import { ApiResponse, getApiErrorMessage } from "../../consts/ApiResponse";
 import apiService from "../../services/ApiService";
 import { pagnitionAntd } from "../../consts/Pagination";
 import { Button, DatePicker, Form, Input, message, Modal, Select, Spin, Table } from "antd";
@@ -12,6 +12,7 @@ import { Article, EditOutlined, SearchOutlined } from "@mui/icons-material";
 import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
 import { User } from "../../model/UserData";
 import moment from 'moment-timezone';
+import { Department } from "../../model/DepartmentData";
 
 export default function ProjectManagement() {
 
@@ -27,7 +28,8 @@ export default function ProjectManagement() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
   const [projectMembers, setProjectMembers] = useState<Project["project_members"]>([]);
-  const [departments, setDepartments] = useState<{ _id: string; department_name: string }[]>([]);
+  const [
+    departments, setDepartments] = useState<Department[]>([]);
   const [form] = Form.useForm();
 
   const convertToUTC7 = (utcDate: string) => {
@@ -69,12 +71,12 @@ export default function ProjectManagement() {
     try {
       const searchParams = {
         searchCondition: {
-          keyword: "", // Add any search keyword if needed
-          is_deleted: false, // Example: Fetch only non-deleted users
+          keyword: "",
+          is_deleted: false,
         },
         pageInfo: {
-          pageNum: 1, // Example: Fetch the first page
-          pageSize: 10, // Example: Fetch 10 users per page
+          pageNum: 1,
+          pageSize: 10,
         },
       };
 
@@ -111,18 +113,10 @@ export default function ProjectManagement() {
   const fetchDepartments = async () => {
     setLoading(true);
     try {
-      const response = await apiService.get<{
-        success: boolean;
-        data: { _id: string; department_name: string }[];
-      }>("/departments/get-all");
+      const response = await apiService.get<ApiResponse<Department[]>>("/departments/get-all");
 
       console.log("Departments:", response.data);
-
-      if (response?.data) {
-        setDepartments(response.data);
-      } else {
-        throw new Error("Invalid response format");
-      }
+      setDepartments(response.data);
     } catch (error) {
       message.error("Failed to fetch departments");
       console.error(error);
@@ -173,7 +167,6 @@ export default function ProjectManagement() {
     try {
       const values = await form.validateFields();
 
-      // Ensure dates are valid moment objects
       const projectData = {
         ...values,
         project_start_date: values.project_start_date ? values.project_start_date.utc().format() : null,
@@ -183,14 +176,13 @@ export default function ProjectManagement() {
           project_role: values.project_role,
         })),
       };
-
-      // Send the updated data to the backend
-      const response = await apiService.post(`/projects/${editingProject?._id}`, projectData);
+      console.log(projectData);
+      const response = await apiService.put(`/projects/${editingProject?._id}`, projectData);
       if (response) {
         message.success("Project updated successfully!");
-        fetchProjects(currentPage, pageSize, searchTerm); // Refresh the project list
-        setIsEditModalOpen(false); // Close the modal
-        form.resetFields(); // Reset the form
+        fetchProjects(currentPage, pageSize, searchTerm);
+        setIsEditModalOpen(false);
+        form.resetFields();
       }
     } catch (error) {
       console.error("Failed to update project:", error);
@@ -410,7 +402,7 @@ export default function ProjectManagement() {
             <Form.Item label="Project Department" name="project_department">
               <Select placeholder="Select a department" loading={loading}>
                 {departments.map((dept) => (
-                  <Select.Option key={dept._id} value={dept._id}>
+                  <Select.Option key={dept.department_name} value={dept.department_name}>
                     {dept.department_name}
                   </Select.Option>
                 ))}
@@ -521,6 +513,7 @@ export default function ProjectManagement() {
           onOk={handleUpdateProject}
           okText="Save"
           cancelText="Cancel"
+          width={800}
         >
           <Form form={form} layout="vertical" initialValues={editingProject || {}}>
             <Form.Item
@@ -542,7 +535,7 @@ export default function ProjectManagement() {
             <Form.Item label="Project Department" name="project_department">
               <Select placeholder="Select a department" loading={loading}>
                 {departments.map((dept) => (
-                  <Select.Option key={dept._id} value={dept._id}>
+                  <Select.Option key={dept.department_name} value={dept.department_name}>
                     {dept.department_name}
                   </Select.Option>
                 ))}
@@ -588,7 +581,6 @@ export default function ProjectManagement() {
                 <>
                   {fields.map(({ key, name, ...restField }) => (
                     <div key={key} style={{ display: 'flex', marginBottom: 8 }}>
-                      {/* User Select */}
                       <Form.Item
                         {...restField}
                         name={[name, 'user_id']}
@@ -604,7 +596,6 @@ export default function ProjectManagement() {
                         </Select>
                       </Form.Item>
 
-                      {/* Role Select */}
                       <Form.Item
                         {...restField}
                         name={[name, 'project_role']}
@@ -619,7 +610,6 @@ export default function ProjectManagement() {
                         </Select>
                       </Form.Item>
 
-                      {/* Remove Button */}
                       <Button
                         type="link"
                         danger
@@ -631,7 +621,6 @@ export default function ProjectManagement() {
                     </div>
                   ))}
 
-                  {/* Add Member Button */}
                   <Button
                     type="dashed"
                     onClick={() => add()}
