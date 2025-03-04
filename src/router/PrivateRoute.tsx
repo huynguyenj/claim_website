@@ -12,8 +12,11 @@ const UserProfile = lazy(() => import("../pages/user/UserProfile"));
 const UserDashboard = lazy(() => import("../pages/user/UserDashboard"));
 const PaidPage = lazy(() => import("../pages/finance/PaidPage"));
 
-
 const privateRouteListFinance:RouteType[] = [
+  {
+    path: UserRoutes.USER_DASHBOARD,
+    element: <UserDashboard />,
+  },
   {
     path: UserRoutes.PAID_PAGE,
     element: <PaidPage />,
@@ -25,6 +28,11 @@ const privateRouteListFinance:RouteType[] = [
   {
     path: UserRoutes.PROFILE_PAGE,
     element: <UserProfile />,
+    
+  },
+  {
+    path: UserRoutes.REQUEST_PAGE,
+    element: <RequestPage />,
     
   },
 ]
@@ -41,6 +49,11 @@ const privateRouteListApproval: RouteType[] = [
   {
     path: UserRoutes.PROFILE_PAGE,
     element: <UserProfile />,
+    
+  },
+  {
+    path: UserRoutes.REQUEST_PAGE,
+    element: <RequestPage />,
     
   },
 ]
