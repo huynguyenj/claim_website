@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import apiService from "../../services/ApiService";
 import { Notification } from "../../components/common/Notification";
 import { PaginatedResponse, SearchRequest, User } from "../../model/UserData";
-import { Claim, ClaimResponse, SearchClaimRequest } from "../../model/ClaimData";
-import { Project, ProjectResponse, SearchProjectRequest } from "../../model/ProjectData";
+import { Claim, ClaimResponse} from "../../model/ClaimData";
+import { Project } from "../../model/ProjectData";
 import { Contract, ContractResponse } from "../../model/ContractData";
+import { ClaimSearchCondition, ProjectSearchCondition } from "../../model/SearchType";
 
 export default function useDashboardData() {
   const [users, setUsers] = useState<User[]>([]);
@@ -47,7 +48,7 @@ export default function useDashboardData() {
   const fetchClaims = async () => {
     setLoading(true);
     try {
-      const searchParams: SearchClaimRequest = {
+      const searchParams: ClaimSearchCondition = {
         searchCondition: { keyword: searchTerm, claim_status: "", claim_start_date: "", claim_end_date: "", is_delete: false },
         pageInfo: { pageNum: currentPage, pageSize },
       };
@@ -67,7 +68,7 @@ export default function useDashboardData() {
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const searchParams: SearchProjectRequest = {
+      const searchParams: ProjectSearchCondition = {
         searchCondition: { keyword: "", project_start_date: "", project_end_date: "", is_delete: false, user_id: "" },
         pageInfo: { pageNum: currentPage, pageSize },
       };
