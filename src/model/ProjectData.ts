@@ -51,3 +51,13 @@ export interface PaginatedResponse {
     };
   };
 }
+export interface ProjectResponse {
+  pageData: Project[];
+    data: {
+      pageData: Project[];
+      pageInfo: {
+        totalItems: number;
+      };
+    }
+  
+}
