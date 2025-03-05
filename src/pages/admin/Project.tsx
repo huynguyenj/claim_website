@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { PaginatedResponse, Project, SearchRequest } from "../../model/ProjectData";
 import { Notification } from "../../components/common/Notification";
-import { ApiResponse, getApiErrorMessage } from "../../consts/ApiResponse";
+import { ApiResponse } from "../../consts/ApiResponse";
 import apiService from "../../services/ApiService";
 import { pagnitionAntd } from "../../consts/Pagination";
 import { Button, DatePicker, Form, Input, message, Modal, Select, Spin, Table } from "antd";
@@ -104,7 +104,7 @@ export default function ProjectManagement() {
         setIsMembersModalOpen(true);
       }
     } catch (error) {
-      message.error("Failed to fetch project details.");
+      message.error(error as string);
     } finally {
       setLoading(false);
     }

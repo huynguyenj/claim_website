@@ -162,10 +162,10 @@ export default function UserManagement() {
 
         try {
             setLoading(true);
-            const response = await apiService.put("/users/change-role", {
-                user_id: editingUser._id,
-                role_code: selectedRole,
-            });
+            // const response = await apiService.put("/users/change-role", {
+            //     user_id: editingUser._id,
+            //     role_code: selectedRole,
+            // });
 
             message.success("User role updated successfully!");
             fetchUsers(currentPage, pageSize, searchTerm);
