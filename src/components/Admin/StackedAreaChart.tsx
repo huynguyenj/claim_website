@@ -13,7 +13,7 @@ export default function StackedAreaChart() {
   const { chartData } = useChartData();
 
   return (
-    <ResponsiveContainer width={"100%"} height={"70%"}>
+    <ResponsiveContainer width={"100%"} height={"100%"}>
       <AreaChart
         width={600}
         height={300}
@@ -21,8 +21,8 @@ export default function StackedAreaChart() {
         margin={{
           top: 10,
           right: 30,
-          left: 0,
-          bottom: 0,
+          left: -30,
+          bottom: 30,
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />

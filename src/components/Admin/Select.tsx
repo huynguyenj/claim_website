@@ -5,7 +5,7 @@ export default function SelectComponent() {
     <Select
       defaultValue={"All"}
       style={{
-        width: 200,
+        width: 110,
       }}
       options={[
         { value: "all", label: "All" },

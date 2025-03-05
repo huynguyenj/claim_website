@@ -32,13 +32,11 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
-  // (error) => {
-  //   const errorMessage = getApiErrorMessage(error);
-  //   if (errorMessage === 403 || errorMessage === 404) {
-  //     useAuthStore.getState().removeExpired();
-  //   }
-  //   return Promise.reject(errorMessage);
-  // }
+  (error) => {
+    const errorMessage = getApiErrorMessage(error);
+      // useAuthStore.getState().removeExpired();
+    return Promise.reject(errorMessage);
+  }
 );
 
 //create object with CRUD function.
