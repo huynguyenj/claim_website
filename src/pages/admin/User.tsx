@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import apiService from "../../services/ApiService";
-import { Button, Input, message, Spin, Table, Form, Modal, Select } from "antd";
+import { Button, Input, message, Spin, Table, Form, Modal, Select, DatePicker } from "antd";
 import { PaginatedResponse, SearchRequest, User } from "../../model/UserData";
 import { exportToExcel } from "../../consts/ExcelDowload";
 import UserCard from "../../components/Admin/UserCard";
@@ -9,8 +9,14 @@ import { Article, EditOutlined, SearchOutlined } from "@mui/icons-material";
 import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
 import { Notification } from "../../components/common/Notification";
 import { pagnitionAntd } from "../../consts/Pagination";
+import { Role } from "../../model/RoleData";
+import moment from "moment-timezone";
+import { Employee } from "../../model/EmployeeData";
+import useUserData from "../../hooks/admin/useUserData";
 
 export default function UserManagement() {
+
+    const { totalUsers, userLoading } = useUserData();
 
     const roleMap: Record<string, string> = {
         A001: "Administrator",
@@ -24,6 +30,7 @@ export default function UserManagement() {
 
 
     const [users, setUsers] = useState<User[]>([]);
+    const [roles, setRoles] = useState<Role[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [pageSize, setPageSize] = useState<number>(pagnitionAntd.pageSize);
@@ -33,7 +40,47 @@ export default function UserManagement() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [showBanned, setShowBanned] = useState<boolean | null>(null);
+    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+    const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
     const [form] = Form.useForm();
+
+    const validateEmail = (rule: any, value: any, callback: any) => {
+        const emailRegex = /^[A-Za-z0-9+_.-]+@(.+)$/;
+        if (!emailRegex.test(value)) {
+            callback('Invalid email address');
+        } else {
+            callback();
+        }
+    };
+
+    const validatePassword = (rule: any, value: any, callback: any) => {
+        const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+        if (!passwordRegex.test(value)) {
+            callback('Password must contain at least 8 characters, including uppercase, lowercase, and numbers');
+        } else {
+            callback();
+        }
+    }
+
+    const fetchEmployee = async (employeeId: string) => {
+        setLoading(true);
+        setSelectedEmployee(null);
+        try {
+
+            const response = await apiService.get<{ success: boolean; data: Employee }>(`/employees/${employeeId}`);
+
+            if (response && response.success) {
+                setSelectedEmployee(response.data);
+                setIsEmployeeModalOpen(true);
+            } else {
+                Notification("error", "Employee not found");
+            }
+        } catch (error) {
+            Notification("error", error as string);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchUsers = async (page: number, size: number, keyword: string, isBlocked?: boolean | null) => {
         setLoading(true);
@@ -69,10 +116,21 @@ export default function UserManagement() {
         }
     };
 
-
     useEffect(() => {
         fetchUsers(currentPage, pageSize, searchTerm, showBanned);
     }, [currentPage, pageSize, searchTerm, showBanned]);
+
+    useEffect(() => {
+        const fetchRoles = async () => {
+            try {
+                const response = await apiService.get<{ data: Role[] }>('/roles/get-all');
+                setRoles(response.data);
+            } catch (error) {
+                Notification("error", error as string);
+            }
+        };
+        fetchRoles();
+    }, []);
 
     const handleTableChange = (pagination: any) => {
         setCurrentPage(pagination.current);
@@ -88,23 +146,33 @@ export default function UserManagement() {
 
     const handleCancel = () => {
         setIsAddModalOpen(false);
+        setIsEmployeeModalOpen(false);
         form.resetFields();
     };
 
     const handleAddUser = async () => {
-
         try {
             const values = await form.validateFields();
-            console.log(values)
             const response = await apiService.post("/users", values);
+
             if (response) {
                 message.success("User added successfully!");
                 fetchUsers(currentPage, pageSize, searchTerm);
                 handleCancel();
             }
-        } catch (error) {
-            console.error("Failed to add user:", error);
-            message.error("Error adding user.");
+        } catch (error: any) {
+            if (error.response && error.response.data.message.includes('already exists')) {
+                // Highlight the username field with error
+                form.setFields([
+                    {
+                        name: 'user_name',
+                        errors: ['This username is already taken'],
+                    },
+                ]);
+                Notification("error", "Username already exists!");
+            } else {
+                Notification("error", error.message || "Failed to add user");
+            }
         }
     };
 
@@ -113,12 +181,19 @@ export default function UserManagement() {
             const values = await form.validateFields();
             if (!editingUser) return;
 
-            setLoading(true);
-            await apiService.put(`/users/${editingUser._id}`, values);
-
-            message.success("User updated successfully!");
-            setIsEditModalOpen(false);
-            fetchUsers(currentPage, pageSize, searchTerm);
+            Modal.confirm({
+                title: 'Confirm Update',
+                content: `Do you want to update the user ${editingUser.user_name}?`,
+                onOk: async () => {
+                    setLoading(true);
+                    await apiService.put(`/users/${editingUser._id}`, values);
+                    message.success("User updated successfully!");
+                    setIsEditModalOpen(false);
+                    fetchUsers(currentPage, pageSize, searchTerm);
+                },
+                okText: 'Update',
+                cancelText: 'Cancel',
+            });
         } catch (error) {
             console.error("Update failed:", error);
             message.error("Failed to update user.");
@@ -160,30 +235,46 @@ export default function UserManagement() {
     const handleChangeUserRole = async () => {
         if (!editingUser || !selectedRole) return;
 
-        try {
-            setLoading(true);
-            const response = await apiService.put("/users/change-role", {
-                user_id: editingUser._id,
-                role_code: selectedRole,
-            });
-
-            message.success("User role updated successfully!");
-            fetchUsers(currentPage, pageSize, searchTerm);
-            setIsRoleModalOpen(false);
-        } catch (error) {
-            console.error("Failed to change role:", error);
-            message.error("Error updating user role.");
-        } finally {
-            setLoading(false);
-        }
+        Modal.confirm({
+            title: 'Confirm Role Change',
+            content: `Do you want to change ${editingUser.user_name}'s role to ${roleMap[selectedRole]}?`,
+            onOk: async () => {
+                try {
+                    setLoading(true);
+                    await apiService.put("/users/change-role", {
+                        user_id: editingUser._id,
+                        role_code: selectedRole,
+                    });
+                    message.success("User role updated successfully!");
+                    fetchUsers(currentPage, pageSize, searchTerm);
+                    setIsRoleModalOpen(false);
+                } catch (error) {
+                    console.error("Failed to change role:", error);
+                    message.error("Error updating user role.");
+                } finally {
+                    setLoading(false);
+                }
+            },
+            okText: 'Update Role',
+            cancelText: 'Cancel',
+        });
     };
 
     const columns = [
         { title: "Email", dataIndex: "email", key: "email" },
         {
-            title: "Username", dataIndex: "user_name", key: "user_name",
+            title: "Username",
+            dataIndex: "user_name",
+            key: "user_name",
+            render: (text: string, record: User) => (
+                <a onClick={() => fetchEmployee(record._id)}>{text}</a>
+            ),
         },
-        { title: "Role", dataIndex: "role_code", key: "role_code" },
+        {
+            title: "Role",
+            key: "role",
+            render: (_: any, record: User) => roleMap[record.role_code] || record.role_code,
+        },
         {
             title: "Status",
             key: "status",
@@ -196,11 +287,18 @@ export default function UserManagement() {
                             }`}
                         onMouseEnter={(e) => (e.currentTarget.innerText = record.is_blocked ? "Unban" : "Ban")}
                         onMouseLeave={(e) => (e.currentTarget.innerText = record.is_blocked ? "Banned" : "Active")}
-                        onClick={() => handleChangeUserStatus(record._id, !record.is_blocked)}
+                        onClick={() => {
+                            Modal.confirm({
+                                title: 'Confirm Status Change',
+                                content: `Do you want to ${record.is_blocked ? 'unban' : 'ban'} the user ${record.user_name}?`,
+                                onOk: () => handleChangeUserStatus(record._id, !record.is_blocked),
+                                okText: 'Confirm',
+                                cancelText: 'Cancel',
+                            });
+                        }}
                     >
                         {record.is_blocked ? "Banned" : "Active"}
                     </button>
-
                 </div>
             )
         },
@@ -213,10 +311,22 @@ export default function UserManagement() {
                         form.setFieldsValue(record);
                         setEditingUser(record);
                         setIsEditModalOpen(true);
-                    }}>
-                    </Button>
+                    }}></Button>
 
-                    <Button icon={<StopFilled />} type="link" danger onClick={() => handleDeleteUser(record._id)}></Button>
+                    <Button
+                        icon={<StopFilled />}
+                        type="link"
+                        danger
+                        onClick={() => {
+                            Modal.confirm({
+                                title: 'Confirm Deletion',
+                                content: `Do you want to delete the user ${record.user_name}?`,
+                                onOk: () => handleDeleteUser(record._id),
+                                okText: 'Delete',
+                                cancelText: 'Cancel',
+                            });
+                        }}
+                    ></Button>
                 </div>
             ),
         },
@@ -233,21 +343,27 @@ export default function UserManagement() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
                 {/* Users */}
                 <UserCard
-                    icon={<UserIcon />}
+                    icon={<Article />}
                     title="Total Users"
-                    growth={25}
+                    data={totalUsers}
+                    growth={42}
+                    loading={userLoading}
                 />
                 {/* Claims */}
                 <UserCard
                     icon={<Article />}
-                    title="New Users"
+                    title="New Users This Month"
+                    data={totalUsers}
                     growth={42}
+                    loading={userLoading}
                 />
                 {/* Funds */}
                 <UserCard
                     icon={<Article />}
-                    title="Funds"
+                    title="Verified Users"
+                    data={totalUsers}
                     growth={42}
+                    loading={userLoading}
                 />
             </div>
 
@@ -300,23 +416,40 @@ export default function UserManagement() {
                 >
                     <Form form={form} layout="vertical">
                         <Form.Item
-                            label="Email"
                             name="email"
-                            rules={[{ required: true, message: "Please enter an email" }]}
+                            label="Email"
+                            rules={[
+                                { required: true, message: 'Email is required' },
+                                { validator: validateEmail },
+                            ]}
                         >
                             <Input />
                         </Form.Item>
                         <Form.Item
                             label="Password"
                             name="password"
-                            rules={[{ required: true, message: "Please enter a password" }]}
+                            rules={[
+                                { required: true, message: 'Password is required' },
+                                { validator: validatePassword },
+                            ]}
                         >
                             <Input.Password />
                         </Form.Item>
                         <Form.Item
                             label="Username"
                             name="user_name"
-                            rules={[{ required: true, message: "Please enter a username" }]}
+                            rules={[
+                                { required: true, message: "Please enter a username" },
+                                {
+                                    validator: async (_, value) => {
+                                        // Optional: Add client-side uniqueness check
+                                        if (value && users.some(user => user.user_name === value)) {
+                                            return Promise.reject('Username already exists');
+                                        }
+                                        return Promise.resolve();
+                                    }
+                                }
+                            ]}
                         >
                             <Input />
                         </Form.Item>
@@ -367,10 +500,30 @@ export default function UserManagement() {
                     cancelText="Cancel"
                 >
                     <Form form={form} layout="vertical">
-                        <Form.Item name="email" label="Email" rules={[{ required: true, message: "Email is required" }]}>
+                        <Form.Item
+                            name="email"
+                            label="Email"
+                            rules={[
+                                { required: true, message: 'Email is required' },
+                                { validator: validateEmail },
+                            ]}>
                             <Input />
                         </Form.Item>
-                        <Form.Item name="user_name" label="Username" rules={[{ required: true, message: "Username is required" }]}>
+                        <Form.Item
+                            name="user_name"
+                            label="Username"
+                            rules={[
+                                { required: true, message: "Please enter a username" },
+                                {
+                                    validator: async (_, value) => {
+                                        // Optional: Add client-side uniqueness check
+                                        if (value && users.some(user => user.user_name === value)) {
+                                            return Promise.reject('Username already exists');
+                                        }
+                                        return Promise.resolve();
+                                    }
+                                }
+                            ]}>
                             <Input />
                         </Form.Item>
                         <Form.Item name="role_code" label="Role">
@@ -404,12 +557,57 @@ export default function UserManagement() {
                                     </Form.Item>
                                 </Form>
                             </Modal>
-
-
                         </Form.Item>
                     </Form>
                 </Modal>
 
+                <Modal
+                    title="Employee Details"
+                    open={isEmployeeModalOpen}
+                    onCancel={handleCancel}
+                    footer={[
+                        <Button key="close" onClick={handleCancel}>
+                            Close
+                        </Button>,
+                    ]}
+                >
+                    {loading ? (
+                        <Spin />
+                    ) : (
+                        <Form form={form} layout="vertical" initialValues={selectedEmployee || {}}>
+                            <Form.Item label="Full Name" name="full_name">
+                                <Input readOnly />
+                            </Form.Item>
+                            <Form.Item label="Job Rank" name="job_rank">
+                                <Input readOnly />
+                            </Form.Item>
+                            <Form.Item label="Contract Type" name="contract_type">
+                                <Input readOnly />
+                            </Form.Item>
+                            <Form.Item label="Account" name="account">
+                                <Input readOnly />
+                            </Form.Item>
+                            <Form.Item label="Address" name="address">
+                                <Input readOnly />
+                            </Form.Item>
+                            <Form.Item label="Phone" name="phone">
+                                <Input readOnly />
+                            </Form.Item>
+                            <Form.Item label="Department" name="department_name">
+                                <Input readOnly />
+                            </Form.Item>
+                            <Form.Item label="Salary" name="salary">
+                                <Input readOnly />
+                            </Form.Item>
+                            <Form.Item label="Start Date" name="start_date">
+                                <Input readOnly />
+                            </Form.Item>
+                            <Form.Item label="End Date" name="end_date">
+                                <Input readOnly />
+                            </Form.Item>
+                        </Form>
+                    )}
+                </Modal>
             </div>
         </div>
     )
