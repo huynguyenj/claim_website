@@ -5,7 +5,7 @@ import { ApiResponse } from "../../consts/ApiResponse";
 import apiService from "../../services/ApiService";
 import { pagnitionAntd } from "../../consts/Pagination";
 import { Button, DatePicker, Form, Input, message, Modal, Select, Spin, Table } from "antd";
-import { exportToExcel } from "../../consts/ExcelDowload";
+import { exportToExcel } from "../../consts/ExcelDownload";
 import ProjectCard from "../../components/Admin/ProjectCard";
 import { UserIcon } from "../../components/Icon/MuiIIcon";
 import { Article, EditOutlined, SearchOutlined } from "@mui/icons-material";
@@ -76,7 +76,7 @@ export default function ProjectManagement() {
         },
         pageInfo: {
           pageNum: 1,
-          pageSize: 10,
+          pageSize: 1000,
         },
       };
 
@@ -102,9 +102,11 @@ export default function ProjectManagement() {
       if (response && response.data) {
         setProjectMembers(response.data.project_members);
         setIsMembersModalOpen(true);
+      } else {
+        Notification("error", "Employee not found");
       }
     } catch (error) {
-      message.error(error as string);
+      Notification("error", error as string);
     } finally {
       setLoading(false);
     }
@@ -137,17 +139,6 @@ export default function ProjectManagement() {
     fetchProjects(currentPage, pageSize, searchTerm);
   }, [currentPage, pageSize, searchTerm]);
 
-  const handleDeleteProject = async (id: string) => {
-    try {
-      await apiService.delete(`/projects/${id}`);
-      message.success("Project deleted successfully!");
-      fetchProjects(currentPage, pageSize, searchTerm);
-    } catch (error) {
-      message.error("Failed to delete project.");
-      console.error(error);
-    }
-  };
-
   const handleTableChange = (pagination: any) => {
     setCurrentPage(pagination.current);
     setPageSize(pagination.pageSize);
@@ -171,10 +162,11 @@ export default function ProjectManagement() {
         ...values,
         project_start_date: values.project_start_date ? values.project_start_date.utc().format() : null,
         project_end_date: values.project_end_date ? values.project_end_date.utc().format() : null,
-        project_members: values.project_members.map((userId: string) => ({
-          user_id: userId,
-          project_role: values.project_role,
+        project_members: values.project_members.map((member: any) => ({
+          user_id: member.user_id,
+          project_role: member.project_role,
         })),
+
       };
       console.log(projectData);
       const response = await apiService.put(`/projects/${editingProject?._id}`, projectData);
@@ -187,6 +179,17 @@ export default function ProjectManagement() {
     } catch (error) {
       console.error("Failed to update project:", error);
       message.error("Error updating project.");
+    }
+  };
+
+  const handleDeleteProject = async (id: string) => {
+    try {
+      await apiService.delete(`/projects/${id}`);
+      message.success("Project deleted successfully!");
+      fetchProjects(currentPage, pageSize, searchTerm);
+    } catch (error) {
+      message.error("Failed to delete project.");
+      console.error(error);
     }
   };
 
@@ -515,7 +518,23 @@ export default function ProjectManagement() {
           cancelText="Cancel"
           width={800}
         >
-          <Form form={form} layout="vertical" initialValues={editingProject || {}}>
+          <Form
+            form={form}
+            layout="vertical"
+            initialValues={
+              editingProject
+                ? {
+                  ...editingProject,
+                  project_start_date: editingProject.project_start_date
+                    ? moment(editingProject.project_start_date)
+                    : null,
+                  project_end_date: editingProject.project_end_date
+                    ? moment(editingProject.project_end_date)
+                    : null,
+                }
+                : {}
+            }
+          >
             <Form.Item
               label="Project Name"
               name="project_name"
