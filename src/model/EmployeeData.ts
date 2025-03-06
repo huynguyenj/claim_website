@@ -9,6 +9,7 @@ export interface Employee {
     full_name: string;
     avatar_url: string;
     department_name: string;
+    department_code: string;
     salary: number;
     start_date: string;
     end_date: string;
