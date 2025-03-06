@@ -20,8 +20,8 @@ export default function useDashboardData() {
   const [pageSize] = useState<number>(10000);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showBanned] = useState<boolean | null>(null);
-  
-  
+
+
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -71,7 +71,7 @@ export default function useDashboardData() {
         searchCondition: { keyword: "", project_start_date: "", project_end_date: "", is_delete: false, user_id: "" },
         pageInfo: { pageNum: currentPage, pageSize },
       };
-  
+
       const response = await apiService.post<ProjectResponse>("/projects/search", searchParams);
       if (response) {
         setProjects(response.data.pageData);
@@ -83,15 +83,15 @@ export default function useDashboardData() {
       setLoading(false);
     }
   };
-  
+
   const fetchContracts = async () => {
     setLoading(true);
     try {
       const response = await apiService.get<ContractResponse>("/contracts/get-all");
-      if(response) {
+      if (response) {
         setContracts(response.data);
         setTotalContracts(response.data.length || 0);
-      } 
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -105,11 +105,11 @@ export default function useDashboardData() {
     fetchContracts();
   }, [currentPage, pageSize, searchTerm, showBanned]);
 
-  return {  
-          users, totalUsers, 
-          claims, totalClaims, 
-          projects, totalProjects,
-          contracts, totalContracts, 
-          loading, currentPage, setCurrentPage, setSearchTerm, 
-          };
+  return {
+    users, totalUsers,
+    claims, totalClaims,
+    projects, totalProjects,
+    contracts, totalContracts,
+    loading, currentPage, setCurrentPage, setSearchTerm,
+  };
 }
