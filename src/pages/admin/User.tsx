@@ -16,7 +16,7 @@ import useUserData from "../../hooks/admin/useUserData";
 
 export default function UserManagement() {
 
-    const { totalUsers, userLoading } = useUserData();
+    const { totalUsers, totalUsersThisMonth, totalUsersVerified, userLoading } = useUserData();
 
     const roleMap: Record<string, string> = {
         A001: "Administrator",
@@ -40,8 +40,8 @@ export default function UserManagement() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [showBanned, setShowBanned] = useState<boolean | null>(null);
-    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
     const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
     const [form] = Form.useForm();
 
     const validateEmail = (rule: any, value: any, callback: any) => {
@@ -63,14 +63,15 @@ export default function UserManagement() {
     }
 
     const fetchEmployee = async (employeeId: string) => {
-        setLoading(true);
-        setSelectedEmployee(null);
         try {
+            setLoading(true);
+            setSelectedEmployee(null);
 
-            const response = await apiService.get<{ success: boolean; data: Employee }>(`/employees/${employeeId}`);
+            const response = await apiService.get<{ data: Employee }>(`/employees/${employeeId}`);
 
-            if (response && response.success) {
+            if (response && response.data) {
                 setSelectedEmployee(response.data);
+                form.setFieldsValue(response.data);
                 setIsEmployeeModalOpen(true);
             } else {
                 Notification("error", "Employee not found");
@@ -267,7 +268,12 @@ export default function UserManagement() {
             dataIndex: "user_name",
             key: "user_name",
             render: (text: string, record: User) => (
-                <a onClick={() => fetchEmployee(record._id)}>{text}</a>
+                <button
+                    className="text-blue-500 hover:underline"
+                    onClick={() => fetchEmployee(record._id)}
+                >
+                    {text}
+                </button>
             ),
         },
         {
@@ -353,7 +359,7 @@ export default function UserManagement() {
                 <UserCard
                     icon={<Article />}
                     title="New Users This Month"
-                    data={totalUsers}
+                    data={totalUsersThisMonth}
                     growth={42}
                     loading={userLoading}
                 />
@@ -361,7 +367,7 @@ export default function UserManagement() {
                 <UserCard
                     icon={<Article />}
                     title="Verified Users"
-                    data={totalUsers}
+                    data={totalUsersVerified}
                     growth={42}
                     loading={userLoading}
                 />
@@ -564,12 +570,11 @@ export default function UserManagement() {
                 <Modal
                     title="Employee Details"
                     open={isEmployeeModalOpen}
-                    onCancel={handleCancel}
-                    footer={[
-                        <Button key="close" onClick={handleCancel}>
-                            Close
-                        </Button>,
-                    ]}
+                    onCancel={() => {
+                        setIsEmployeeModalOpen(false);
+                        form.resetFields();
+                    }}
+                    footer={null}
                 >
                     {loading ? (
                         <Spin />
@@ -609,6 +614,6 @@ export default function UserManagement() {
                     )}
                 </Modal>
             </div>
-        </div>
+        </div >
     )
 };

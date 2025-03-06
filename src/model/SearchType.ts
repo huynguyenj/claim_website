@@ -30,7 +30,7 @@ export interface ProjectCondition {
       project_start_date?: string;
       project_end_date?: string;
       is_delete?: boolean;
-      use_id?: boolean;
+      user_id?: string;
 }
 export interface ProjectSearchCondition {
       searchCondition?: ProjectCondition;

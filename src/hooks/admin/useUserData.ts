@@ -6,7 +6,10 @@ import { Notification } from "../../components/common/Notification";
 export default function useUserData() {
     const [users, setUsers] = useState<User[]>([]);
     const [usersThisMonth, setUsersThisMonth] = useState<User[]>([]);
+    const [usersVerified, setUsersVerified] = useState<User[]>([]);
+    const [totalUsersVerified, setTotalUsersVerified] = useState<number>(0);
     const [totalUsers, setTotalUsers] = useState<number>(0);
+    const [totalUsersThisMonth, setTotalUsersThisMonth] = useState<number>(0);
     const [userLoading, setUserLoading] = useState<boolean>(false);
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -46,7 +49,7 @@ export default function useUserData() {
 
             if (showBanned !== null) searchParams.searchCondition.is_blocked = showBanned;
 
-            console.log("Fetching all users:", searchParams);
+            console.log("Fetching all users this month:", searchParams);
 
             const response = await apiService.post<PaginatedResponse>("/users/search", searchParams);
 
@@ -65,25 +68,50 @@ export default function useUserData() {
                     return createdAt >= startOfMonth && createdAt <= endOfMonth;
                 });
 
-                setUsers(filteredUsers);
-                setTotalUsers(filteredUsers.length);
+                setUsersThisMonth(filteredUsers);
+                setTotalUsersThisMonth(filteredUsers.length);
             }
         } catch (error) {
-            console.error("Error fetching users:", error);
+            console.error("Error fetching users this month:", error);
             Notification("error", "Failed to fetch users for this month");
         } finally {
             setUserLoading(false);
         }
     };
 
+    const fetchUsersVerified = async () => {
+        try {
+            setUserLoading(true);
+            const searchParams: SearchRequest = {
+                searchCondition: { keyword: searchTerm, role_code: "", is_delete: false, is_verified: true },
+                pageInfo: { pageNum: currentPage, pageSize },
+            };
+
+            if (showBanned !== null) searchParams.searchCondition.is_blocked = showBanned;
+
+            const response = await apiService.post<PaginatedResponse>("/users/search", searchParams);
+
+            if (response) {
+                setUsersVerified(response.data.pageData);
+                setTotalUsersVerified(response.data.pageInfo.totalItems);
+            }
+        } catch (error) {
+            Notification("error", error as string);
+        } finally {
+            setUserLoading(false);
+        }
+    }
+
     useEffect(() => {
         fetchUsers();
         fetchUsersThisMonth();
+        fetchUsersVerified();
     }, [currentPage, searchTerm, showBanned]);
 
     return {
         users, totalUsers,
-        usersThisMonth, setUsersThisMonth,
+        usersThisMonth, totalUsersThisMonth,
+        usersVerified, totalUsersVerified,
         userLoading, currentPage, setCurrentPage, setSearchTerm,
     };
 }

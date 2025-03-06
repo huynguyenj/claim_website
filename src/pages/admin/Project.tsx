@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { PaginatedResponse, Project, SearchRequest } from "../../model/ProjectData";
 import { Notification } from "../../components/common/Notification";
-import { ApiResponse, getApiErrorMessage } from "../../consts/ApiResponse";
+import { ApiResponse } from "../../consts/ApiResponse";
 import apiService from "../../services/ApiService";
 import { pagnitionAntd } from "../../consts/Pagination";
 import { Button, DatePicker, Form, Input, message, Modal, Select, Spin, Table } from "antd";
@@ -76,7 +76,7 @@ export default function ProjectManagement() {
         },
         pageInfo: {
           pageNum: 1,
-          pageSize: 50,
+          pageSize: 1000,
         },
       };
 
@@ -102,9 +102,11 @@ export default function ProjectManagement() {
       if (response && response.data) {
         setProjectMembers(response.data.project_members);
         setIsMembersModalOpen(true);
+      } else {
+        Notification("error", "Employee not found");
       }
     } catch (error) {
-      message.error("Failed to fetch project details.");
+      Notification("error", error as string);
     } finally {
       setLoading(false);
     }
