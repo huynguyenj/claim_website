@@ -3,6 +3,7 @@ import useProfile, { FormUpdateProfile, PasswordUpdate } from "../../hooks/userH
 import { useAuthStore } from "../../store/authStore";
 import { useState } from "react";
 import LoadingSpin from "../../components/common/LoadingSpin";
+import { EditIcon, PasswordIcon } from "../../components/Icon/MuiIIcon";
 
 function ProfilePage() {
       const {employeeInfo,handleUpdateEmployeeInfoForUser,loading,handleChangePassword} = useProfile();
@@ -59,8 +60,14 @@ function ProfilePage() {
                   <p className="text-2xl">Department code: <span>{employeeInfo?.department_code}</span></p>
                   <p className="text-2xl">Job rank: <span>{employeeInfo?.job_rank}</span></p>
                   <div className="flex gap-10">
-                  <button onClick={() => handleOpenModal(1)} className="bg-dark-fig w-fit text-white-fig px-10 py-2 rounded-2xl cursor-pointer">Edit</button>
-                  <button onClick={() => handleOpenModal(2)} className="bg-dark-fig w-fit text-white-fig px-10 py-3 rounded-2xl cursor-pointer">Change password</button>
+                  <button onClick={() => handleOpenModal(1)} className="bg-dark-fig w-20 hover:w-40 text-white-fig px-10 py-2 rounded-2xl cursor-pointer flex items-center justify-center group duration-300 ease-in-out">
+                        <div className="transform-[translateX(50%)] group-hover:transform-[translateX(-20%)] duration-300 ease-in"><EditIcon/></div>
+                        <p className="transform-[scale(0)] group-hover:transform-[scale(1)] duration-500 ease-in-out">Edit</p>
+                  </button>
+                  <button onClick={() => handleOpenModal(2)} className="bg-dark-fig w-20 h-15 hover:w-70 text-white-fig px-10 py-3 rounded-2xl cursor-pointer flex items-center justify-center group duration-300 ease-in-out">
+                        <div className="transform-[translateX(0%)] group-hover:transform-[translateX(-20%)] duration-300 ease-in"><PasswordIcon/></div>
+                        <p className="transform-[scale(0)] hidden group-hover:transform-[scale(1)] group-hover:block duration-1000 ease-in-out">Change password</p>
+                  </button>
                   </div>
             </div>
             <Modal
