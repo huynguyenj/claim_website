@@ -1,4 +1,4 @@
-import { Button, DatePicker, Input, Space, Table, Tag, Tooltip } from "antd";
+import { Button, DatePicker, Input, Skeleton, Space, Table, Tag, Tooltip } from "antd";
 import type { TableProps } from "antd";
 import ModalConfirm from "./ModalConfirm";
 import dayjs from "dayjs";
@@ -32,6 +32,7 @@ function SalaryTable(): JSX.Element {
       },
     });
 
+  const [loading,setLoading] = useState<boolean>(false);
   const handleTableChange = (page: number, pageSize: number): void => {
     setSearchCondition((prev) => ({
       ...prev,
@@ -89,16 +90,17 @@ function SalaryTable(): JSX.Element {
 
   const fetchFinanceClaimData = useCallback(() => {
     console.log(searchCondition);
+    setLoading(true)
     privateApiService
       .getFinanceClaimList(searchCondition)
       .then((response) => {
-        console.log("📌 API Response:", response?.data?.pageData);
-
+        console.log("API Response:", response?.data?.pageData);
         const safeData = response?.data?.pageData ? response.data.pageData : [];
         setFilteredData(safeData);
+        setLoading(false)
       })
       .catch((error) => {
-        console.error("❌ Error fetching finance claims:", error);
+        console.error("Error fetching finance claims:", error);
       });
   }, [searchCondition]);
 
@@ -251,8 +253,6 @@ function SalaryTable(): JSX.Element {
       render: (data: FinanceClaim) => (
         <Space size="small">
           <ModalConfirm
-            typeConfirm={{ borderColor: "#6ef13c" }}
-            text="PAY"
             userData={data}
           />
         </Space>
@@ -291,23 +291,28 @@ function SalaryTable(): JSX.Element {
           />
           <DatePicker.RangePicker
             style={{ width: "30%", marginBottom: "1rem", marginLeft: "1rem" }}
+            className="shadow-[7px_7px_0px_0px]"
             onChange={handleDatePicker}
           />
         </div>
         <div>
-          <Table
-            className="overflow-x-auto"
-            columns={columns}
-            dataSource={filteredData || []}
-            pagination={{
-              pageSize: pagnitionAntd.pageSize,
-              onChange: handleTableChange,
-            }}
-            style={{
-              tableLayout: "auto",
-            }}
-            components={components}
-          />
+          {loading ? (
+            <Skeleton active paragraph={{ rows: 5 }} />
+          ) : (
+            <Table
+              className="overflow-x-auto"
+              columns={columns}
+              dataSource={filteredData || []}
+              pagination={{
+                pageSize: pagnitionAntd.pageSize,
+                onChange: handleTableChange,
+              }}
+              style={{
+                tableLayout: "auto",
+              }}
+              components={components}
+            />
+          )}
         </div>
       </div>
     </>
