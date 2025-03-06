@@ -1,4 +1,13 @@
-import { Button, DatePicker, Input, Skeleton, Space, Table, Tag, Tooltip } from "antd";
+import {
+  Button,
+  DatePicker,
+  Input,
+  Skeleton,
+  Space,
+  Table,
+  Tag,
+  Tooltip,
+} from "antd";
 import type { TableProps } from "antd";
 import ModalConfirm from "./ModalConfirm";
 import dayjs from "dayjs";
@@ -11,7 +20,7 @@ import {
 import { ArrowCircleDown, SearchOutlined } from "@mui/icons-material";
 import { pagnitionAntd } from "../../consts/Pagination";
 import { FinanceClaim, FinanceSearchCondition } from "./DataType";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { privateApiService } from "../../services/ApiService";
 import debounce from "lodash/debounce";
 
@@ -32,7 +41,7 @@ function SalaryTable(): JSX.Element {
       },
     });
 
-  const [loading,setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const handleTableChange = (page: number, pageSize: number): void => {
     setSearchCondition((prev) => ({
       ...prev,
@@ -90,14 +99,14 @@ function SalaryTable(): JSX.Element {
 
   const fetchFinanceClaimData = useCallback(() => {
     console.log(searchCondition);
-    setLoading(true)
+    setLoading(true);
     privateApiService
       .getFinanceClaimList(searchCondition)
       .then((response) => {
         console.log("API Response:", response?.data?.pageData);
         const safeData = response?.data?.pageData ? response.data.pageData : [];
         setFilteredData(safeData);
-        setLoading(false)
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching finance claims:", error);
@@ -252,9 +261,7 @@ function SalaryTable(): JSX.Element {
       key: "action",
       render: (data: FinanceClaim) => (
         <Space size="small">
-          <ModalConfirm
-            userData={data}
-          />
+          <ModalConfirm userData={data} />
         </Space>
       ),
       responsive: ["xs", "sm", "md", "lg"],
@@ -290,6 +297,7 @@ function SalaryTable(): JSX.Element {
             onChange={handleSearchChange}
           />
           <DatePicker.RangePicker
+            format={"DD/MM/YYYY"}
             style={{ width: "30%", marginBottom: "1rem", marginLeft: "1rem" }}
             className="shadow-[7px_7px_0px_0px]"
             onChange={handleDatePicker}

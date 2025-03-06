@@ -34,9 +34,7 @@ apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error) => {
     const errorMessage = getApiErrorMessage(error);
-    if (errorMessage === 403 || errorMessage === 404) {
-      useAuthStore.getState().removeExpired();
-    }
+      // useAuthStore.getState().removeExpired();
     return Promise.reject(errorMessage);
   }
 );
