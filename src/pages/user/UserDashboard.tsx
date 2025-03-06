@@ -281,7 +281,6 @@ const UserDashboard: React.FC = () => {
                   <Chartmonth />
                 </div>
               </Col>
-
               {/* Second Chart */}
               <Col xs={24} lg={12}>
                 <div style={{
@@ -299,7 +298,6 @@ const UserDashboard: React.FC = () => {
               </Col>
             </Row>
           </div>
-
           <br></br>
         </Spin>
       </Content>
