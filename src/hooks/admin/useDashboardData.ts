@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import apiService from "../../services/ApiService";
-import { Notification } from "../../components/common/Notification";
 import { PaginatedResponse, User } from "../../model/UserData";
 import { Claim, ClaimResponse, } from "../../model/ClaimData";
 import { Project, ProjectResponse, } from "../../model/ProjectData";
-import { Contract, ContractResponse } from "../../model/ContractData";
 import { ClaimSearchCondition, ProjectSearchCondition, UserSearchCondition } from "../../model/SearchType";
 
 export default function useDashboardData() {
@@ -14,8 +12,6 @@ export default function useDashboardData() {
   const [totalClaims, setTotalClaims] = useState<number>(0);
   const [projects, setProjects] = useState<Project[]>([]);
   const [totalProjects, setTotalProjects] = useState<number>(0);
-  const [contracts, setContracts] = useState<Contract[]>([]);
-  const [totalContracts, setTotalContracts] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize] = useState<number>(10000);
@@ -85,32 +81,17 @@ export default function useDashboardData() {
     }
   };
   
-  const fetchContracts = async () => {
-    setLoading(true);
-    try {
-      const response = await apiService.get<ContractResponse>("/contracts/get-all");
-      if(response) {
-        setContracts(response.data);
-        setTotalContracts(response.data.length || 0);
-      } 
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  }
+ 
   useEffect(() => {
     fetchUsers();
     fetchClaims();
     fetchProjects();
-    fetchContracts();
   }, [currentPage, pageSize, searchTerm, showBanned]);
 
   return {  
           users, totalUsers, 
           claims, totalClaims, 
           projects, totalProjects,
-          contracts, totalContracts, 
           loading, currentPage, setCurrentPage, setSearchTerm, 
           };
 }
