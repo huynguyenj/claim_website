@@ -114,4 +114,4 @@ export default function useUserData() {
         usersVerified, totalUsersVerified,
         userLoading, currentPage, setCurrentPage, setSearchTerm,
     };
-}
+};
