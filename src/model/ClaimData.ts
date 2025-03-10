@@ -7,6 +7,18 @@ export interface Claim {
   created_at: string;
   updated_at: string;
 }
+export interface ClaimRequest {
+      id: string,
+      title: string,
+      description: string,
+      status: string,
+      createdAt: string,
+      projectName: string,
+      startDate: string,
+      endDate: string,
+      workTime: string,
+}
+
 
 export interface PageInfo {
   pageNum: number;

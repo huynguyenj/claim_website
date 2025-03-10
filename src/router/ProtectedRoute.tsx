@@ -5,6 +5,6 @@ import { PublicRoutes } from "../consts/RoutesConst";
 
 export const ProtectedRoute = () => {
     const isLogin= useAuthStore((state) => state.isLogin);   
-    return isLogin ? <Outlet /> : <Navigate to={PublicRoutes.LOGIN} replace />;;
+    return isLogin ? <Outlet /> : <Navigate to={PublicRoutes.LOGIN} replace />;
   
 };
