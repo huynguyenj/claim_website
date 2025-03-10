@@ -14,7 +14,6 @@ function App() {
   const role = useAuthStore((state) => state.user?.role_code);
   return (
     <Suspense fallback={<Loading />}>
-      <ProtectedRoute/>
       <Routes>
         {getPublicRoute(login).map((route,index) => (
           <Route key={index} path={route.path} element={route.element}/>

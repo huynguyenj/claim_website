@@ -1,16 +1,19 @@
-import { useEffect, useState } from "react";
-import apiService from "../../services/ApiService";
-import { Button, Input, message, Spin, Table, Form, Modal, Select} from "antd";
-import { PaginatedResponse, SearchRequest, User } from "../../model/UserData";
-import { exportToExcel } from "../../consts/ExcelDownload";
-import UserCard from "../../components/Admin/UserCard";
 import { Article, EditOutlined, SearchOutlined } from "@mui/icons-material";
+import { Button, DatePicker, Form, Input, message, Modal, Select, Spin, Table, TablePaginationConfig } from "antd";
+import moment from "moment-timezone";
+import { useEffect, useState } from "react";
+import UserCard from "../../components/Admin/UserCard";
 import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
 import { Notification } from "../../components/common/Notification";
+import { ApiResponse } from "../../consts/ApiResponse";
+import { exportToExcel } from "../../consts/ExcelDownload";
 import { pagnitionAntd } from "../../consts/Pagination";
-import { Role } from "../../model/RoleData";
-import { Employee } from "../../model/EmployeeData";
 import useUserData from "../../hooks/admin/useUserData";
+import { Department } from "../../model/DepartmentData";
+import { Employee } from "../../model/EmployeeData";
+import { Role } from "../../model/RoleData";
+import { PaginatedResponse, SearchRequest, User } from "../../model/UserData";
+import apiService from "../../services/ApiService";
 
 export default function UserManagement() {
 
@@ -28,6 +31,7 @@ export default function UserManagement() {
 
 
     const [users, setUsers] = useState<User[]>([]);
+    const [departments, setDepartments] = useState<Department[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -37,12 +41,17 @@ export default function UserManagement() {
     const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
+    const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
     const [showBanned, setShowBanned] = useState<boolean | null>(null);
     const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
     const [form] = Form.useForm();
 
-    const validateEmail = (rule: any, value: any, callback: any) => {
+    const convertToUTC7 = (utcDate: string) => {
+        return moment.utc(utcDate).tz('Asia/Jakarta').format('YYYY-MM-DD');
+    };
+
+    const validateEmail = (_:unknown, value: string, callback: (error?: string) => void) => {
         const emailRegex = /^[A-Za-z0-9+_.-]+@(.+)$/;
         if (!emailRegex.test(value)) {
             callback('Invalid email address');
@@ -51,25 +60,43 @@ export default function UserManagement() {
         }
     };
 
-    const validatePassword = (rule: any, value: any, callback: any) => {
+    const validatePassword = (_:unknown, value: string, callback: (error?: string) => void) => {
         const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
         if (!passwordRegex.test(value)) {
             callback('Password must contain at least 8 characters, including uppercase, lowercase, and numbers');
         } else {
             callback();
         }
-    }
+    };
 
-    const fetchEmployee = async (employeeId: string) => {
+    const fetchDepartments = async () => {
+        setLoading(true);
+        try {
+            const response = await apiService.get<ApiResponse<Department[]>>("/departments/get-all");
+
+            console.log("Departments:", response.data);
+            setDepartments(response.data);
+        } catch (error) {
+            message.error("Failed to fetch departments");
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchEmployees = async (employeeId: string) => {
         try {
             setLoading(true);
-            setSelectedEmployee(null);
-
             const response = await apiService.get<{ data: Employee }>(`/employees/${employeeId}`);
-
+            console.log(selectedEmployee)
             if (response && response.data) {
                 setSelectedEmployee(response.data);
-                form.setFieldsValue(response.data);
+                setEditingEmployee(response.data);
+                form.setFieldsValue({
+                    ...response.data,
+                    start_date: moment(response.data.start_date),
+                    end_date: moment(response.data.end_date),
+                });
                 setIsEmployeeModalOpen(true);
             } else {
                 Notification("error", "Employee not found");
@@ -116,8 +143,16 @@ export default function UserManagement() {
     };
 
     useEffect(() => {
-        fetchUsers(currentPage, pageSize, searchTerm, showBanned);
-    }, [currentPage, pageSize, searchTerm, showBanned]);
+        const debounceTimeout = setTimeout(() => {
+            fetchUsers(currentPage, pageSize, searchTerm, showBanned);
+        }, 2000);
+
+        return () => clearTimeout(debounceTimeout);
+    }, [searchTerm, currentPage, pageSize, showBanned]);
+
+    useEffect(() => {
+        fetchDepartments();
+    }, []);
 
     useEffect(() => {
         const fetchRoles = async () => {
@@ -132,9 +167,9 @@ export default function UserManagement() {
         fetchRoles();
     }, []);
 
-    const handleTableChange = (pagination: any) => {
-        setCurrentPage(pagination.current);
-        setPageSize(pagination.pageSize);
+    const handleTableChange = (pagination:  TablePaginationConfig) => {
+        setCurrentPage(pagination.current || currentPage);
+        setPageSize(pagination.pageSize || pageSize);
     };
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -162,7 +197,6 @@ export default function UserManagement() {
             }
         } catch (error: any) {
             if (error.response && error.response.data.message.includes('already exists')) {
-                // Highlight the username field with error
                 form.setFields([
                     {
                         name: 'user_name',
@@ -170,8 +204,6 @@ export default function UserManagement() {
                     },
                 ]);
                 Notification("error", "Username already exists!");
-            } else {
-                Notification("error", error.message || "Failed to add user");
             }
         }
     };
@@ -202,6 +234,49 @@ export default function UserManagement() {
         }
     };
 
+    const handleUpdateEmployee = async () => {
+        try {
+            const values = await form.validateFields();
+            console.log("Form Values:", values);
+
+            if (!editingEmployee) {
+                console.error("No employee selected for editing");
+                return;
+            }
+
+            const updatedEmployee = {
+                user_id: editingEmployee.user_id,
+                ...values,
+                department_code: values.department_code,
+                start_date: values.start_date.utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
+                end_date: values.end_date.utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
+                updated_by: values.updated_by,
+            };
+
+            console.log("Updated Employee Data:", updatedEmployee);
+            console.log("Editing Employee ID:", editingEmployee.user_id);
+
+            Modal.confirm({
+                title: "Confirm Update",
+                content: `Do you want to update the employee ${editingEmployee.full_name}?`,
+                onOk: async () => {
+                    setLoading(true);
+                    const response = await apiService.put(`/employees/${editingEmployee.user_id}`, updatedEmployee);
+                    console.log("API Response:", response);
+                    message.success("Employee updated successfully!");
+                    setIsEmployeeModalOpen(false);
+                    fetchEmployees(editingEmployee.user_id);
+                },
+                okText: "Update",
+                cancelText: "Cancel",
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
+            Notification("error", "Failed to update employee.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleDeleteUser = async (id: string) => {
         try {
@@ -269,7 +344,7 @@ export default function UserManagement() {
             render: (text: string, record: User) => (
                 <button
                     className="text-blue-500 hover:underline"
-                    onClick={() => fetchEmployee(record._id)}
+                    onClick={() => fetchEmployees(record._id)}
                 >
                     {text}
                 </button>
@@ -278,7 +353,19 @@ export default function UserManagement() {
         {
             title: "Role",
             key: "role",
-            render: (_: any, record: User) => roleMap[record.role_code] || record.role_code,
+            render: (_:unknown, record: User) => roleMap[record.role_code] || record.role_code,
+        },
+        {
+            title: "Start Date",
+            dataIndex: "start_date",
+            key: "start_date",
+            render: (text: string) => convertToUTC7(text),
+        },
+        {
+            title: "End Date",
+            dataIndex: "end_date",
+            key: "end_date",
+            render: (text: string) => convertToUTC7(text),
         },
         {
             title: "Status",
@@ -478,21 +565,24 @@ export default function UserManagement() {
                         <Spin size="large" />
                     </div>
                 ) : (
-                    <div className="overflow-x">
-                        <Table
-                            columns={columns}
-                            dataSource={users}
-                            loading={loading}
-                            rowKey="_id"
-                            pagination={{
-                                current: currentPage,
-                                pageSize: pageSize,
-                                total: totalItems,
-                                showSizeChanger: true,
-                                pageSizeOptions: ["5", "10", "20"],
-                            }}
-                            onChange={handleTableChange}
-                        />
+                    <div className="overflow-x-auto">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-4">
+                            <Table
+                                columns={columns}
+                                dataSource={users}
+                                loading={loading}
+                                rowKey="_id"
+                                pagination={{
+                                    current: currentPage,
+                                    pageSize: pageSize,
+                                    total: totalItems,
+                                    showSizeChanger: true,
+                                    pageSizeOptions: ["5", "10", "20"],
+                                }}
+                                onChange={handleTableChange}
+                            />
+
+                        </div>
                     </div>
                 )}
 
@@ -573,40 +663,59 @@ export default function UserManagement() {
                         setIsEmployeeModalOpen(false);
                         form.resetFields();
                     }}
-                    footer={null}
+                    onOk={handleUpdateEmployee}
+                    okText="Save"
+                    cancelText="Cancel"
                 >
                     {loading ? (
                         <Spin />
                     ) : (
-                        <Form form={form} layout="vertical" initialValues={selectedEmployee || {}}>
-                            <Form.Item label="Full Name" name="full_name">
+                        <Form form={form} layout="vertical">
+                            <Form.Item label="User ID" name="user_id">
                                 <Input readOnly />
                             </Form.Item>
-                            <Form.Item label="Job Rank" name="job_rank">
-                                <Input readOnly />
+                            <Form.Item label="Avatar URL" name="avatar_url">
+                                <Input />
                             </Form.Item>
-                            <Form.Item label="Contract Type" name="contract_type">
-                                <Input readOnly />
+                            <Form.Item label="Full Name" name="full_name" rules={[{ required: true, message: "Full name is required" }]}>
+                                <Input />
                             </Form.Item>
-                            <Form.Item label="Account" name="account">
-                                <Input readOnly />
+                            <Form.Item label="Job Rank" name="job_rank" rules={[{ required: true, message: "Job rank is required" }]}>
+                                <Input />
                             </Form.Item>
-                            <Form.Item label="Address" name="address">
-                                <Input readOnly />
+                            <Form.Item label="Contract Type" name="contract_type" rules={[{ required: true, message: "Contract type is required" }]}>
+                                <Input />
                             </Form.Item>
-                            <Form.Item label="Phone" name="phone">
-                                <Input readOnly />
+                            <Form.Item label="Account" name="account" rules={[{ required: true, message: "Account is required" }]}>
+                                <Input />
                             </Form.Item>
-                            <Form.Item label="Department" name="department_name">
-                                <Input readOnly />
+                            <Form.Item label="Address" name="address" rules={[{ required: true, message: "Address is required" }]}>
+                                <Input />
                             </Form.Item>
-                            <Form.Item label="Salary" name="salary">
-                                <Input readOnly />
+                            <Form.Item label="Phone" name="phone" rules={[{ required: true, message: "Phone is required" }]}>
+                                <Input />
                             </Form.Item>
-                            <Form.Item label="Start Date" name="start_date">
-                                <Input readOnly />
+                            <Form.Item label="Department" name="department_code">
+                                <Select placeholder="Select a department" loading={loading}>
+                                    {departments.map((dept) => (
+                                        <Select.Option key={dept.department_code} value={dept.department_code}>
+                                            {dept.department_code}
+                                        </Select.Option>
+                                    ))}
+                                </Select>
                             </Form.Item>
-                            <Form.Item label="End Date" name="end_date">
+                            <Form.Item label="Salary" name="salary" rules={[{ required: true, message: "Salary is required", type: "number" }]}>
+                                <Input type="number" />
+                            </Form.Item>
+                            <Form.Item label="Start Date" name="start_date" rules={[{ required: true, message: "Start date is required" }]}>
+                                <DatePicker format="YYYY-MM-DD" />
+                            </Form.Item>
+
+                            <Form.Item label="End Date" name="end_date" rules={[{ required: true, message: "End date is required" }]}>
+                                <DatePicker format="YYYY-MM-DD" />
+                            </Form.Item>
+
+                            <Form.Item label="Updated By" name="updated_by">
                                 <Input readOnly />
                             </Form.Item>
                         </Form>
