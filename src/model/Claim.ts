@@ -23,7 +23,5 @@ export interface NewClaimRequest {
   claim_end_date: string;
   total_work_time: number;
   remark: string;
-  user_id: string;
-  _id: string;
-  claim_status: string;
+  
 }

@@ -1,384 +1,406 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Box,
-  Grid,
-} from '@mui/material';
-import { Add as AddIcon, Search as SearchIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+  Button, Input, Table, Form, Modal, Select, Spin, message
+} from 'antd';
+import { EditOutlined, SearchOutlined } from '@mui/icons-material';
+import { PlusOutlined } from '../../components/Icon/AntdIcon';
 import type { ClaimRequest, NewClaimRequest } from '../../model/Claim';
 import authService from '../../services/AuthService';
+import axios from 'axios';
+import { Project, ProjectResponse } from '../../model/ProjectData';
+import { useAuthStore } from '../../store/authStore';
+import { Notification } from '../../components/common/Notification';
+import { pagnitionAntd } from '../../consts/Pagination';
+import UserCard from '../../components/Admin/UserCard';
+import { Article } from '@mui/icons-material';
+import { UserIcon } from '../../components/Icon/MuiIIcon';
+import { exportToExcel } from '../../consts/ExcelDowload';
 
 const RequestPage: React.FC = () => {
+  const userId = useAuthStore((state) => state.user?._id);
   const [requests, setRequests] = useState<ClaimRequest[]>([]);
   const [searchText, setSearchText] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    amount: '',
-  });
-  const [projectName, setProjectName] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [workTime, setWorkTime] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<string | ''>('');
-  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
-  const [selectedProjectName, setSelectedProjectName] = useState<string>('');
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(pagnitionAntd.pageSize);
+  const [totalItems, setTotalItems] = useState<number>(0);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [form] = Form.useForm();
 
-
-  const projects = [
-    { id: 'project_a_001', name: 'Project A' },
-    { id: 'project_b_002', name: 'Project B' },
-    { id: 'project_c_003', name: 'Project C' }, 
-
-  ];
-
-  const statusOptions = [
-    { value: 'DRAFT', label: 'Draft' },
-    { value: 'PENDING_APPROVAL', label: 'Pending Approval' },
-    { value: 'APPROVED', label: 'Approved' },
-    { value: 'REJECTED', label: 'Rejected' },
-    { value: 'PENDING_PAYMENT', label: 'Pending Payment' },
-    { value: 'PAID', label: 'Paid' },
-  ];
+  // Lấy tất cả các claim từ API (endpoint trả về đối tượng có key pageData chứa mảng)
+  useEffect(() => {
+    if (!userId) return;
+    setLoading(true);
+    authService.getAllClaims()
+      .then((result) => {
+        // result có cấu trúc: { pageData: [ ... ] }
+        const rawClaims = result.pageData;
+        // Map các claim từ API sang kiểu ClaimRequest, chuyển đổi các trường nếu cần
+        const mappedClaims: ClaimRequest[] = rawClaims.map((item: any) => ({
+          _id: item._id,
+          user_id: item.staff_id, // chuyển staff_id thành user_id
+          project_id: item.project_info ? item.project_info._id : "",
+          approval_id: item.approval_info ? item.approval_info._id : "",
+          claim_name: item.claim_name,
+          claim_status: item.claim_status,
+          claim_start_date: item.claim_start_date,
+          claim_end_date: item.claim_end_date,
+          total_work_time: item.total_work_time,
+          is_deleted: item.is_deleted,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          remark: item.remark || "",
+          __v: item.__v || 0,
+        }));
+        // Lọc ra các claim của user đang đăng nhập
+        const userClaims = mappedClaims.filter((c) => c.user_id === userId);
+        setRequests(userClaims);
+        setTotalItems(userClaims.length);
+      })
+      .catch((error: unknown) => {
+        console.error("Error fetching claims:", error);
+        if (axios.isAxiosError(error)) {
+          Notification("error", error.response?.data?.message || "Unable to fetch claims");
+        } else {
+          Notification("error", "Unable to fetch claims");
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [userId]);
 
   useEffect(() => {
-    const fetchRequests = async () => {
+    const fetchProjects = async () => {
+      if (!userId) {
+        console.error("User ID is not defined.");
+        return;
+      }
+      const searchProject = {
+        searchCondition: { user_id: userId, is_delete: false },
+        pageInfo: { pageNum: 1, pageSize: 10 },
+      };
       try {
-        const response = await authService.getRequests();
-        setRequests(response);
-      } catch (error) {
-        console.error('Failed to fetch requests', error);
+        const response = await authService.searchProjectByUserId(searchProject);
+        console.log("Project API response:", response);
+        const projectResponse = response as unknown as ProjectResponse;
+        const projectData = projectResponse.data?.pageData || projectResponse.pageData;
+        if (Array.isArray(projectData)) {
+          const formattedProjects: Project[] = projectData.map((p) => ({
+            _id: p._id,
+            project_name: p.project_name,
+            project_code: p.project_code || '',
+            project_department: p.project_department || '',
+            is_deleted: p.is_deleted ?? false,
+            project_description: p.project_description || '',
+            project_status: p.project_status || 'Chưa biết',
+            project_start_date: p.project_start_date || '',
+            project_end_date: p.project_end_date || '',
+            updated_by: p.updated_by || '',
+            created_at: p.created_at || '',
+            updated_at: p.updated_at || '',
+          }));
+          console.log("Formatted Projects:", formattedProjects);
+          setProjects(formattedProjects);
+        } else {
+          console.error("Invalid project response format:", response);
+        }
+      } catch (error: unknown) {
+        console.error("Error fetching projects", error);
       }
     };
+    fetchProjects();
+  }, [userId]);
 
-    fetchRequests();
-  }, []);
-
+  // Handle claim creation / update
   const handleSubmit = async () => {
     try {
-      const newRequest: NewClaimRequest = {
-        project_id: selectedProjectId,
+      // Validate form values
+      const values = await form.validateFields();
+      if (!values.project_id) {
+        message.error("Please select a project before submitting");
+        return;
+      }
+      // Xây dựng payload để tạo mới claim
+      const requestData: NewClaimRequest = {
+        project_id: values.project_id,
         approval_id: '67b2fd17f6afc068678f14b5',
-        claim_name: formData.title,
-        claim_start_date: new Date(startDate).toISOString(),
-        claim_end_date: new Date(endDate).toISOString(),
-        total_work_time: parseInt(workTime),
-        remark: formData.description,
-        user_id: '',
-        claim_status: '',
-        _id: ''
+        claim_name: values.claim_name,
+        claim_start_date: new Date(values.claim_start_date).toISOString(),
+        claim_end_date: new Date(values.claim_end_date).toISOString(),
+        total_work_time: values.total_work_time ? parseInt(values.total_work_time.toString(), 10) : 0,
+        remark: values.remark || "",
       };
 
-      const response = await authService.createClaim(newRequest);
-      if (response) {
-        const completeRequest: ClaimRequest = {
-          ...response,
-          claim_status: 'DRAFT',
-          is_deleted: false,
-          _id: response._id || '',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          __v: 0
+      setLoading(true);
+
+      // Nếu editingId tồn tại => Update claim
+      if (editingId) {
+        // Tìm claim hiện có dựa theo editingId
+        const existingRequest = requests.find((req) => req._id === editingId);
+        if (!existingRequest) {
+          message.error("Error: Unable to find the request for updating");
+          return;
+        }
+        // Tạo object updateData chỉ chứa các trường được phép cập nhật
+        const updateData: Partial<ClaimRequest> = {
+          // Nếu bạn cho phép update project_id, approval_id thì truyền vào, ngược lại lấy từ existingRequest
+          project_id: existingRequest.project_id,
+          approval_id: existingRequest.approval_id,
+          claim_name: requestData.claim_name,
+          claim_start_date: requestData.claim_start_date,
+          claim_end_date: requestData.claim_end_date,
+          total_work_time: requestData.total_work_time,
+          remark: requestData.remark,
         };
-
-        console.log('New Request Data:', completeRequest);
-        setRequests([...requests, completeRequest]);
-        setIsModalOpen(false);
-        setFormData({ title: '', description: '', amount: '' });
-        setStartDate('');
-        setEndDate('');
-        setWorkTime('');
+        // Gọi API update với claimId (editingId) và updateData
+        await authService.updateClaim(editingId, updateData);
+        message.success("Claim updated successfully!");
+      } else {
+        // Nếu không có editingId, tức là tạo mới claim
+        await authService.createClaim(requestData);
+        message.success("Claim created successfully!");
       }
-    } catch (error) {
-      console.error('Operation failed', error);
+
+      // Sau khi tạo hoặc cập nhật, làm mới danh sách claim của người đăng nhập
+      if (userId) {
+        setLoading(true);
+        authService.getAllClaims()
+          .then((result) => {
+            // result có cấu trúc: { pageData: [ ... ] }
+            const rawClaims = result.pageData;
+            // Map từng phần tử, chuyển staff_id thành user_id và lấy các trường cần thiết
+            const mappedClaims: ClaimRequest[] = rawClaims.map((item: any) => ({
+              _id: item._id,
+              user_id: item.staff_id,
+              project_id: item.project_info ? item.project_info._id : "",
+              approval_id: item.approval_info ? item.approval_info._id : "",
+              claim_name: item.claim_name,
+              claim_status: item.claim_status,
+              claim_start_date: item.claim_start_date,
+              claim_end_date: item.claim_end_date,
+              total_work_time: item.total_work_time,
+              is_deleted: item.is_deleted,
+              created_at: item.created_at,
+              updated_at: item.updated_at,
+              remark: item.remark || "",
+              __v: item.__v || 0,
+            }));
+            // Lọc ra các claim của user đang đăng nhập (dựa theo user_id)
+            const userClaims = mappedClaims.filter((c) => c.user_id === userId);
+            setRequests(userClaims);
+            setTotalItems(userClaims.length);
+          })
+          .catch((error: unknown) => {
+            console.error("Error fetching claims after update:", error);
+          })
+          .finally(() => setLoading(false));
+      }
+      // Đóng Modal, reset form và reset editingId
+      setIsModalOpen(false);
+      form.resetFields();
+      setEditingId(null);
+    } catch (error: unknown) {
+      console.error("Operation failed", error);
+      if (axios.isAxiosError(error)) {
+        Notification("error", error.response?.data?.message || "Unable to process request");
+      } else {
+        Notification("error", "Unable to process request");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure?')) {
-      try {
-        await authService.deleteClaim(id);
-        setRequests(requests.filter(request => request._id !== id));
-      } catch (error) {
-        console.error('Failed to delete request', error);
-      }
-    }
+
+  const handleEdit = (request: ClaimRequest) => {
+    setEditingId(request._id);
+    form.setFieldsValue({
+      claim_name: request.claim_name,
+      remark: request.remark || "",
+      claim_start_date: new Date(request.claim_start_date).toISOString().split('T')[0],
+      claim_end_date: new Date(request.claim_end_date).toISOString().split('T')[0],
+      total_work_time: request.total_work_time?.toString() || "",
+      project_id: request.project_id,
+    });
+    setIsModalOpen(true);
   };
 
-  const handleRequestApproval = async (id: string) => {
-    try {
-      const updatedRequest = requests.find(request => request._id === id);
-      if (updatedRequest) {
-        updatedRequest.claim_status = 'PENDING_APPROVAL';
-        await authService.updateClaim(updatedRequest);
-        setRequests(requests.map(request => request._id === id ? updatedRequest : request));
-      }
-    } catch (error) {
-      console.error('Failed to update request status', error);
-    }
+  const handleTableChange = (pagination: any) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
   };
 
-  const filteredRequests = requests.filter(request => {
-    const matchesSearchText = request.claim_name.toLowerCase().includes(searchText.toLowerCase());
-    const matchesStatus = selectedStatus ? request.claim_status === selectedStatus : true;
-    return matchesSearchText && matchesStatus;
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
+    setCurrentPage(1);
+  };
+
+  // Lọc các claim theo tên và trạng thái nếu có
+  const filteredRequests = requests.filter((req) => {
+    const matchesSearch = searchText
+      ? req.claim_name.toLowerCase().includes(searchText.toLowerCase())
+      : true;
+    const matchesStatus = statusFilter ? req.claim_status === statusFilter : true;
+    return matchesSearch && matchesStatus;
   });
 
+  const columns = [
+    { title: "Claim Name", dataIndex: "claim_name", key: "claim_name" },
+    { title: "Status", dataIndex: "claim_status", key: "claim_status" },
+    {
+      title: "Start Date",
+      key: "claim_start_date",
+      render: (_: string, record: ClaimRequest) => (
+        <span>{new Date(record.claim_start_date).toLocaleDateString()}</span>
+      ),
+    },
+    {
+      title: "End Date",
+      key: "claim_end_date",
+      render: (_: string, record: ClaimRequest) => (
+        <span>{new Date(record.claim_end_date).toLocaleDateString()}</span>
+      ),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_: string, record: ClaimRequest) => (
+        <div className="flex gap-2">
+          <Button icon={<EditOutlined />} type="link" onClick={() => handleEdit(record)} />
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <div className="flex">
-      <Grid container spacing={2} className="p-6">
-        <Grid item xs={12}>
-          <Box className="mb-4 flex flex-col md:flex-row justify-between items-center">
-            <Box className="flex gap-4">
-              <TextField
-                placeholder="Search by claim name..."
-                size="small"
-                InputProps={{
-                  startAdornment: <SearchIcon />,
-                }}
-                onChange={(e) => setSearchText(e.target.value)}
-                sx={{
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  width: { xs: '100%', sm: '250px', md: '300px' },
-                  height: '40px',
-                  '& .MuiInputBase-input': {
-                    height: '40px',
-                    padding: '0 10px',
-                  },
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                }}
-              />
-              <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: '150px' }, height: '40px' }}>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  label="Status"
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  sx={{
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    height: '40px',
-                    '& .MuiSelect-select': {
-                      height: '40px',
-                      display: 'flex',
-                      alignItems: 'center',
-                    },
-                  }}
-                >
-                  <MenuItem value="">All</MenuItem>
-                  {statusOptions.map(option => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
+    <div className="overflow-y-scroll">
+      <div className="flex justify-end items-center p-5">
+        <div className="flex gap-2">
+          <Button
+            type="primary"
+            onClick={() =>
+              exportToExcel(
+                requests,
+                ['_id', 'claim_name', 'claim_status', 'claim_start_date', 'claim_end_date', 'total_work_time'],
+                'claims'
+              )
+            }
+          >
+            Export claims file
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
+        <UserCard icon={<UserIcon />} title="Total Claims" growth={15} />
+        <UserCard icon={<Article />} title="Pending Claims" growth={20} />
+        <UserCard icon={<Article />} title="Approved Claims" growth={30} />
+      </div>
+
+      <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
+        <div className="mb-4 flex items-center">
+          <Input
+            placeholder="Search by claim name"
+            prefix={<SearchOutlined />}
+            value={searchText}
+            onChange={handleSearch}
+            size="large"
+            className="max-w-md shadow-[9px_6px_0px_rgba(0,0,0,1)]"
+            allowClear
+          />
+          <div className="ml-auto flex gap-2">
             <Button
-              variant="contained"
-              startIcon={<AddIcon />}
+              type="primary"
+              icon={<PlusOutlined />}
               onClick={() => {
+                form.resetFields();
                 setEditingId(null);
                 setIsModalOpen(true);
               }}
-              sx={{ marginTop: { xs: '10px', md: '0' } }}
             >
-              New Request
+              Add Claim
             </Button>
-          </Box>
+            <Select
+              className="w-fit"
+              placeholder="Claim Status"
+              value={statusFilter}
+              onChange={(value) => {
+                setStatusFilter(value);
+                setCurrentPage(1);
+              }}
+              options={[
+                { value: "PENDING", label: "Pending Claims" },
+                { value: "APPROVED", label: "Approved Claims" },
+                { value: "REJECTED", label: "Rejected Claims" },
+              ]}
+            />
+          </div>
+        </div>
 
-          <TableContainer component={Paper} sx={{
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-            overflow: 'auto',
-            maxHeight: '400px',
-          }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Project Name</TableCell>
-                  <TableCell>Duration of Work Overtime</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Start Date</TableCell>
-                  <TableCell>End Date</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredRequests.map((request) => (
-                  <TableRow key={request._id}>
+        {loading ? (
+          <div className="text-center py-12">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <div className="overflow-x">
+            <Table
+              columns={columns}
+              dataSource={filteredRequests}
+              loading={loading}
+              rowKey="_id"
+              pagination={{
+                current: currentPage,
+                pageSize: pageSize,
+                total: totalItems,
+                showSizeChanger: true,
+                pageSizeOptions: ["5", "10", "20"],
+              }}
+              onChange={handleTableChange}
+            />
+          </div>
+        )}
 
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-sm ${{
-                        DRAFT: 'bg-gray-200',
-                        PENDING_APPROVAL: 'bg-yellow-200',
-                        APPROVED: 'bg-green-200',
-                        REJECTED: 'bg-red-200',
-                        PENDING_PAYMENT: 'bg-blue-200',
-                        PAID: 'bg-purple-200',
-                      }[request.claim_status]}`}>
-                        {request.claim_status.replace('_', ' ')}
-                      </span>
-                    </TableCell>
-                    <TableCell>{new Date(request.claim_start_date).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(request.claim_end_date).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Box className="flex gap-2">
-                        <Button
-                          variant="outlined"
-                          onClick={() => {
-                            setEditingId(request._id);
-                            setFormData({
-                              title: request.claim_name,
-                              description: request.remark,
-                              amount: '',
-                            });
-                            setIsModalOpen(true);
-                          }}
-                          startIcon={<EditIcon />}
-                          sx={{ padding: '4px 8px', fontSize: '0.875rem' }}
-                        />
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          onClick={() => handleDelete(request._id)}
-                          startIcon={<DeleteIcon />}
-                          sx={{ padding: '4px 8px', fontSize: '0.875rem' }}
-                        />
-                        <Button
-                          variant="contained"
-                          onClick={() => handleRequestApproval(request._id)}
-                          disabled={request.claim_status === 'PENDING_APPROVAL'}
-                          sx={{ padding: '4px 8px', fontSize: '0.875rem' }}
-                        >
-                          Request Approval
-                        </Button>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
+        <Modal
+          title={editingId ? "Edit Claim" : "Add New Claim"}
+          open={isModalOpen}
+          onCancel={() => {
+            setIsModalOpen(false);
+            form.resetFields();
+          }}
+          onOk={handleSubmit}
+          okText={editingId ? "Save" : "Add Claim"}
+          cancelText="Cancel"
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item label="Claim Name" name="claim_name" rules={[{ required: true, message: "Please enter a claim name" }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="Description" name="remark">
+              <Input.TextArea />
+            </Form.Item>
+            <Form.Item label="Start Date" name="claim_start_date" rules={[{ required: true, message: "Please select a start date" }]}>
+              <Input type="date" />
+            </Form.Item>
+            <Form.Item label="End Date" name="claim_end_date" rules={[{ required: true, message: "Please select an end date" }]}>
+              <Input type="date" />
+            </Form.Item>
+            <Form.Item label="Work Time (hours)" name="total_work_time" rules={[{ required: true, message: "Please enter work time" }]}>
+              <Input type="number" />
+            </Form.Item>
+            <Form.Item label="Project" name="project_id" rules={[{ required: true, message: "Please select a project" }]}>
+              <Select placeholder="Select a project">
+                {projects.map(project => (
+                  <Select.Option key={project._id} value={project._id}>
+                    {project.project_name}
+                  </Select.Option>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="md" fullWidth>
-            <DialogTitle>
-              {editingId ? "Edit Request" : "New Request"}
-            </DialogTitle>
-            <DialogContent>
-              <Box className="flex flex-col gap-4 pt-4">
-                <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
-                  <InputLabel>Project</InputLabel>
-                  <Select
-                    value={selectedProjectId}
-                    onChange={(e) => {
-                      const projectId = e.target.value;
-                      setSelectedProjectId(projectId);
-                      const project = projects.find(p => p.id === projectId);
-                      setSelectedProjectName(project ? project.name : '');
-                    }}
-                    label="Project"
-                  >
-                    {projects.map(project => (
-                      <MenuItem key={project.id} value={project.id}>
-                        {project.id}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <TextField
-                  label="Project Name"
-                  value={selectedProjectName}
-                  disabled
-                  fullWidth
-                  variant="outlined"
-                  sx={{ mb: 2 }}
-                />
-                
-                <TextField
-                  label="Title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  required
-                  fullWidth
-                  variant="outlined"
-                  sx={{ mb: 2 }}
-                />
-                <TextField
-                  label="Start Date"
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  required
-                  fullWidth
-                  variant="outlined"
-                  sx={{ mb: 2 }}
-                  InputLabelProps={{ shrink: true }}
-                />
-                <TextField
-                  label="End Date"
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  required
-                  fullWidth
-                  variant="outlined"
-                  sx={{ mb: 2 }}
-                  InputLabelProps={{ shrink: true }}
-                />
-                <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
-                  <TextField
-                    label="Duration of Work Overtime"
-                    value={workTime}
-                    onChange={(e) => setWorkTime(e.target.value)}
-                    required
-                    type="number"
-                    fullWidth
-                    variant="outlined"
-                  />
-                </FormControl>
-                <TextField
-                  label="Description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  required
-                  multiline
-                  rows={4}
-                  fullWidth
-                  variant="outlined"
-                  sx={{ mb: 2 }}
-                />
-              </Box>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
-              <Button onClick={handleSubmit} variant="contained">
-                {editingId ? "Update" : "Create"}
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </Grid>
-      </Grid>
+              </Select>
+            </Form.Item>
+          </Form>
+        </Modal>
+      </div>
     </div>
   );
 };

@@ -8,8 +8,8 @@ function Sphere() {
       
       const meshRef = useRef<THREE.Mesh | null>(null);
       const texture = useLoader(THREE.TextureLoader,logoFpt)
-      useFrame((state)=>{
-           console.log(state.mouse)
+      useFrame(()=>{
+      //      console.log(state.mouse)
             if(meshRef.current){
                   
                   meshRef.current.rotation.y  += 0.01;

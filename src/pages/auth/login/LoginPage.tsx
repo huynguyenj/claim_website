@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom"
-import CanvasSphere from "../../components/3d_model/Sphere"
+import CanvasSphere from "../../../components/3d_model/Sphere"
 import LoginForm from "./LoginForm"
-import { PublicRoutes } from "../../consts/RoutesConst"
+import { PublicRoutes } from "../../../consts/RoutesConst"
 
 function LoginPage() {
       const navigate = useNavigate();

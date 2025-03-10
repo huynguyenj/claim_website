@@ -1,7 +1,7 @@
 import { AxiosError } from "axios"
 
 export interface ApiResponse<T>{
-      success: string,
+      success: boolean,
       data:T,
 }
 
