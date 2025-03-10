@@ -6,7 +6,7 @@ import UserCard from "../../components/Admin/UserCard";
 import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
 import { Notification } from "../../components/common/Notification";
 import { ApiResponse } from "../../consts/ApiResponse";
-import { exportToExcel } from "../../consts/ExcelDowload";
+import { exportToExcel } from "../../consts/ExcelDownload";
 import { pagnitionAntd } from "../../consts/Pagination";
 import useUserData from "../../hooks/admin/useUserData";
 import { Department } from "../../model/DepartmentData";
@@ -160,6 +160,7 @@ export default function UserManagement() {
             try {
                 const response = await apiService.get<{ data: Role[] }>('/roles/get-all');
                 setRoles(response.data);
+                console.log(roles)
             } catch (error) {
                 Notification("error", error as string);
             }

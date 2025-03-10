@@ -7,7 +7,7 @@ import { Notification } from "../../components/common/Notification";
 import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
 import { UserIcon } from "../../components/Icon/MuiIIcon";
 import { ApiResponse } from "../../consts/ApiResponse";
-import { exportToExcel } from "../../consts/ExcelDowload";
+import { exportToExcel } from "../../consts/ExcelDownload";
 import { pagnitionAntd } from "../../consts/Pagination";
 import useProjectData from "../../hooks/admin/useProjectData";
 import { Department } from "../../model/DepartmentData";
