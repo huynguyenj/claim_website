@@ -3,9 +3,10 @@ import { useAuthStore } from "../../store/authStore";
 
 import ApiService from '../../services/ApiService'
 
-import { ApiResponse } from "../../consts/ApiResponse";
+import { ApiResponse, getApiErrorMessage } from "../../consts/ApiResponse";
 import { Employee } from '../../model/EmployeeData'
 import { Project, PaginatedResponse } from '../../model/ProjectData'
+import { Claim, ClaimResponse } from '../../model/ClaimData'
 
 
 import { TotalRequestIcon, PendingRequestIcon, ApprovedRequestIcon, RejectedRequestIcon, UploadIcon } from '../../components/Icon/MuiIIcon'
@@ -21,24 +22,44 @@ const roleMap: Record<string, string> = {
     A003: "BUL, PM",
     A004: "All Members Remaining",
 };
+import { roleDefine } from "../../consts/UserRole";
 
 
-const Profile = () => {
-    const user = useAuthStore((state) => state.user)
+function Profile() {
+    const [nameMailForm] = Form.useForm()
+    const [passwordForm] = Form.useForm()
+    const [employeeForm] = Form.useForm()
+
+
+    var user = useAuthStore((state) => state.user)
     const [employee, setEmployee] = useState<Employee | null>(null)
     const [projects, setProjects] = useState<Project[]>([])
+    const [claims, setClaims] = useState<Claim[]>([])
+
+
+    const fetchUser = async () => {
+        nameMailForm.setFieldsValue({
+            "usernameInput": user?.user_name,
+            "emailInput": user?.email
+        })
+    }
 
     const fetchEmployee = async () => {
         const employee = await ApiService.get<ApiResponse<Employee>>(`/employees/${user?._id}`).then((res) => res.data)
-        
-        // hard coded cuz the database requires
+        setEmployee(employee)
+
         employee.job_rank = "DEV1"
         employee.contract_type = "THREE YEAR"
         employee.department_code = "CMS"
         employee.end_date = new Date().toISOString()
         employee.salary = 3000001
 
-        setEmployee(employee)
+        employeeForm.setFieldsValue({
+            "avatarInput": employee.avatar_url,
+            "fullnameInput": employee.full_name,
+            "phoneInput": employee.phone,
+            "addressInput": employee.address,
+        })
     }
 
     const fetchProjects = async () => {
@@ -54,31 +75,59 @@ const Profile = () => {
                 pageSize: 10
             },
         };
-        const projects = await ApiService.post<PaginatedResponse>('/projects/search', searchParams).then((res) => res.data.pageData)
-        setProjects(projects)
+        const projects = await ApiService.post<PaginatedResponse>('/projects/search', searchParams).then((res) => res.data)
+        setProjects(projects.pageData)
+    }
+
+    const fetchClaims = async () => {
+        const searchParams = {
+            searchCondition: {
+                keyword: "",
+                claim_status: "",
+                claim_start_date: "",
+                claim_end_date: "",
+                is_delete: false,
+            },
+            pageInfo: {
+                pageNum: 1,
+                pageSize: 10,
+            }
+        }
+
+        switch (user?.role_code) {
+            // case roleDefine.CLAIMER_ROLE: {
+                
+            // }
+            default: {
+                const claims = await ApiService.post<ClaimResponse>('/claims/search', searchParams).then((res) => res.data)
+                setClaims(claims.pageData)
+                console.log(claims)
+            }
+        }
     }
 
     ////////////////////////
     ////////////////////////
 
-    const [userForm] = Form.useForm()
-    const [passwordForm] = Form.useForm()
-    const [employeeForm] = Form.useForm()
-
     const updateUser = async () => {
         try {
-            const values = await userForm.validateFields()
+            const values = await nameMailForm.validateFields()
             const updateBody = {
                 email: values.emailInput
                 ,user_name: values.usernameInput
             }
             const response = await ApiService.put<ApiResponse<object>>(`/users/${user?._id}`, updateBody)
-            if (response){
+            if (response.success){
                 message.success("User updated successfully!")
-                setIsNameMail(false)
+
+                // poo
+                user!.email = values.emailInput
+                user!.user_name = values.usernameInput
+
+                setRefresh((refreshes) => refreshes+1)
             }
         } catch (error) {
-            message.error("Failed to update user!")
+            message.error(getApiErrorMessage(error))
         }
     }
 
@@ -90,12 +139,13 @@ const Profile = () => {
                 ,new_password: values.newPasswordInput
             }
             const response = await ApiService.put<ApiResponse<object>>('/users/change-password', updateBody)
-            if (response){
+            if (response.success){
                 message.success("Password changed successfully!")
-                setIsPassword(false)
+
+                setRefresh((refreshes) => refreshes+1)
             }
         } catch (error) {
-            message.error("Failed to change password!")
+            message.error(getApiErrorMessage(error))
         }
     }
 
@@ -118,29 +168,32 @@ const Profile = () => {
                 ,updated_by: employee?.updated_by
             }
             const response = await ApiService.put<ApiResponse<object>>(`/employees/${user?._id}`, updateBody)
-            if (response)
+            if (response.success){
                 message.success("Info updated successfully!")
+                
+                setRefresh((refreshes) => refreshes+1)
+            }
         } catch (error) {
-            message.error("Failed to update info!")
-        } 
+            message.error(getApiErrorMessage(error))
+        }
     }
 
     ////////////////////////
     ////////////////////////
 
-    if (!employee) fetchEmployee()
-    if (!projects) fetchProjects()
 
     const [isAvatar, setIsAvatar] = useState(false)
-    const [avatarUrl, setAvatarUrl] = useState(employee?.avatar_url)
-
     const [isNameMail, setIsNameMail] = useState(false)
     const [isPassword, setIsPassword] = useState(false)
 
+    const [refreshes, setRefresh] = useState(0)
+
     useEffect(() => {
-        console.log(user)
-        console.log(employee)
-    }, [employee, projects, isAvatar, isNameMail, isPassword])
+        fetchUser()
+        fetchEmployee()
+        fetchProjects()
+        fetchClaims()
+    }, [refreshes])
     
     return (
         < div className = "flex flex-col items-center overflow-y-scroll" > 
@@ -154,7 +207,7 @@ const Profile = () => {
                 onClick = {() => setIsAvatar(true)}
                 >
                     <img
-                    src={avatarUrl}
+                    src={employee?.avatar_url}
                     alt="Your avatar"
                     className="w-full h-full object-cover z-1"
                     />
@@ -169,31 +222,37 @@ const Profile = () => {
                     shadow-[2px_2px_0px_black]"
                     title="Enter Image URL"
                     open={isAvatar}
-                    onOk={async () => {
-                        setAvatarUrl(employeeForm.getFieldValue("avatarInput"))
+                    onOk={() => {
+                        employee!.avatar_url = employeeForm.getFieldValue("avatarInput")
                         setIsAvatar(false)
                     }}
                     okText="Upload Avatar"
                     onCancel={() => setIsAvatar(false)}
                     cancelText="Cancel"
                 >
-                    <Form form={employeeForm} >
+                    <Form 
+                    form={employeeForm} 
+                    >
                         <Form.Item 
                         name="avatarInput">
                             <Input     
                             placeholder="Paste image URL here..." 
-                            value={avatarUrl}
                             className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
                             shadow-[2px_2px_0px_black]"
                             />
                         </Form.Item>
                     </Form>
+                    <img
+                    src={employee?.avatar_url}
+                    alt="Your avatar"
+                    className="w-full h-full object-cover z-1"
+                    />
                 </Modal>
 
                 
                 <div className="relative w-full px-4">
                     <Form
-                    form={userForm}
+                    form={nameMailForm}
                     layout='vertical'
                     style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}
                     >
@@ -210,7 +269,6 @@ const Profile = () => {
                                 rules={[{required:true, min:1, message:'Username must not be empty !'}]}>
                                     <Input 
                                     disabled={!isNameMail} 
-                                    value={user?.user_name}
                                     className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
                                     shadow-[2px_2px_0px_black]"/>
                                 </Form.Item>
@@ -223,7 +281,6 @@ const Profile = () => {
                                 rules={[{required:true, type:'email', message:'Please enter a valid email !'}]}>
                                     <Input 
                                     disabled={!isNameMail} 
-                                    value={user?.email}
                                     className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
                                     shadow-[2px_2px_0px_black]"/>
                                 </Form.Item>
@@ -250,7 +307,12 @@ const Profile = () => {
                                 </Button>
                             </Form.Item>
                             <Form.Item>
-                                <Button type='primary' onClick={updateUser}>
+                                <Button 
+                                type='primary' 
+                                onClick={() => {
+                                    updateUser()
+                                    setIsNameMail(false)
+                                }}>
                                     Save Changes
                                 </Button>
                             </Form.Item>
@@ -308,7 +370,10 @@ const Profile = () => {
                             </Form.Item>
                             <Form.Item>
                                 <Button type='primary' 
-                                onClick={changePassword}>
+                                onClick={() => {
+                                    changePassword()
+                                    setIsPassword(false)
+                                }}>
                                     Save Changes
                                 </Button>
                             </Form.Item>
@@ -333,7 +398,6 @@ const Profile = () => {
                                 label="Full name"
                                 rules={[{required:true, min:1, message:"Full name cannot be empty !"}]}>
                                     <Input 
-                                    value={employee?.full_name}
                                     className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
                                     shadow-[2px_2px_0px_black]"/>
                                 </Form.Item>
@@ -347,7 +411,6 @@ const Profile = () => {
                                     {pattern: /^\+?[1-9]\d{0,2} ?\d{1,4} ?\d{1,4} ?\d{1,9}$/, message:"Incorrect phone number format !"}
                                 ]}>
                                     <PhoneInput international placeholder="Enter phone number"
-                                    value={employee?.phone || ""}
                                     onChange={()=>{}}
                                     className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
                                     shadow-[2px_2px_0px_black]"
@@ -364,7 +427,6 @@ const Profile = () => {
                                 label="Address"
                                 rules={[{required:true, min:1, message:"Address cannot be empty !"}]}>
                                     <Input 
-                                    value={employee?.address}
                                     className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
                                     shadow-[2px_2px_0px_black]"/>
                                 </Form.Item>
@@ -444,27 +506,7 @@ const Profile = () => {
             </div> 
         
             <br/>
-            <div className="w-3/4 grid grid-cols-2 gap-10">
-
-                <div className="w-100% border-1 border-black rounded-xl flex flex-col items-center
-                shadow-[2px_2px_0px_black]">
-                    <h1 className="mb-5 font-bold text-2xl text-black">
-                        Your Projects
-                    </h1>
-
-                    <ul className='w-4/5'>
-                        {projects?.map((project) => (
-                        <li className='border-1 rounded-lg m-4 px-4 shadow-[2px_2px_0px_black]
-                        cursor-pointer hover:bg-gray-200 transition'>
-                            <p className='font-bold text-2xl'>{project.project_name}</p>
-                            <p>{project.project_start_date}</p>
-                            <p>{project.project_end_date}</p>
-                            
-                        </li>
-                        ))}
-                    </ul>
-                    
-                </div>
+            <div className="w-3/4 grid grid-cols-1 lg:grid-cols-2 gap-10">
 
                 <div className="w-100% border-1 border-black rounded-xl flex flex-col items-center
                 shadow-[2px_2px_0px_black]">
@@ -508,6 +550,27 @@ const Profile = () => {
                     </ul>
                     
                 </div>
+            
+                <div className="w-100% border-1 border-black rounded-xl flex flex-col items-center
+                shadow-[2px_2px_0px_black]">
+                    <h1 className="mb-5 font-bold text-2xl text-black">
+                        Your Projects
+                    </h1>
+
+                    <ul className='w-4/5'>
+                        {projects.map((project) => (
+                        <li className='border-1 rounded-lg m-4 px-4 shadow-[2px_2px_0px_black]
+                        cursor-pointer hover:bg-gray-200 transition'>
+                            <p className='font-bold text-2xl'>{project.project_name}</p>
+                            <p>{project.project_start_date}</p>
+                            <p>{project.project_end_date}</p>
+                            
+                        </li>
+                        ))}
+                    </ul>
+                    
+                </div>                
+                
             </div>
             
         </div>
@@ -515,3 +578,149 @@ const Profile = () => {
 }
 
 export default Profile
+
+
+///////////////////////
+
+///////////////////////
+
+
+function RequestModal(){
+    return (
+        <Modal>
+            
+        </Modal>
+    )
+}
+
+function ProjectModal(){
+    return (
+        <Modal
+          title="Edit Project"
+          open={isEditModalOpen}
+          onCancel={() => setIsEditModalOpen(false)}
+          onOk={handleUpdateProject}
+          okText="Save"
+          cancelText="Cancel"
+          width={800}
+        >
+          <Form form={form} layout="vertical" initialValues={editingProject || {}}>
+            <Form.Item
+              label="Project Name"
+              name="project_name"
+              rules={[{ required: true, message: "Please enter the project name" }]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              label="Project Code"
+              name="project_code"
+              rules={[{ required: true, message: "Please enter the project code" }]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item label="Project Department" name="project_department">
+              <Select placeholder="Select a department" loading={loading}>
+                {departments.map((dept) => (
+                  <Select.Option key={dept.department_name} value={dept.department_name}>
+                    {dept.department_name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="Project Description"
+              name="project_description"
+              rules={[{ required: true, message: "Write the project description" }]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              label="Project Start Date"
+              name="project_start_date"
+              rules={[{ required: true, message: "Please select the project start date" }]}
+            >
+              <DatePicker format="YYYY-MM-DD" />
+            </Form.Item>
+
+            <Form.Item
+              label="Project End Date"
+              name="project_end_date"
+              rules={[
+                { required: true, message: "Please select the project end date" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('project_start_date') <= value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('End date must be later than start date'));
+                  },
+                }),
+              ]}
+            >
+              <DatePicker format="YYYY-MM-DD" />
+            </Form.Item>
+
+            <Form.List name="project_members">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <div key={key} style={{ display: 'flex', marginBottom: 8 }}>
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'user_id']}
+                        rules={[{ required: true, message: 'Please select a user' }]}
+                        style={{ flex: 1, marginRight: 8 }}
+                      >
+                        <Select placeholder="Select a user">
+                          {users.map((user) => (
+                            <Select.Option key={user._id} value={user._id}>
+                              {user.user_name} ({user.email})
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'project_role']}
+                        rules={[{ required: true, message: 'Please select a role' }]}
+                        style={{ flex: 1 }}
+                      >
+                        <Select placeholder="Select a role">
+                          <Select.Option value="Project Manager">Project Manager</Select.Option>
+                          <Select.Option value="Developer">Developer</Select.Option>
+                          <Select.Option value="Designer">Designer</Select.Option>
+                          <Select.Option value="Tester">Tester</Select.Option>
+                        </Select>
+                      </Form.Item>
+
+                      <Button
+                        type="link"
+                        danger
+                        onClick={() => remove(name)}
+                        style={{ marginLeft: 8 }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+
+                  <Button
+                    type="dashed"
+                    onClick={() => add()}
+                    style={{ width: '100%' }}
+                  >
+                    Add Member
+                  </Button>
+                </>
+              )}
+            </Form.List>
+          </Form>
+        </Modal>
+    )
+}
