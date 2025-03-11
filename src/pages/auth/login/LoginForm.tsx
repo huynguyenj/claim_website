@@ -1,43 +1,15 @@
-import { UserForm, UserInfo } from "../../model/UserData";
+import { UserForm} from "../../../model/UserData";
 import { Button, Form, Input, Space } from "antd";
-import type { FormProps } from "antd";
-import { Notification } from "../../components/Notification";
-import { PasswordIcon, UserIcon } from "../../components/Icon/MuiIIcon";
+import { PasswordIcon, UserIcon } from "../../../components/Icon/MuiIIcon";
 import FormItem from "antd/es/form/FormItem";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore";
-import { PublicRoutes } from "../../consts/RoutesConst";
-import publicApiService from "../../services/BaseApi";
-import apiService from "../../services/ApiService";
-import { ApiResponse, getApiErrorMessage } from "../../consts/ApiResponse";
-import { useState } from "react";
-import LoadingSpin from "../../components/LoadingSpin";
+import {  PublicRoutes } from "../../../consts/RoutesConst";
+import LoadingSpin from "../../../components/common/LoadingSpin";
+
+import useLogin from "../../../hooks/auth/useLogin";
 function LoginForm() {
   const navigate = useNavigate();
-  const addAuthInfo = useAuthStore((state) => state.setAuth);
-  const setUserInfo = useAuthStore((state) => state.setUserInfo);
-  const [loading,setLoading] = useState<boolean>(false);
-
-  const handleSubmit: FormProps<UserForm>["onFinish"] = async (values) => {
-    console.log(values)
-    try {
-      setLoading((prev)=>!prev)
-      const response = await publicApiService.login(values);
-      addAuthInfo(response.data.token);
-      const userInfo = await apiService.get<ApiResponse<UserInfo>>('/auth');
-      setUserInfo(userInfo.data);
-      Notification("success", "Login successful!")
-      navigate(PublicRoutes.HOME)
-    } catch (error) {
-      Notification(
-        "error",
-        "Login fail!",
-        getApiErrorMessage(error)
-      );
-    }finally{
-      setLoading((prev)=>!prev)
-    }
-  };
+  const {handleSubmitLogin, loading} = useLogin();
 
   const handleChangePage = (): void => {
     navigate(PublicRoutes.FORGOTPASS);
@@ -49,7 +21,7 @@ function LoginForm() {
         name="Login"
         wrapperCol={{ span: 30 }}
         style={{ maxWidth: 500 }}
-        onFinish={handleSubmit}
+        onFinish={handleSubmitLogin}
         autoComplete="off"
         className="w-50 sm:w-100"
       >
@@ -66,13 +38,13 @@ function LoginForm() {
         </FormItem>
         <Form.Item<UserForm>
           name="email"
-          rules={[{ required: true, message: "Please input your username!" }]}
+          rules={[{ required: true, message: "Please input your email!",type:"email" }]}
         >
           <Space.Compact style={{ width: "100%" }}>
             <Button style={{ height: "2.5rem",background:'black' }}>
               <UserIcon sx={{color:'white'}} />
             </Button>
-            <Input placeholder="username" />
+            <Input placeholder="email" />
           </Space.Compact>
         </Form.Item>
 
@@ -99,7 +71,7 @@ function LoginForm() {
         </Form.Item>
         <FormItem>
           <p className="text-[0.7rem] sm:text-[1rem]">
-            You forget your an password?
+            You forget your password?
             <span
               className="text-blue-500 cursor-pointer font-bold hover:underline ml-1"
               onClick={handleChangePage}

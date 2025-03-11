@@ -1,11 +1,11 @@
-import { EditIcon, LogoutIcon,UserIcon } from "../components/Icon/MuiIIcon";
+import { LogoutIcon,UserIcon } from "../components/Icon/MuiIIcon";
 import profile from "../assets/logouser.png";
 import { useState } from "react";
-import Popup from "../components/Popup";
+import Popup from "../components/common/Popup";
 import { useAuthStore } from "../store/authStore";
 import apiService from "../services/ApiService";
 import { ApiResponse } from "../consts/ApiResponse";
-import { Notification } from "../components/Notification";
+import { Notification } from "../components/common/Notification";
 
 
 function Navbar() {
@@ -61,10 +61,6 @@ function Navbar() {
                         <p className="text-[0.9rem] sm:text-[1.3rem]">{userInfo?.user_name}</p>
                         <p className="text-[0.55rem] sm:text-[0.75rem]">{userInfo?.email}</p>
                         <div className="flex gap-2 mt-4">
-                          <div className="flex items-center gap-2">
-                            <p className="bg-white-fig w-5 h-5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center cursor-pointer hover:opacity-70"><EditIcon sx={{fontSize:15,color:'gray'}}/></p>
-                            <p className="text-[0.5rem] sm:text-[0.8rem]">Edit</p>
-                          </div>
                           <div className="flex items-center gap-2">
                             <p className="bg-white-fig w-5 h-5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center cursor-pointer hover:opacity-70" onClick={handleLogout}><LogoutIcon sx={{fontSize:15,color:'gray'}}/></p>
                           <p className="text-[0.5rem] sm:text-[0.8rem]">Logout</p>

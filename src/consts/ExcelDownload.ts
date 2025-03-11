@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx'
-import { Notification } from '../components/Notification';
+import { Notification } from '../components/common/Notification';
 
 export const exportToExcel = <T>(data: T[],columnsName:string[],fileName:string):void => {
       if(data.length === 0){
@@ -7,7 +7,7 @@ export const exportToExcel = <T>(data: T[],columnsName:string[],fileName:string)
             return;
       }
 
-      const correcrFileName = fileName.endsWith('.xlsx') ? fileName : `${fileName}.xlsx`;
+      const correctFileName = fileName.endsWith('.xlsx') ? fileName : `${fileName}.xlsx`;
       
        /* generate worksheet and workbook */
       const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
@@ -16,6 +16,6 @@ export const exportToExcel = <T>(data: T[],columnsName:string[],fileName:string)
 
       /* fix headers */
       XLSX.utils.sheet_add_aoa(worksheet, [columnsName],{origin:"A1"});
-      XLSX.writeFile(workbook, correcrFileName, {compression:true})
+      XLSX.writeFile(workbook, correctFileName, {compression:true})
 
 }

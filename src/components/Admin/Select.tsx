@@ -5,13 +5,13 @@ export default function SelectComponent() {
     <Select
       defaultValue={"All"}
       style={{
-        width: 200,
+        width: 110,
       }}
       options={[
         { value: "all", label: "All" },
         { value: "users", label: "Users" },
-        { value: "claims", label: "Claims" },
-        { value: "funds", label: "Funds" },
+        { value: "claims", label: "Projects" },
+        { value: "funds", label: "Contracts" },
       ]}
     />
   );

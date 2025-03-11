@@ -1,12 +1,20 @@
 import { AxiosError } from "axios"
 
 export interface ApiResponse<T>{
-      success: string,
+      success: boolean,
       data:T,
 }
 
-export const getApiErrorMessage = (error: unknown):string =>{
+export const getApiErrorMessage = (error: unknown):string|number =>{
       const axiosError = error as AxiosError<{message?:string}>;
-      return axiosError.response?.data.message || "An unexpected error occurred."
+      switch(axiosError.status){
+            case 403:
+                  return axiosError.response?.status as number
+            case 404:
+                  return axiosError.response?.status as number
+            default: 
+                  return axiosError.response?.data.message || "An unexpected error occurred."
+
+      }
 
 }
