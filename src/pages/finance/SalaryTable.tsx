@@ -2,8 +2,8 @@ import {
   Button,
   DatePicker,
   Input,
-  Skeleton,
   Space,
+  Spin,
   Table,
   Tag,
   Tooltip,
@@ -263,7 +263,9 @@ function SalaryTable(): JSX.Element {
         </div>
         <div>
           {loading ? (
-            <Skeleton active paragraph={{ rows: 5 }} />
+              <div className="text-center py-12">
+              <Spin size="large" />
+            </div>
           ) : (
             <Table
               className="overflow-x-auto"

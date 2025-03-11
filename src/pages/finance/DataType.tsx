@@ -100,7 +100,7 @@ interface FinanceClaimResponse {
 }
 
 interface ChangeStatusClaim {
-  claim_id: string;
+  _id: string;
   claim_status: string;
   comment: string;
 }
