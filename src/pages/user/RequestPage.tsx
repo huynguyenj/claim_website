@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Button, Input, Table, Form, Modal, Select, Spin, message
+  Button, Input, Table, Form, Modal, Select, Spin, message,
+  TablePaginationConfig
 } from 'antd';
 import { EditOutlined, SearchOutlined } from '@mui/icons-material';
 import { PlusOutlined } from '../../components/Icon/AntdIcon';
@@ -14,7 +15,7 @@ import { pagnitionAntd } from '../../consts/Pagination';
 import UserCard from '../../components/Admin/UserCard';
 import { Article } from '@mui/icons-material';
 import { UserIcon } from '../../components/Icon/MuiIIcon';
-import { exportToExcel } from '../../consts/ExcelDowload';
+import { exportToExcel } from '../../consts/ExcelDownload';
 
 const RequestPage: React.FC = () => {
   const userId = useAuthStore((state) => state.user?._id);
@@ -227,9 +228,9 @@ const RequestPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
+  const handleTableChange = (pagination: TablePaginationConfig) => {
+    setCurrentPage(pagination.current || currentPage);
+    setPageSize(pagination.pageSize || pageSize);
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
