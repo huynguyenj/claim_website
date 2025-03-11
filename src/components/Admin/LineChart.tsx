@@ -8,16 +8,13 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import useChartData from "../../hooks/admin/useChartData";
 
 export default function LineChartComponent() {
-  const { chartData } = useChartData();
   return (
     <ResponsiveContainer width="100%" height="80%">
       <LineChart
         width={500}
         height={300}
-        data={chartData}
         margin={{
           top: 5,
           right: 30,
@@ -38,7 +35,6 @@ export default function LineChartComponent() {
         />
         <Line type="linear" dataKey="claims" stroke="red" />
         <Line type="linear" dataKey="projects" stroke="blue" />
-        <Line type="linear" dataKey="contracts" stroke="green" />
       </LineChart>
     </ResponsiveContainer>
   );
