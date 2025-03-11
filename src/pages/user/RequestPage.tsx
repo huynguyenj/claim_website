@@ -40,7 +40,7 @@ const RequestPage: React.FC = () => {
         // result có cấu trúc: { pageData: [ ... ] }
         const rawClaims = result.pageData;
         // Map các claim từ API sang kiểu ClaimRequest, chuyển đổi các trường nếu cần
-        const mappedClaims: ClaimRequest[] = rawClaims.map((item: any) => ({
+        const mappedClaims: ClaimRequest[] = rawClaims.map((item) => ({
           _id: item._id,
           user_id: item.staff_id, // chuyển staff_id thành user_id
           project_id: item.project_info ? item.project_info._id : "",
@@ -172,7 +172,7 @@ const RequestPage: React.FC = () => {
             // result có cấu trúc: { pageData: [ ... ] }
             const rawClaims = result.pageData;
             // Map từng phần tử, chuyển staff_id thành user_id và lấy các trường cần thiết
-            const mappedClaims: ClaimRequest[] = rawClaims.map((item: any) => ({
+            const mappedClaims: ClaimRequest[] = rawClaims.map((item) => ({
               _id: item._id,
               user_id: item.staff_id,
               project_id: item.project_info ? item.project_info._id : "",
