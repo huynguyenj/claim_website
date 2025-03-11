@@ -8,7 +8,7 @@ const ApprovalPage = lazy(() => import("../pages/user/ApprovalPage"));
 const RequestPage = lazy(() => import("../pages/user/RequestPage"));
 const UserListPage = lazy(() => import("../pages/admin/User"));
 const ProjectListPage = lazy(() => import("../pages/admin/Project"));
-const UserProfile = lazy(() => import("../pages/user/UserProfile"));
+const UserProfile = lazy(() => import("../pages/user/ProfilePage"));
 const UserDashboard = lazy(() => import("../pages/user/UserDashboard"));
 const PaidPage = lazy(() => import("../pages/finance/PaidPage"));
 

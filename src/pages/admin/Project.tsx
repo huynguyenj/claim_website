@@ -1,20 +1,23 @@
-import React, { useEffect, useState } from "react";
-import { PaginatedResponse, Project, SearchRequest } from "../../model/ProjectData";
-import { Notification } from "../../components/common/Notification";
-import { ApiResponse, getApiErrorMessage } from "../../consts/ApiResponse";
-import apiService from "../../services/ApiService";
-import { pagnitionAntd } from "../../consts/Pagination";
-import { Button, DatePicker, Form, Input, message, Modal, Select, Spin, Table } from "antd";
-import { exportToExcel } from "../../consts/ExcelDowload";
-import ProjectCard from "../../components/Admin/ProjectCard";
-import { UserIcon } from "../../components/Icon/MuiIIcon";
 import { Article, EditOutlined, SearchOutlined } from "@mui/icons-material";
-import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
-import { User } from "../../model/UserData";
+import { Button, DatePicker, Form, Input, message, Modal, Select, Spin, Table, TablePaginationConfig} from "antd";
 import moment from 'moment-timezone';
+import React, { useEffect, useState } from "react";
+import ProjectCard from "../../components/Admin/ProjectCard";
+import { Notification } from "../../components/common/Notification";
+import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
+import { UserIcon } from "../../components/Icon/MuiIIcon";
+import { ApiResponse } from "../../consts/ApiResponse";
+import { exportToExcel } from "../../consts/ExcelDownload";
+import { pagnitionAntd } from "../../consts/Pagination";
+import useProjectData from "../../hooks/admin/useProjectData";
 import { Department } from "../../model/DepartmentData";
+import { PaginatedResponse, Project, SearchRequest } from "../../model/ProjectData";
+import { User } from "../../model/UserData";
+import apiService from "../../services/ApiService";
 
 export default function ProjectManagement() {
+
+  const { totalProjects, totalProjectsThisMonth, projectLoading } = useProjectData();
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -28,8 +31,7 @@ export default function ProjectManagement() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
   const [projectMembers, setProjectMembers] = useState<Project["project_members"]>([]);
-  const [
-    departments, setDepartments] = useState<Department[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [form] = Form.useForm();
 
   const convertToUTC7 = (utcDate: string) => {
@@ -76,11 +78,12 @@ export default function ProjectManagement() {
         },
         pageInfo: {
           pageNum: 1,
-          pageSize: 10,
+          pageSize: 1000,
         },
       };
 
       const response = await apiService.post<{ data: { pageData: User[] } }>("/users/search", searchParams);
+      console.log("Users:", response.data);
       if (response?.data) {
         setUsers(response.data.pageData);
       } else {
@@ -102,9 +105,11 @@ export default function ProjectManagement() {
       if (response && response.data) {
         setProjectMembers(response.data.project_members);
         setIsMembersModalOpen(true);
+      } else {
+        Notification("error", "Employee not found");
       }
     } catch (error) {
-      message.error("Failed to fetch project details.");
+      Notification("error", error as string);
     } finally {
       setLoading(false);
     }
@@ -132,27 +137,26 @@ export default function ProjectManagement() {
     }
   }, [isAddModalOpen]);
 
+  useEffect(() => {
+    if (isEditModalOpen) {
+      fetchUsers();
+      fetchDepartments();
+    }
+  }, [isEditModalOpen]);
+
 
   useEffect(() => {
-    fetchProjects(currentPage, pageSize, searchTerm);
+    const debounceTimeout = setTimeout(() => {
+      fetchProjects(currentPage, pageSize, searchTerm);
+    }, 2000);
+
+    return () => clearTimeout(debounceTimeout);
   }, [currentPage, pageSize, searchTerm]);
 
-  const handleDeleteProject = async (id: string) => {
-    try {
-      await apiService.delete(`/projects/${id}`);
-      message.success("Project deleted successfully!");
-      fetchProjects(currentPage, pageSize, searchTerm);
-    } catch (error) {
-      message.error("Failed to delete project.");
-      console.error(error);
-    }
+  const handleTableChange = (pagination: TablePaginationConfig): void => {
+    setCurrentPage(pagination.current || currentPage);
+    setPageSize(pagination.pageSize || pageSize);
   };
-
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1);
@@ -166,15 +170,19 @@ export default function ProjectManagement() {
   const handleUpdateProject = async () => {
     try {
       const values = await form.validateFields();
-
+      type MemberType = {
+        user_id:string,
+        project_role:string
+      }
       const projectData = {
         ...values,
         project_start_date: values.project_start_date ? values.project_start_date.utc().format() : null,
         project_end_date: values.project_end_date ? values.project_end_date.utc().format() : null,
-        project_members: values.project_members.map((userId: string) => ({
-          user_id: userId,
-          project_role: values.project_role,
+        project_members: values.project_members.map((member:MemberType) => ({
+          user_id: member.user_id,
+          project_role: member.project_role,
         })),
+
       };
       console.log(projectData);
       const response = await apiService.put(`/projects/${editingProject?._id}`, projectData);
@@ -190,32 +198,38 @@ export default function ProjectManagement() {
     }
   };
 
+  const handleDeleteProject = async (id: string) => {
+    try {
+      await apiService.delete(`/projects/${id}`);
+      message.success("Project deleted successfully!");
+      fetchProjects(currentPage, pageSize, searchTerm);
+    } catch (error) {
+      message.error("Failed to delete project.");
+      console.error(error);
+    }
+  };
+
   const showModal = () => setIsAddModalOpen(true);
 
   const handleAddProject = async () => {
-    try {
-      const values = await form.validateFields();
+    const values = await form.validateFields();
 
-      // Map selected users to the required structure
-      const projectMembers = values.project_members.map((userId: string) => ({
-        user_id: userId, // Ensure this is a valid ObjectId
-        project_role: values.project_role, // Assign the selected role to all members
-      }));
+    // Map selected users to the required structure
+    const projectMembers = values.project_members.map((userId: string) => ({
+      user_id: userId, // Ensure this is a valid ObjectId
+      project_role: values.project_role, // Assign the selected role to all members
+    }));
 
-      const projectData = {
-        ...values,
-        project_members: projectMembers, // Send as an array of objects
-      };
+    const projectData = {
+      ...values,
+      project_members: projectMembers, // Send as an array of objects
+    };
 
-      const response = await apiService.post("/projects", projectData);
-      if (response) {
-        message.success("Project added successfully!");
-        fetchProjects(currentPage, pageSize, searchTerm);
-        handleCancel();
-      }
-    } catch (error) {
-      console.error("Failed to add project:", error);
-      message.error("Error adding project.");
+    const response = await apiService.post("/projects", projectData);
+    if (response) {
+      message.success("Project added successfully!");
+      fetchProjects(currentPage, pageSize, searchTerm);
+      handleCancel();
     }
   };
 
@@ -249,7 +263,7 @@ export default function ProjectManagement() {
     },
     { title: "Project Department", dataIndex: "project_department", key: "project_department", },
     { title: "Project Code", dataIndex: "project_code", key: "project_code", },
-    { title: "Project Description", dataIndex: "project_description", key: "project_description" },
+    { title: "Project Description", dataIndex: "project_description", key: "project_description", width: 1000 },
     {
       title: "Project Start Date",
       dataIndex: "project_start_date",
@@ -312,7 +326,15 @@ export default function ProjectManagement() {
             icon={<StopFilled />}
             type="link"
             danger
-            onClick={() => handleDeleteProject(record._id)}
+            onClick={() => {
+              Modal.confirm({
+                title: "Delete Project",
+                content: "Are you sure you want to delete this project?",
+                onOk: () => handleDeleteProject(record._id),
+                okText: 'Delete',
+                cancelText: 'Cancel',
+              });
+            }}
           >
           </Button>
         </div>
@@ -328,31 +350,27 @@ export default function ProjectManagement() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
-        {/* Users */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5 bg-[#FCFCFC] p-5">
         <ProjectCard
           icon={<UserIcon />}
-          title="Total Users"
+          title="Total Projects"
+          data={totalProjects}
           growth={25}
+          loading={projectLoading}
         />
-        {/* Claims */}
         <ProjectCard
           icon={<Article />}
-          title="New Users"
+          title="New Projects This Month"
+          data={totalProjectsThisMonth}
           growth={42}
-        />
-        {/* Funds */}
-        <ProjectCard
-          icon={<Article />}
-          title="Funds"
-          growth={42}
+          loading={projectLoading}
         />
       </div>
 
       <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
         <div className="mb-4 flex items-center">
           <Input
-            placeholder="Search by name or email"
+            placeholder="Search by project name"
             prefix={<SearchOutlined />}
             value={searchTerm}
             onChange={handleSearch}
@@ -399,7 +417,11 @@ export default function ProjectManagement() {
               <Input />
             </Form.Item>
 
-            <Form.Item label="Project Department" name="project_department">
+            <Form.Item
+              label="Project Department"
+              name="project_department"
+              rules={[{ required: true, message: 'Please select a role' }]}
+            >
               <Select placeholder="Select a department" loading={loading}>
                 {departments.map((dept) => (
                   <Select.Option key={dept.department_name} value={dept.department_name}>
@@ -469,21 +491,24 @@ export default function ProjectManagement() {
             <Spin size="large" />
           </div>
         ) : (
-          <div className="overflow-x">
-            <Table
-              columns={columns}
-              dataSource={projects}
-              loading={loading}
-              rowKey="_id"
-              pagination={{
-                current: currentPage,
-                pageSize: pageSize,
-                total: totalItems,
-                showSizeChanger: true,
-                pageSizeOptions: ["5", "10", "20"],
-              }}
-              onChange={handleTableChange}
-            />
+          <div className="overflow-x-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-4">
+              <Table
+                columns={columns}
+                dataSource={projects}
+                loading={loading}
+                rowKey="_id"
+                pagination={{
+                  current: currentPage,
+                  pageSize: pageSize,
+                  total: totalItems,
+                  showSizeChanger: true,
+                  pageSizeOptions: ["5", "10", "20"],
+                }}
+                onChange={handleTableChange}
+              />
+
+            </div>
 
             <Modal
               title="Project Members"
@@ -515,7 +540,27 @@ export default function ProjectManagement() {
           cancelText="Cancel"
           width={800}
         >
-          <Form form={form} layout="vertical" initialValues={editingProject || {}}>
+          <Form
+            form={form}
+            layout="vertical"
+            initialValues={
+              editingProject
+                ? {
+                  ...editingProject,
+                  project_start_date: editingProject.project_start_date
+                    ? moment(editingProject.project_start_date)
+                    : null,
+                  project_end_date: editingProject.project_end_date
+                    ? moment(editingProject.project_end_date)
+                    : null,
+                  project_members: editingProject.project_members.map((member) => ({
+                    user_id: member.user_id,
+                    project_role: member.project_role,
+                  })),
+                }
+                : {}
+            }
+          >
             <Form.Item
               label="Project Name"
               name="project_name"
@@ -532,7 +577,11 @@ export default function ProjectManagement() {
               <Input />
             </Form.Item>
 
-            <Form.Item label="Project Department" name="project_department">
+            <Form.Item
+              label="Project Department"
+              name="project_department"
+              rules={[{ required: true, message: 'Please select a role' }]}
+            >
               <Select placeholder="Select a department" loading={loading}>
                 {departments.map((dept) => (
                   <Select.Option key={dept.department_name} value={dept.department_name}>
@@ -577,59 +626,79 @@ export default function ProjectManagement() {
             </Form.Item>
 
             <Form.List name="project_members">
-              {(fields, { add, remove }) => (
-                <>
-                  {fields.map(({ key, name, ...restField }) => (
-                    <div key={key} style={{ display: 'flex', marginBottom: 8 }}>
-                      <Form.Item
-                        {...restField}
-                        name={[name, 'user_id']}
-                        rules={[{ required: true, message: 'Please select a user' }]}
-                        style={{ flex: 1, marginRight: 8 }}
-                      >
-                        <Select placeholder="Select a user">
-                          {users.map((user) => (
-                            <Select.Option key={user._id} value={user._id}>
-                              {user.user_name} ({user.email})
-                            </Select.Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
+              {(fields, { add, remove }) => {
+                // Get the list of user IDs already assigned to the project
+                const selectedUserIds = fields.map((field) =>
+                  form.getFieldValue(['project_members', field.name, 'user_id'])
+                );
 
-                      <Form.Item
-                        {...restField}
-                        name={[name, 'project_role']}
-                        rules={[{ required: true, message: 'Please select a role' }]}
-                        style={{ flex: 1 }}
-                      >
-                        <Select placeholder="Select a role">
-                          <Select.Option value="Project Manager">Project Manager</Select.Option>
-                          <Select.Option value="Developer">Developer</Select.Option>
-                          <Select.Option value="Designer">Designer</Select.Option>
-                          <Select.Option value="Tester">Tester</Select.Option>
-                        </Select>
-                      </Form.Item>
+                return (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <div key={key} style={{ display: 'flex', marginBottom: 8 }}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'user_id']}
+                          rules={[{ required: true, message: 'Please select a user' }]}
+                          style={{ flex: 1, marginRight: 8 }}
+                        >
+                          {users.length > 0 ? (
+                            <Select
+                              placeholder="Select a user"
+                              showSearch
+                              filterOption={(input, option) =>
+                                (option?.label ?? '').toString().toLowerCase().includes(input.toLowerCase())
+                              }
+                            >
+                              {/* Filter out users already in the project */}
+                              {users
+                                .filter((user) => !selectedUserIds.includes(user.user_name)) // Exclude users already in the project
+                                .map((user) => (
+                                  <Select.Option key={user._id} value={user._id} label={`${user.user_name} (${user.email})`}>
+                                    {user.user_name} ({user.email})
+                                  </Select.Option>
+                                ))}
+                            </Select>
+                          ) : (
+                            <Spin size="small" />
+                          )}
+                        </Form.Item>
 
-                      <Button
-                        type="link"
-                        danger
-                        onClick={() => remove(name)}
-                        style={{ marginLeft: 8 }}
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ))}
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'project_role']}
+                          rules={[{ required: true, message: 'Please select a role' }]}
+                          style={{ flex: 1 }}
+                        >
+                          <Select placeholder="Select a role">
+                            <Select.Option value="Project Manager">Project Manager</Select.Option>
+                            <Select.Option value="Developer">Developer</Select.Option>
+                            <Select.Option value="Designer">Designer</Select.Option>
+                            <Select.Option value="Tester">Tester</Select.Option>
+                          </Select>
+                        </Form.Item>
 
-                  <Button
-                    type="dashed"
-                    onClick={() => add()}
-                    style={{ width: '100%' }}
-                  >
-                    Add Member
-                  </Button>
-                </>
-              )}
+                        <Button
+                          type="link"
+                          danger
+                          onClick={() => remove(name)}
+                          style={{ marginLeft: 8 }}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+
+                    <Button
+                      type="dashed"
+                      onClick={() => add()}
+                      style={{ width: '100%' }}
+                    >
+                      Add Member
+                    </Button>
+                  </>
+                );
+              }}
             </Form.List>
           </Form>
         </Modal>

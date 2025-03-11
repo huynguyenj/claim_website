@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import apiService from "../../services/ApiService";
-import { Notification } from "../../components/common/Notification";
-import { PaginatedResponse, SearchRequest, User } from "../../model/UserData";
-import { Claim, ClaimResponse, SearchClaimRequest } from "../../model/ClaimData";
-import { Project, ProjectResponse, SearchProjectRequest } from "../../model/ProjectData";
+import { PaginatedResponse, User } from "../../model/UserData";
+import { Claim, ClaimResponse, } from "../../model/ClaimData";
+import { Project, ProjectResponse, } from "../../model/ProjectData";
 import { Contract, ContractResponse } from "../../model/ContractData";
+import { ClaimSearchCondition, ProjectSearchCondition, UserSearchCondition } from "../../model/SearchType";
 
 export default function useDashboardData() {
   const [users, setUsers] = useState<User[]>([]);
@@ -20,17 +20,15 @@ export default function useDashboardData() {
   const [pageSize] = useState<number>(10000);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showBanned] = useState<boolean | null>(null);
-  
-  
+
+
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const searchParams: SearchRequest = {
+      const searchParams: UserSearchCondition = {
         searchCondition: { keyword: searchTerm, role_code: "", is_delete: false, is_verified: "" },
         pageInfo: { pageNum: currentPage, pageSize },
       };
-
-      if (showBanned !== null) searchParams.searchCondition.is_blocked = showBanned;
 
       const response = await apiService.post<PaginatedResponse>("/users/search", searchParams);
       if (response) {
@@ -38,7 +36,8 @@ export default function useDashboardData() {
         setTotalUsers(response.data.pageInfo.totalItems);
       }
     } catch (error) {
-      Notification("error", error as string);
+      console.log(error);
+      
     } finally {
       setLoading(false);
     }
@@ -47,7 +46,7 @@ export default function useDashboardData() {
   const fetchClaims = async () => {
     setLoading(true);
     try {
-      const searchParams: SearchClaimRequest = {
+      const searchParams: ClaimSearchCondition = {
         searchCondition: { keyword: searchTerm, claim_status: "", claim_start_date: "", claim_end_date: "", is_delete: false },
         pageInfo: { pageNum: currentPage, pageSize },
       };
@@ -58,7 +57,8 @@ export default function useDashboardData() {
         setTotalClaims(response.data.pageInfo.totalItems || 0);
       }
     } catch (error) {
-      Notification("error", error as string);
+      console.log(error);
+      
     } finally {
       setLoading(false);
     }
@@ -67,33 +67,33 @@ export default function useDashboardData() {
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const searchParams: SearchProjectRequest = {
+      const searchParams: ProjectSearchCondition = {
         searchCondition: { keyword: "", project_start_date: "", project_end_date: "", is_delete: false, user_id: "" },
         pageInfo: { pageNum: currentPage, pageSize },
       };
-  
+
       const response = await apiService.post<ProjectResponse>("/projects/search", searchParams);
       if (response) {
         setProjects(response.data.pageData);
         setTotalProjects(response.data.pageInfo.totalItems || 0);
       }
     } catch (error) {
-      Notification("error", error as string);
+      console.log(error);
     } finally {
       setLoading(false);
     }
   };
-  
+
   const fetchContracts = async () => {
     setLoading(true);
     try {
       const response = await apiService.get<ContractResponse>("/contracts/get-all");
-      if(response) {
+      if (response) {
         setContracts(response.data);
         setTotalContracts(response.data.length || 0);
-      } 
+      }
     } catch (error) {
-      Notification("error", error as string);
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -105,11 +105,11 @@ export default function useDashboardData() {
     fetchContracts();
   }, [currentPage, pageSize, searchTerm, showBanned]);
 
-  return {  
-          users, totalUsers, 
-          claims, totalClaims, 
-          projects, totalProjects,
-          contracts, totalContracts, 
-          loading, currentPage, setCurrentPage, setSearchTerm, 
-          };
+  return {
+    users, totalUsers,
+    claims, totalClaims,
+    projects, totalProjects,
+    contracts, totalContracts,
+    loading, currentPage, setCurrentPage, setSearchTerm,
+  };
 }

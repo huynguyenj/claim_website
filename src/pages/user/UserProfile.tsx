@@ -12,8 +12,8 @@ import { Claim, ClaimResponse } from '../../model/ClaimData'
 import { TotalRequestIcon, PendingRequestIcon, ApprovedRequestIcon, RejectedRequestIcon, UploadIcon } from '../../components/Icon/MuiIIcon'
 import { Space, Form, Input, Button, Modal, Divider, message } from 'antd'
 
-import 'react-phone-number-input/style.css'
-import PhoneInput from 'react-phone-number-input'
+// import 'react-phone-number-input/style.css'
+// import PhoneInput from 'react-phone-number-input'
 
 
 const roleMap: Record<string, string> = {
@@ -508,46 +508,46 @@ function Profile() {
             <br/>
             <div className="w-3/4 grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-                <div className="w-100% border-1 border-black rounded-xl flex flex-col items-center
-                shadow-[2px_2px_0px_black]">
-                    <h1 className="mb-5 font-bold text-2xl text-black">
-                        Your Requests
-                    </h1>
+//                 <div className="w-100% border-1 border-black rounded-xl flex flex-col items-center
+//                 shadow-[2px_2px_0px_black]">
+//                     <h1 className="mb-5 font-bold text-2xl text-black">
+//                         Your Requests
+//                     </h1>
 
-                    <ul className='w-3/4'>
-                        <li className='grid grid-cols-6 border-1 rounded-lg m-4 p-4 shadow-[2px_2px_0px_black]
-                        cursor-pointer hover:bg-gray-200 transition'>
-                            <p className='col-span-1'> <TotalRequestIcon/> <Space/> </p>
-                            <p className='col-span-4 text-lg'> Total Requests: </p>
-                            <p className='col-span-1 text-lg bg-cyan-300 flex items-center justify-center rounded-full'>
-                                0
-                            </p>
-                        </li>
-                        <li className='grid grid-cols-6 border-1 rounded-lg m-4 p-4 shadow-[2px_2px_0px_black]
-                        cursor-pointer hover:bg-gray-200 transition'>
-                            <p className='col-span-1'> <PendingRequestIcon/> <Space/> </p>
-                            <p className='col-span-4 text-lg'> Pending Requests: </p>
-                            <p className='col-span-1 text-lg bg-cyan-300 flex items-center justify-center rounded-full'>
-                                0
-                            </p>
-                        </li>
-                        <li className='grid grid-cols-6 border-1 rounded-lg m-4 p-4 shadow-[2px_2px_0px_black]
-                        cursor-pointer hover:bg-gray-200 transition'>
-                            <p className='col-span-1'> <ApprovedRequestIcon/> <Space/> </p>
-                            <p className='col-span-4 text-lg'> Approved Requests: </p>
-                            <p className='col-span-1 text-lg bg-cyan-300 flex items-center justify-center rounded-full'>
-                                0
-                            </p>
-                        </li>
-                        <li className='grid grid-cols-6 border-1 rounded-lg m-4 p-4 shadow-[2px_2px_0px_black]
-                        cursor-pointer hover:bg-gray-200 transition'>
-                            <p className='col-span-1'> <RejectedRequestIcon/> <Space/> </p>
-                            <p className='col-span-4 text-lg'> Rejected Requests: </p>
-                            <p className='col-span-1 text-lg bg-cyan-300 flex items-center justify-center rounded-full'>
-                                0
-                            </p>
-                        </li>
-                    </ul>
+//                     <ul className='w-3/4'>
+//                         <li className='grid grid-cols-6 border-1 rounded-lg m-4 p-4 shadow-[2px_2px_0px_black]
+//                         cursor-pointer hover:bg-gray-200 transition'>
+//                             <p className='col-span-1'> <TotalRequestIcon/> <Space/> </p>
+//                             <p className='col-span-4 text-lg'> Total Requests: </p>
+//                             <p className='col-span-1 text-lg bg-cyan-300 flex items-center justify-center rounded-full'>
+//                                 0
+//                             </p>
+//                         </li>
+//                         <li className='grid grid-cols-6 border-1 rounded-lg m-4 p-4 shadow-[2px_2px_0px_black]
+//                         cursor-pointer hover:bg-gray-200 transition'>
+//                             <p className='col-span-1'> <PendingRequestIcon/> <Space/> </p>
+//                             <p className='col-span-4 text-lg'> Pending Requests: </p>
+//                             <p className='col-span-1 text-lg bg-cyan-300 flex items-center justify-center rounded-full'>
+//                                 0
+//                             </p>
+//                         </li>
+//                         <li className='grid grid-cols-6 border-1 rounded-lg m-4 p-4 shadow-[2px_2px_0px_black]
+//                         cursor-pointer hover:bg-gray-200 transition'>
+//                             <p className='col-span-1'> <ApprovedRequestIcon/> <Space/> </p>
+//                             <p className='col-span-4 text-lg'> Approved Requests: </p>
+//                             <p className='col-span-1 text-lg bg-cyan-300 flex items-center justify-center rounded-full'>
+//                                 0
+//                             </p>
+//                         </li>
+//                         <li className='grid grid-cols-6 border-1 rounded-lg m-4 p-4 shadow-[2px_2px_0px_black]
+//                         cursor-pointer hover:bg-gray-200 transition'>
+//                             <p className='col-span-1'> <RejectedRequestIcon/> <Space/> </p>
+//                             <p className='col-span-4 text-lg'> Rejected Requests: </p>
+//                             <p className='col-span-1 text-lg bg-cyan-300 flex items-center justify-center rounded-full'>
+//                                 0
+//                             </p>
+//                         </li>
+//                     </ul>
                     
                 </div>
             
@@ -573,9 +573,9 @@ function Profile() {
                 
             </div>
             
-        </div>
-    )
-}
+//         </div>
+//     )
+// }
 
 export default Profile
 
