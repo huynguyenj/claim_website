@@ -14,7 +14,7 @@ import { pagnitionAntd } from '../../consts/Pagination';
 import UserCard from '../../components/Admin/UserCard';
 import { Article } from '@mui/icons-material';
 import { UserIcon } from '../../components/Icon/MuiIIcon';
-import { exportToExcel } from '../../consts/ExcelDowload';
+import { exportToExcel } from '../../consts/ExcelDownload';
 
 const RequestPage: React.FC = () => {
   const userId = useAuthStore((state) => state.user?._id);
@@ -100,7 +100,10 @@ const RequestPage: React.FC = () => {
             updated_by: p.updated_by || '',
             created_at: p.created_at || '',
             updated_at: p.updated_at || '',
+            project_comment: p.project_comment || '',
+            project_members: p.project_members || [],
           }));
+
           console.log("Formatted Projects:", formattedProjects);
           setProjects(formattedProjects);
         } else {
@@ -294,10 +297,21 @@ const RequestPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
-        <UserCard icon={<UserIcon />} title="Total Claims" growth={15} />
-        <UserCard icon={<Article />} title="Pending Claims" growth={20} />
-        <UserCard icon={<Article />} title="Approved Claims" growth={30} />
+        <UserCard icon={<UserIcon />} title="Total Claims" growth={15} data={totalItems} />
+        <UserCard
+          icon={<Article />}
+          title="Pending Claims"
+          growth={20}
+          data={requests.filter((r) => r.claim_status === 'PENDING').length}
+        />
+        <UserCard
+          icon={<Article />}
+          title="Approved Claims"
+          growth={30}
+          data={requests.filter((r) => r.claim_status === 'APPROVED').length}
+        />
       </div>
+
 
       <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
         <div className="mb-4 flex items-center">

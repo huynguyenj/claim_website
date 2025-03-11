@@ -30,13 +30,14 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-      apiClient.interceptors.response.use((response: AxiosResponse)=>response, 
-            // (error)=>{
-            //       const errorMessage = getApiErrorMessage(error);
-            //       if(errorMessage === 403 || errorMessage === 404){useAuthStore.getState().removeExpired()}
-            //             return Promise.reject(errorMessage)
-            // }
-      )
+apiClient.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  (error) => {
+    const errorMessage = getApiErrorMessage(error);
+      // useAuthStore.getState().removeExpired();
+    return Promise.reject(errorMessage);
+  }
+);
 
 //create object with CRUD function.
 const apiService = {
@@ -54,7 +55,7 @@ const privateApiService = {
   getFinanceClaimList: (
     filters: FinanceSearchCondition
   ): Promise<ApiResponse<FinanceClaimResponse> | null> => {
-    return apiClient
+    return apiClient  
       .post<ApiResponse<FinanceClaimResponse>>(
         API_BASE_URL + "claims/finance-search",
         filters
@@ -69,7 +70,7 @@ const privateApiService = {
     status: ChangeStatusClaim
   ): Promise<ApiResponseWithDataNull> => {
     return apiClient
-      .post<ApiResponseWithDataNull>(
+      .put<ApiResponseWithDataNull>(
         `${API_BASE_URL}claims/change-status`,
         status
       )
