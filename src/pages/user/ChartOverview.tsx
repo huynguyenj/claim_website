@@ -80,7 +80,7 @@ const ChartOverview: React.FC = () => {
                     labelLine={false}
                     label={renderCustomizedLabel}
                 >
-                    {data.map((entry, index) => (
+                    {data.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                 </Pie>
