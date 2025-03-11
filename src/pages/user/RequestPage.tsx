@@ -101,6 +101,8 @@ const RequestPage: React.FC = () => {
             updated_by: p.updated_by || '',
             created_at: p.created_at || '',
             updated_at: p.updated_at || '',
+            project_comment: '',
+            project_members:[]
           }));
           console.log("Formatted Projects:", formattedProjects);
           setProjects(formattedProjects);
