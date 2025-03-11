@@ -66,7 +66,7 @@ export default function useProfile() {
                   console.log(response.data)
                   setEmployeeInfo(response.data);
             } catch (error) {
-                  Notification('error',error as string)
+                  console.log(error as string)
             }
       }
       getEmployeeInfo();
@@ -117,7 +117,7 @@ export default function useProfile() {
             await apiService.put('/users/change-password',password);
             Notification('success','Your password have changed!')
       } catch (error) {
-            Notification('error',error as string)
+            console.log(error)
       }finally{
             setLoading(false)
       }

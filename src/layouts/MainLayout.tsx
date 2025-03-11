@@ -15,6 +15,10 @@ import {
 import Navbar from "./Navbar";
 import { UserRoutes, AdminRoutes } from "../consts/RoutesConst";
 import { roleDefine } from "../consts/UserRole";
+import {useErrorStore} from "../store/errorStore";
+import { Notification } from "../components/common/Notification";
+import { useLoadingStore } from "../store/loadingStore";
+import Loading from "../components/common/Loading";
 
 const sideBarUser: SidebarItem[] = [
   { title: "Claim data", icon: DashBoard, path: UserRoutes.USER_DASHBOARD },
@@ -59,6 +63,8 @@ const sideBarAdmin: SidebarItem[] = [
 export default function MainLayout() {
   const [item, setItem] = useState<SidebarItem[]>([]);
   const userRole = useAuthStore.getState().user?.role_code;
+  const errorMessage = useErrorStore((state) => state.message);
+  const loading = useLoadingStore((state) => state.loading)
   useEffect(() => {
     setItem(
       sideBarUser.filter(
@@ -66,8 +72,18 @@ export default function MainLayout() {
       )
     );
   }, [userRole]);
+
+  useEffect(() => {
+    if(errorMessage){
+      console.log('error')
+      Notification('error',errorMessage)
+      useErrorStore.setState({ message: null });
+    }
+  },[errorMessage])
+
   return (
     <>
+    {loading ? <Loading/>: 
       <div className="flex h-screen overflow-hidden">
         {userRole == roleDefine.ADMIN_ROLE ? (
           <Sidebar itemList={sideBarAdmin} />
@@ -79,7 +95,8 @@ export default function MainLayout() {
           <Navbar />
           <Outlet />
         </main>
-      </div>
+      </div>}
     </>
+  
   );
 }
