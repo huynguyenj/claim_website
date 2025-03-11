@@ -1,5 +1,4 @@
 export interface Claim {
-<<<<<<< HEAD
   _id: string;
   user_id: string;
   project_id: string;
@@ -15,15 +14,6 @@ export interface Claim {
   remark: string;
   __v: number;
 
-=======
-    _id: string;
-    claim_status: string;
-    claim_start_date: string;
-    claim_end_date: string;
-    is_delete: boolean;
-    created_at: string;
-    updated_at: string;
->>>>>>> e0327c9c7edc245a52688cc073c0b6984474578e
 }
 export interface ClaimRequest {
       id: string,
