@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Button, Input, Table, Form, Modal, Select, Spin, message
+  Button, Input, Table, Form, Modal, Select, Spin, message,
+  TablePaginationConfig
 } from 'antd';
 import { EditOutlined, SearchOutlined } from '@mui/icons-material';
 import { PlusOutlined } from '../../components/Icon/AntdIcon';
@@ -39,7 +40,7 @@ const RequestPage: React.FC = () => {
         // result có cấu trúc: { pageData: [ ... ] }
         const rawClaims = result.pageData;
         // Map các claim từ API sang kiểu ClaimRequest, chuyển đổi các trường nếu cần
-        const mappedClaims: ClaimRequest[] = rawClaims.map((item: any) => ({
+        const mappedClaims: ClaimRequest[] = rawClaims.map((item) => ({
           _id: item._id,
           user_id: item.staff_id, // chuyển staff_id thành user_id
           project_id: item.project_info ? item.project_info._id : "",
@@ -100,8 +101,8 @@ const RequestPage: React.FC = () => {
             updated_by: p.updated_by || '',
             created_at: p.created_at || '',
             updated_at: p.updated_at || '',
-            project_comment: p.project_comment || '',
-            project_members: p.project_members || [],
+            project_comment: '',
+            project_members:[]
           }));
 
           console.log("Formatted Projects:", formattedProjects);
@@ -174,7 +175,7 @@ const RequestPage: React.FC = () => {
             // result có cấu trúc: { pageData: [ ... ] }
             const rawClaims = result.pageData;
             // Map từng phần tử, chuyển staff_id thành user_id và lấy các trường cần thiết
-            const mappedClaims: ClaimRequest[] = rawClaims.map((item: any) => ({
+            const mappedClaims: ClaimRequest[] = rawClaims.map((item) => ({
               _id: item._id,
               user_id: item.staff_id,
               project_id: item.project_info ? item.project_info._id : "",
@@ -230,9 +231,9 @@ const RequestPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
+  const handleTableChange = (pagination: TablePaginationConfig) => {
+    setCurrentPage(pagination.current || currentPage);
+    setPageSize(pagination.pageSize || pageSize);
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
