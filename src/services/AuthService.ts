@@ -16,7 +16,6 @@ const authService = {
       .put<ClaimRequest>(`/claims/${claimId}`, data)
       .then((res) => res),
 
-
   getAllClaims: () =>
     apiService.post<ApiResponse<{ pageData: any[] }>>(`claims/search`, {
       // Không truyền searchCondition cụ thể để lấy toàn bộ claim
@@ -27,6 +26,16 @@ const authService = {
   searchProjectByUserId: (searchProject: { searchCondition: { user_id: string; is_delete: boolean }; pageInfo: { pageNum: number; pageSize: number } }) =>
     apiService.post<ApiResponse<ProjectCondition[]>>(`projects/search`, searchProject)
       .then((res) => res),
+
+  changeClaimStatus: (claimId: string, newStatus: string, comment?: string) =>
+    apiService
+      .put<ApiResponse<ClaimRequest>>('/claims/change-status', {
+        _id: claimId,
+        claim_status: newStatus,
+        comment: comment ?? "",
+      })
+      .then((res) => res),
+
 
 }
 
