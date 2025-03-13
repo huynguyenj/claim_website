@@ -19,7 +19,8 @@ import {
   MenuItem,
   InputLabel,
   Select,
-  FormControl
+  FormControl,
+  TablePagination
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -41,6 +42,8 @@ interface ConfirmDialogState {
 function ApprovalPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [status, setStatus] = useState<string | "">("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>({
     open: false,
     itemId: '',
@@ -82,7 +85,22 @@ function ApprovalPage() {
       submittedBy: 'Mary Jane',
       date: '2025-01-17',
     },
+    {
+      id: '6',
+      title: 'Equipment Request F',
+      status: 'pending',
+      submittedBy: 'Robert Wilson',
+      date: '2025-01-18',
+    },
+    {
+      id: '7',
+      title: 'Training Program G',
+      status: 'pending',
+      submittedBy: 'Sarah Connor',
+      date: '2025-01-18',
+    },
   ]);
+
   const statusOptions = [
     { value: 'pending', label: 'Pending' },
     { value: 'approved', label: 'Approved' },
@@ -130,12 +148,27 @@ function ApprovalPage() {
     handleConfirmClose();
   };
 
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   const filteredItems = items.filter(item => {
-      const matchTitle = item.title.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchUser = item.submittedBy.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchStatus = status ? item.status === status : true;
-      return (matchTitle || matchUser) && matchStatus;
+    const matchTitle = item.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchUser = item.submittedBy.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = status ? item.status === status : true;
+    return (matchTitle || matchUser) && matchStatus;
   });
+
+  // Pagination calculation
+  const paginatedItems = filteredItems.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
   const getStatusChipColor = (status: string) => {
     switch (status) {
@@ -167,7 +200,7 @@ function ApprovalPage() {
   };
 
   return (
-    <Box sx={{ height: "fit-content", bgcolor: '#f5f5f5', overflowY: 'scroll', py: 2, px: { xs: 2, sm: 3, md: 4 } }}>
+    <Box sx={{ height: "fit-content", bgcolor: '#f5f5f5', overflowY: 'scroll', py: 1, px: { xs: 2, sm: 3, md: 4 } }}>
       <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
         <Box className="flex gap-4" sx={{ marginBottom: '10px' }}>
           <TextField
@@ -176,7 +209,7 @@ function ApprovalPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by title or submitter name..."
-            sx={{ width: { xs: "100%", sm: "250px", md: "400px" } }}
+            sx={{ width: { xs: "100%", sm: "250px", md: "400px" }, boxShadow: 4}}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -195,6 +228,7 @@ function ApprovalPage() {
               value={status}
               onChange={(e) => setStatus(e.target.value)}
               sx={{
+                boxShadow: 4,
                 borderRadius: "4px",
                 "& .MuiSelect-select": {
                   height: "100%",
@@ -210,77 +244,87 @@ function ApprovalPage() {
                 </MenuItem>
               ))}
             </Select>
-
           </FormControl>
         </Box>
 
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>Title</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Submitted By</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }} align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredItems.length === 0 ? (
+        <Paper sx={{ width: '100%', mb: 2, boxShadow: 10}}>
+          <TableContainer>
+            <Table sx={{ minWidth: 650 }}>
+              <TableHead>
                 <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    No items found matching your search.
-                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Title</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Submitted By</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Date</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }} align="right">Actions</TableCell>
                 </TableRow>
-              ) : (
-                filteredItems.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>{item.title}</TableCell>
-                    <TableCell>{item.submittedBy}</TableCell>
-                    <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                        color={getStatusChipColor(item.status)}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell align="right">
-                      {item.status === 'pending' && (
-                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                          <Button
-                            variant="contained"
-                            color="success"
-                            size="small"
-                            onClick={() => handleConfirmOpen(item.id, 'approve')}
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="warning"
-                            size="small"
-                            onClick={() => handleConfirmOpen(item.id, 'return')}
-                          >
-                            Return
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            size="small"
-                            onClick={() => handleConfirmOpen(item.id, 'reject')}
-                          >
-                            Reject
-                          </Button>
-                        </Box>
-                      )}
+              </TableHead>
+              <TableBody>
+                {paginatedItems.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center">
+                      No items found matching your search.
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                ) : (
+                  paginatedItems.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.title}</TableCell>
+                      <TableCell>{item.submittedBy}</TableCell>
+                      <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                          color={getStatusChipColor(item.status)}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell align="right">
+                        {item.status === 'pending' && (
+                          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                            <Button
+                              variant="contained"
+                              color="success"
+                              size="small"
+                              onClick={() => handleConfirmOpen(item.id, 'approve')}
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              variant="contained"
+                              color="warning"
+                              size="small"
+                              onClick={() => handleConfirmOpen(item.id, 'return')}
+                            >
+                              Return
+                            </Button>
+                            <Button
+                              variant="contained"
+                              color="error"
+                              size="small"
+                              onClick={() => handleConfirmOpen(item.id, 'reject')}
+                            >
+                              Reject
+                            </Button>
+                          </Box>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 20]}
+            component="div"
+            count={filteredItems.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Paper>
 
         <Dialog
           open={confirmDialog.open}
@@ -315,4 +359,4 @@ function ApprovalPage() {
   );
 }
 
-export default ApprovalPage
+export default ApprovalPage;
