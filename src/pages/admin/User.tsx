@@ -1,6 +1,5 @@
-import { Article, EditOutlined, SearchOutlined } from "@mui/icons-material";
-import { Button, DatePicker, Form, Input, message, Modal, Select, Spin, Table, TablePaginationConfig } from "antd";
-import moment from "moment-timezone";
+import { Article, CheckCircleOutline, DehazeOutlined, EditCalendar, EditOutlined, PersonSearch, SearchOutlined, Today } from "@mui/icons-material";
+import { Button, DatePicker, Form, Input, message, Modal, Select, Spin, Table, TablePaginationConfig, Row, Col, InputNumber } from "antd";
 import { useEffect, useState } from "react";
 import UserCard from "../../components/Admin/UserCard";
 import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
@@ -14,6 +13,15 @@ import { Employee } from "../../model/EmployeeData";
 import { Role } from "../../model/RoleData";
 import { PaginatedResponse, SearchRequest, User } from "../../model/UserData";
 import apiService from "../../services/ApiService";
+import { Job } from "../../model/JobData";
+import { Contract } from "../../model/ContractData";
+import { EmailIcon, PersonIcon } from "../../components/Icon/MuiIIcon";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export default function UserManagement() {
 
@@ -32,6 +40,8 @@ export default function UserManagement() {
 
     const [users, setUsers] = useState<User[]>([]);
     const [departments, setDepartments] = useState<Department[]>([]);
+    const [jobs, setJobs] = useState<Job[]>([]);
+    const [contracts, setContracts] = useState<Contract[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -45,13 +55,15 @@ export default function UserManagement() {
     const [showBanned, setShowBanned] = useState<boolean | null>(null);
     const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-    const [form] = Form.useForm();
+    const [addForm] = Form.useForm();
+    const [editForm] = Form.useForm();
+    const [employeeForm] = Form.useForm();
 
     const convertToUTC7 = (utcDate: string) => {
-        return moment.utc(utcDate).tz('Asia/Jakarta').format('YYYY-MM-DD');
+        return dayjs.utc(utcDate).tz('Asia/Jakarta').format('YYYY-MM-DD');
     };
 
-    const validateEmail = (_:unknown, value: string, callback: (error?: string) => void) => {
+    const validateEmail = (_: unknown, value: string, callback: (error?: string) => void) => {
         const emailRegex = /^[A-Za-z0-9+_.-]+@(.+)$/;
         if (!emailRegex.test(value)) {
             callback('Invalid email address');
@@ -60,7 +72,7 @@ export default function UserManagement() {
         }
     };
 
-    const validatePassword = (_:unknown, value: string, callback: (error?: string) => void) => {
+    const validatePassword = (_: unknown, value: string, callback: (error?: string) => void) => {
         const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
         if (!passwordRegex.test(value)) {
             callback('Password must contain at least 8 characters, including uppercase, lowercase, and numbers');
@@ -84,6 +96,30 @@ export default function UserManagement() {
         }
     };
 
+    const fetchJob = async () => {
+        setLoading(true);
+        try {
+            const response = await apiService.get<ApiResponse<Job[]>>("/jobs/get-all");
+
+            setJobs(response.data);
+        } catch (error) {
+            message.error("Failed to fetch jobs");
+            console.error(error);
+        }
+    }
+
+    const fetchContracts = async () => {
+        setLoading(true);
+        try {
+            const response = await apiService.get<ApiResponse<Contract[]>>("/contracts/get-all");
+
+            setContracts(response.data);
+        } catch (error) {
+            message.error("Failed to fetch contracts");
+            console.error(error);
+        }
+    }
+
     const fetchEmployees = async (employeeId: string) => {
         try {
             setLoading(true);
@@ -92,10 +128,10 @@ export default function UserManagement() {
             if (response && response.data) {
                 setSelectedEmployee(response.data);
                 setEditingEmployee(response.data);
-                form.setFieldsValue({
+                employeeForm.setFieldsValue({
                     ...response.data,
-                    start_date: moment(response.data.start_date),
-                    end_date: moment(response.data.end_date),
+                    start_date: dayjs(response.data.start_date),
+                    end_date: dayjs(response.data.end_date),
                 });
                 setIsEmployeeModalOpen(true);
             } else {
@@ -167,7 +203,7 @@ export default function UserManagement() {
         fetchRoles();
     }, []);
 
-    const handleTableChange = (pagination:  TablePaginationConfig) => {
+    const handleTableChange = (pagination: TablePaginationConfig) => {
         setCurrentPage(pagination.current || currentPage);
         setPageSize(pagination.pageSize || pageSize);
     };
@@ -179,25 +215,29 @@ export default function UserManagement() {
 
     const showModal = () => setIsAddModalOpen(true);
 
-    const handleCancel = () => {
+    const handleAddCancel = () => {
         setIsAddModalOpen(false);
+        addForm.resetFields();
+    };
+
+    const handleEmployeeCancel = () => {
         setIsEmployeeModalOpen(false);
-        form.resetFields();
+        employeeForm.resetFields();
     };
 
     const handleAddUser = async () => {
         try {
-            const values = await form.validateFields();
+            const values = await addForm.validateFields();
             const response = await apiService.post("/users", values);
 
             if (response) {
                 message.success("User added successfully!");
                 fetchUsers(currentPage, pageSize, searchTerm);
-                handleCancel();
+                handleAddCancel();
             }
         } catch (error: any) {
             if (error.response && error.response.data.message.includes('already exists')) {
-                form.setFields([
+                addForm.setFields([
                     {
                         name: 'user_name',
                         errors: ['This username is already taken'],
@@ -210,7 +250,7 @@ export default function UserManagement() {
 
     const handleUpdateUser = async () => {
         try {
-            const values = await form.validateFields();
+            const values = await editForm.validateFields();
             if (!editingUser) return;
 
             Modal.confirm({
@@ -236,7 +276,7 @@ export default function UserManagement() {
 
     const handleUpdateEmployee = async () => {
         try {
-            const values = await form.validateFields();
+            const values = await employeeForm.validateFields();
             console.log("Form Values:", values);
 
             if (!editingEmployee) {
@@ -335,10 +375,30 @@ export default function UserManagement() {
         });
     };
 
+    const components = {
+        body: {
+            cell: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
+                <td {...props} className="border-t-[1.2px] border-black" />
+            ),
+        },
+    };
+
     const columns = [
-        { title: "Email", dataIndex: "email", key: "email" },
         {
-            title: "Username",
+            title: (
+                <div className="flex items-center gap-2">
+                    <EmailIcon />
+                    Email
+                </div>
+            ), dataIndex: "email", key: "email"
+        },
+        {
+            title: (
+                <div className="flex items-center gap-2">
+                    <PersonIcon />
+                    User Name
+                </div>
+            ),
             dataIndex: "user_name",
             key: "user_name",
             render: (text: string, record: User) => (
@@ -351,24 +411,44 @@ export default function UserManagement() {
             ),
         },
         {
-            title: "Role",
+            title: (
+                <div className="flex items-center gap-2">
+                    <PersonSearch />
+                    Role
+                </div>
+            ),
             key: "role",
-            render: (_:unknown, record: User) => roleMap[record.role_code] || record.role_code,
+            render: (_: unknown, record: User) => roleMap[record.role_code] || record.role_code,
         },
         {
-            title: "Start Date",
+            title: (
+                <div className="flex items-center gap-2">
+                    <EditCalendar />
+                    Start Date
+                </div>
+            ),
             dataIndex: "start_date",
             key: "start_date",
-            render: (text: string) => convertToUTC7(text),
+            render: (text: string) => dayjs(text).format('YYYY-MM-DD'),
         },
         {
-            title: "End Date",
+            title: (
+                <div className="flex items-center gap-2">
+                    <Today />
+                    End Date
+                </div>
+            ),
             dataIndex: "end_date",
             key: "end_date",
-            render: (text: string) => convertToUTC7(text),
+            render: (text: string) => dayjs(text).format('YYYY-MM-DD'),
         },
         {
-            title: "Status",
+            title: (
+                <div className="flex items-center gap-2">
+                    <CheckCircleOutline />
+                    Status
+                </div>
+            ),
             key: "status",
             render: (_: string, record: User) => (
                 <div className="relative">
@@ -395,12 +475,17 @@ export default function UserManagement() {
             )
         },
         {
-            title: "Actions",
+            title: (
+                <div className="flex items-center gap-2">
+                    <DehazeOutlined />
+                    Action
+                </div>
+            ),
             key: "actions",
             render: (_: string, record: User) => (
                 <div className="flex gap-2">
                     <Button icon={<EditOutlined />} type="link" onClick={() => {
-                        form.setFieldsValue(record);
+                        editForm.setFieldsValue(record);
                         setEditingUser(record);
                         setIsEditModalOpen(true);
                     }}></Button>
@@ -501,12 +586,12 @@ export default function UserManagement() {
                 <Modal
                     title="Add New User"
                     open={isAddModalOpen}
-                    onCancel={handleCancel}
+                    onCancel={handleAddCancel}
                     onOk={handleAddUser}
                     okText="Add User"
                     cancelText="Cancel"
                 >
-                    <Form form={form} layout="vertical">
+                    <Form form={addForm} layout="vertical">
                         <Form.Item
                             name="email"
                             label="Email"
@@ -580,6 +665,7 @@ export default function UserManagement() {
                                     pageSizeOptions: ["5", "10", "20"],
                                 }}
                                 onChange={handleTableChange}
+                                components={components}
                             />
 
                         </div>
@@ -594,7 +680,7 @@ export default function UserManagement() {
                     okText="Save"
                     cancelText="Cancel"
                 >
-                    <Form form={form} layout="vertical">
+                    <Form form={editForm} layout="vertical">
                         <Form.Item
                             name="email"
                             label="Email"
@@ -659,10 +745,7 @@ export default function UserManagement() {
                 <Modal
                     title="Employee Details"
                     open={isEmployeeModalOpen}
-                    onCancel={() => {
-                        setIsEmployeeModalOpen(false);
-                        form.resetFields();
-                    }}
+                    onCancel={handleEmployeeCancel}
                     onOk={handleUpdateEmployee}
                     okText="Save"
                     cancelText="Cancel"
@@ -670,57 +753,91 @@ export default function UserManagement() {
                     {loading ? (
                         <Spin />
                     ) : (
-                        <Form form={form} layout="vertical">
-                            <Form.Item label="User ID" name="user_id">
-                                <Input readOnly />
-                            </Form.Item>
-                            <Form.Item label="Avatar URL" name="avatar_url">
-                                <Input />
-                            </Form.Item>
-                            <Form.Item label="Full Name" name="full_name" rules={[{ required: true, message: "Full name is required" }]}>
-                                <Input />
-                            </Form.Item>
-                            <Form.Item label="Job Rank" name="job_rank" rules={[{ required: true, message: "Job rank is required" }]}>
-                                <Input />
-                            </Form.Item>
-                            <Form.Item label="Contract Type" name="contract_type" rules={[{ required: true, message: "Contract type is required" }]}>
-                                <Input />
-                            </Form.Item>
-                            <Form.Item label="Account" name="account" rules={[{ required: true, message: "Account is required" }]}>
-                                <Input />
-                            </Form.Item>
-                            <Form.Item label="Address" name="address" rules={[{ required: true, message: "Address is required" }]}>
-                                <Input />
-                            </Form.Item>
-                            <Form.Item label="Phone" name="phone" rules={[{ required: true, message: "Phone is required" }]}>
-                                <Input />
-                            </Form.Item>
-                            <Form.Item label="Department" name="department_code">
-                                <Select placeholder="Select a department" loading={loading}>
-                                    {departments.map((dept) => (
-                                        <Select.Option key={dept.department_code} value={dept.department_code}>
-                                            {dept.department_code}
-                                        </Select.Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                            <Form.Item label="Salary" name="salary" rules={[{ required: true, message: "Salary is required", type: "number" }]}>
-                                <Input type="number" />
-                            </Form.Item>
-                            <Form.Item label="Start Date" name="start_date" rules={[{ required: true, message: "Start date is required" }]}>
-                                <DatePicker format="YYYY-MM-DD" />
-                            </Form.Item>
+                        <Form form={employeeForm} layout="vertical">
+                            <Row gutter={16}> {/* Add gutter for spacing between columns */}
+                                {/* Left Column */}
+                                <Col span={12}>
+                                    <Form.Item label="Avatar URL" name="avatar_url">
+                                        <Input />
+                                    </Form.Item>
+                                    <Form.Item label="Full Name" name="full_name">
+                                        <Input />
+                                    </Form.Item>
+                                    <Form.Item label="Account" name="account">
+                                        <Input />
+                                    </Form.Item>
+                                    <Form.Item label="Address" name="address">
+                                        <Input />
+                                    </Form.Item>
+                                    <Form.Item label="Phone" name="phone">
+                                        <Input />
+                                    </Form.Item>
+                                </Col>
 
-                            <Form.Item label="End Date" name="end_date" rules={[{ required: true, message: "End date is required" }]}>
-                                <DatePicker format="YYYY-MM-DD" />
-                            </Form.Item>
+                                {/* Right Column */}
+                                <Col span={12}>
+                                    <Form.Item label="Salary" name="salary" rules={[{ required: true, message: "Salary is required", type: "number" }]}>
+                                        <InputNumber style={{ width: "100%" }} />
+                                    </Form.Item>
+                                    <Form.Item label="Job Rank" name="job_rank" rules={[{ required: true, message: "Job rank is required" }]}>
+                                        <Select>
+                                            {jobs.map((job) => (
+                                                <Select.Option key={job.job_rank} value={job.job_rank}>
+                                                    {job.job_rank}
+                                                </Select.Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                    <Form.Item label="Contract Type" name="contract_type" rules={[{ required: true, message: "Contract type is required" }]}>
+                                        <Select>
+                                            {contracts.map((contract) => (
+                                                <Select.Option key={contract.contract_type} value={contract.contract_type}>
+                                                    {contract.contract_type}
+                                                </Select.Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                    <Form.Item label="Department" name="department_code" rules={[{ required: true, message: "Department is required" }]}>
+                                        <Select placeholder="Select a department" loading={loading}>
+                                            {departments.map((dept) => (
+                                                <Select.Option key={dept.department_code} value={dept.department_code}>
+                                                    {dept.department_code}
+                                                </Select.Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
 
-                            <Form.Item label="Updated By" name="updated_by">
-                                <Input readOnly />
-                            </Form.Item>
+                            {/* Start Date and End Date on the same row */}
+                            <Row gutter={16}>
+                                <Col span={12}>
+                                    <Form.Item
+                                        label="Start Date"
+                                        name="start_date"
+                                        rules={[{ required: true, message: 'Start date is required' }]}
+                                    >
+                                        <DatePicker
+                                            format="YYYY-MM-DD"
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item
+                                        label="End Date"
+                                        name="end_date"
+                                        rules={[{ required: true, message: 'End date is required' }]}
+                                    >
+                                        <DatePicker
+                                            format="YYYY-MM-DD"
+                                        />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
                         </Form>
                     )}
                 </Modal>
+
             </div>
         </div >
     )

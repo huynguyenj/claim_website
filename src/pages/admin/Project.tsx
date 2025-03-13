@@ -1,5 +1,5 @@
 import { Article, EditOutlined, SearchOutlined } from "@mui/icons-material";
-import { Button, DatePicker, Form, Input, message, Modal, Select, Spin, Table, TablePaginationConfig} from "antd";
+import { Button, DatePicker, Form, Input, message, Modal, Select, Spin, Table, TablePaginationConfig } from "antd";
 import moment from 'moment-timezone';
 import React, { useEffect, useState } from "react";
 import ProjectCard from "../../components/Admin/ProjectCard";
@@ -35,7 +35,7 @@ export default function ProjectManagement() {
   const [form] = Form.useForm();
 
   const convertToUTC7 = (utcDate: string) => {
-    return moment.utc(utcDate).tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
+    return moment.utc(utcDate).tz('Asia/Jakarta').format('YYYY-MM-DD');
   };
 
   const fetchProjects = async (page: number, size: number, keyword: string) => {
@@ -171,14 +171,14 @@ export default function ProjectManagement() {
     try {
       const values = await form.validateFields();
       type MemberType = {
-        user_id:string,
-        project_role:string
+        user_id: string,
+        project_role: string
       }
       const projectData = {
         ...values,
         project_start_date: values.project_start_date ? values.project_start_date.utc().format() : null,
         project_end_date: values.project_end_date ? values.project_end_date.utc().format() : null,
-        project_members: values.project_members.map((member:MemberType) => ({
+        project_members: values.project_members.map((member: MemberType) => ({
           user_id: member.user_id,
           project_role: member.project_role,
         })),
@@ -276,7 +276,6 @@ export default function ProjectManagement() {
       key: "project_end_date",
       render: (text: string) => convertToUTC7(text),
     },
-    { title: "Updated By", dataIndex: "updated_by", key: "updated_by", },
     {
       title: "Created At",
       dataIndex: "created_at",
@@ -627,7 +626,6 @@ export default function ProjectManagement() {
 
             <Form.List name="project_members">
               {(fields, { add, remove }) => {
-                // Get the list of user IDs already assigned to the project
                 const selectedUserIds = fields.map((field) =>
                   form.getFieldValue(['project_members', field.name, 'user_id'])
                 );
