@@ -85,9 +85,9 @@ function ModalConfirm({ userData }: ModalConfirmProps) {
     });
   }
   const status: ChangeStatusClaim = {
-    claim_id: userData._id,
+    _id: userData._id,
     claim_status: "Paid",
-    comment: "",
+    comment: "Payment",
   };
 
   const handleOK = (): void => {

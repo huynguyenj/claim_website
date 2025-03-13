@@ -8,17 +8,13 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import useChartData from "../../hooks/admin/useChartData";
 
 export default function StackedBarChart() {
-  const { chartData } = useChartData();
-
   return (
     <ResponsiveContainer width={"100%"} height={"80%"}>
       <BarChart
         width={600}
         height={300}
-        data={chartData}
         margin={{
           top: 20,
           right: 30,
@@ -39,7 +35,6 @@ export default function StackedBarChart() {
         />
         <Bar dataKey="claims" stackId="a" stroke="red" fill="red" />
         <Bar dataKey="projects" stackId="a" stroke="blue" fill="blue" />
-        <Bar dataKey="contracts" stackId="a" stroke="green" fill="green" />
       </BarChart>
     </ResponsiveContainer>
   );

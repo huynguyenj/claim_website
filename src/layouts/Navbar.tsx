@@ -25,7 +25,6 @@ function Navbar() {
        Notification('success','Logout success!')
      }
     } catch (error) {
-      Notification('error','Logout fail!')
       console.log(error)
     }
   }

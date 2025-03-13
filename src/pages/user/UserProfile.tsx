@@ -123,8 +123,8 @@ function Profile() {
             searchCondition: {
                 keyword: "",
                 claim_status: "",
-                claim_start_date: employee?.start_date, // lower the scope
-                claim_end_date: employee?.end_date,
+                claim_start_date: "", // lower the scope
+                claim_end_date: "",
                 is_delete: false,
             },
             pageInfo: {
@@ -646,8 +646,7 @@ function Profile() {
                 onCancel={() => setIsClaimModal(false)}
                 >
                     <ul className="flex flex-col item-center">
-                        {claims.filter(x=>x)
-                        .map((claim) => (
+                        {claims.map((claim) => (
                             <Card
                             hoverable
                             style={{borderColor:'gray', margin: "0.5rem"}}
