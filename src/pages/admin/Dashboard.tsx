@@ -2,12 +2,14 @@ import StackedAreaChart from "../../components/Admin/StackedAreaChart";
 import { Article } from "@mui/icons-material";
 import { UserIcon } from "../../components/Icon/MuiIIcon";
 import StatisticCard from "../../components/Admin/StatisticCard";
-import useDashboardData from "../../hooks/admin/useDashboardData";
+import useUsers from "../../hooks/admin/useUsers";
+import useClaims from "../../hooks/admin/useClaims";
+import useProjects from "../../hooks/admin/useProjects";
 export default function Dashboard() {
   // Hooks
-  const { totalUsers, totalClaims, totalProjects, loading } =
-    useDashboardData();
-
+  const { userLoading, totalUsers } = useUsers();
+  const { claimLoading, totalClaims } = useClaims();
+  const { projectLoading, totalProjects } = useProjects();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 px-5 md:px-14 overflow-auto pb-5">
       {/* Search Section */}
@@ -20,24 +22,21 @@ export default function Dashboard() {
         icon={<UserIcon />}
         title="Users"
         data={totalUsers}
-        growth={25}
-        loading={loading}
+        loading={userLoading}
       />
       {/* Claims */}
       <StatisticCard
         icon={<Article />}
         title="Claims"
         data={totalClaims}
-        growth={42}
-        loading={loading}
+        loading={claimLoading}
       />
       {/* Projects */}
       <StatisticCard
         icon={<Article />}
         title="Projects"
         data={totalProjects}
-        growth={42}
-        loading={loading}
+        loading={projectLoading}
       />
       {/* Charts Container */}
       <div className="col-span-1 sm:col-span-2 lg:col-span-4 grid grid-cols-1 lg:grid-cols-7 gap-4 lg:gap-0">
