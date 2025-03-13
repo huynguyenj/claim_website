@@ -121,11 +121,11 @@ function Profile() {
 
         const searchParams = {
             searchCondition: {
-                keyword: "",
-                claim_status: "",
-                claim_start_date: "", // lower the scope
-                claim_end_date: "",
-                is_delete: false,
+                // keyword: "",
+                // claim_status: "",
+                // claim_start_date: "", // lower the scope
+                // claim_end_date: "",
+                // is_delete: false,
             },
             pageInfo: {
                 pageNum: 1,
@@ -135,9 +135,7 @@ function Profile() {
 
         const myClaims = await ApiService.post<ApiResponse<FinanceClaimResponse>>('/claims/search', searchParams).then((res) => res.data)
         const totalClaims = myClaims.pageData.filter((claim) => {
-            if (claim.employee_info)
-                return claim.employee_info.user_id == user?._id
-            return true
+            return claim!.staff_id == user?._id
         })
         //const totalClaims = claims.pageData
         setTotalClaims(totalClaims)

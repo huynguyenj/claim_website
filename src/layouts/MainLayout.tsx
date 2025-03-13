@@ -37,7 +37,7 @@ const sideBarUser: SidebarItem[] = [
     role: roleDefine.FINANCE,
     gap:true
   },
-  { title: "Profile", icon: UserProfile, path: "/userprofile" },
+  { title: "Profile", icon: UserProfile, path: "/user-profile" },
 ];
 
 const sideBarAdmin: SidebarItem[] = [
