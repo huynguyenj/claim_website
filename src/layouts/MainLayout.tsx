@@ -33,11 +33,11 @@ const sideBarUser: SidebarItem[] = [
   {
     title: "Paid",
     icon: PaidIcon,
-    path: "/paidPage",
+    path: UserRoutes.PAID_PAGE,
     role: roleDefine.FINANCE,
     gap:true
   },
-  { title: "Profile", icon: UserProfile, path: "/userprofile" },
+  { title: "Profile", icon: UserProfile, path: UserRoutes.PROFILE_PAGE},
 ];
 
 const sideBarAdmin: SidebarItem[] = [
@@ -62,7 +62,7 @@ const sideBarAdmin: SidebarItem[] = [
 
 export default function MainLayout() {
   const [item, setItem] = useState<SidebarItem[]>([]);
-  const userRole = useAuthStore.getState().user?.role_code;
+  const userRole = useAuthStore((state) => state.user?.role_code);
   const errorMessage = useErrorStore((state) => state.message);
   const loading = useLoadingStore((state) => state.loading)
   useEffect(() => {
@@ -75,7 +75,6 @@ export default function MainLayout() {
 
   useEffect(() => {
     if(errorMessage){
-      console.log('error')
       Notification('error',errorMessage)
       useErrorStore.setState({ message: null });
     }

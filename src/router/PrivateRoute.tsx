@@ -12,11 +12,25 @@ const UserProfile = lazy(() => import("../pages/user/ProfilePage"));
 const UserDashboard = lazy(() => import("../pages/user/UserDashboard"));
 const PaidPage = lazy(() => import("../pages/finance/PaidPage"));
 
-const privateRouteListFinance:RouteType[] = [
+const commonRoute:RouteType[] = [
   {
     path: UserRoutes.USER_DASHBOARD,
     element: <UserDashboard />,
   },
+  {
+    path: UserRoutes.PROFILE_PAGE,
+    element: <UserProfile />,
+    
+  },
+  {
+    path: UserRoutes.REQUEST_PAGE,
+    element: <RequestPage />,
+    
+  },
+
+]
+const privateRouteListFinance:RouteType[] = [
+  ...commonRoute,
   {
     path: UserRoutes.PAID_PAGE,
     element: <PaidPage />,
@@ -25,57 +39,17 @@ const privateRouteListFinance:RouteType[] = [
     path: UserRoutes.APPROVAL_PAGE,
     element: <ApprovalPage />,
   },
-  {
-    path: UserRoutes.PROFILE_PAGE,
-    element: <UserProfile />,
-    
-  },
-  {
-    path: UserRoutes.REQUEST_PAGE,
-    element: <RequestPage />,
-    
-  },
 ]
 const privateRouteListApproval: RouteType[] = [
-  {
-    path: UserRoutes.USER_DASHBOARD,
-    element: <UserDashboard />,
-  },
+  ...commonRoute,
   {
     path: UserRoutes.APPROVAL_PAGE,
     element: <ApprovalPage />,
     roleRoute: [roleDefine.APPROVAL_ROLE, roleDefine.FINANCE],
   },
-  {
-    path: UserRoutes.PROFILE_PAGE,
-    element: <UserProfile />,
-    
-  },
-  {
-    path: UserRoutes.REQUEST_PAGE,
-    element: <RequestPage />,
-    
-  },
-]
-const privateRouteListClaimer: RouteType[] = [
-  {
-    path: UserRoutes.USER_DASHBOARD,
-    element: <UserDashboard />,
-   
-  },
 
-  {
-    path: UserRoutes.REQUEST_PAGE,
-    element: <RequestPage />,
-    
-  },
-  {
-    path: UserRoutes.PROFILE_PAGE,
-    element: <UserProfile />,
-    
-  },
-  
 ]
+
 const privateRouteListAdmin: RouteType[] = [
   {
     path: AdminRoutes.ADMIN_DASHBOARD,
@@ -99,7 +73,7 @@ function getPrivateRoute(role:string | undefined):RouteType[] {
     case roleDefine.APPROVAL_ROLE:
       return privateRouteListApproval;
     case roleDefine.CLAIMER_ROLE:
-      return privateRouteListClaimer;
+      return commonRoute;
     case roleDefine.FINANCE:
       return privateRouteListFinance;
     default: return [];      
