@@ -3,7 +3,7 @@ import { useAuthStore } from "../../store/authStore";
 
 import ApiService from '../../services/ApiService'
 
-import { ApiResponse, getApiErrorMessage } from "../../consts/ApiResponse";
+import { ApiResponse} from "../../consts/ApiResponse";
 import { Employee } from '../../model/EmployeeData'
 import { Project, PaginatedResponse } from '../../model/ProjectData'
 import { FinanceClaim, FinanceClaimResponse } from '../../pages/finance/DataType'
@@ -22,15 +22,7 @@ const roleMap: Record<string, string> = {
     A003: "BUL, PM",
     A004: "All Members Remaining",
 };
-// const statusMap: Record<string, string> = {
-//     DRAFT: "Draft",
-//     PENDING_APPROVAL: "Pending Approval",
-//     APPROVED: "Approved",
-//     REJECTED: "Rejected",
-//     PENDING_PAYMENT: "Pending Payment",
-//     PAID: "Paid"
-// };
-// import { roleDefine } from "../../consts/UserRole";
+
 
 
 const formatDate = (dateTimeString: string | undefined) => {
@@ -60,7 +52,7 @@ function Profile() {
     const [projects, setProjects] = useState<Project[]>([])
     
     const [selectedClaim, setSelectedClaim] = useState<FinanceClaim | null>(null)
-    const [selectedProject, setSelectecProject] = useState<Project | null>(null)
+    // const [selectedProject, setSelectecProject] = useState<Project | null>(null)
 
     const fetchUser = async () => {
         setFetchingUser(true)
@@ -81,7 +73,7 @@ function Profile() {
 
         employee.job_rank = "DEV1"
         employee.contract_type = "THREE YEAR"
-        employee.department_name = "CMS"
+        employee.department_code = "CMS"
         employee.end_date = new Date().toISOString()
         employee.salary = 3000001
 
@@ -121,11 +113,11 @@ function Profile() {
 
         const searchParams = {
             searchCondition: {
-                keyword: "",
-                claim_status: "",
-                claim_start_date: employee?.start_date, // lower the scope
-                claim_end_date: employee?.end_date,
-                is_delete: false,
+                // keyword: "",
+                // claim_status: "",
+                // claim_start_date: "", // lower the scope
+                // claim_end_date: "",
+                // is_delete: false,
             },
             pageInfo: {
                 pageNum: 1,
@@ -135,9 +127,7 @@ function Profile() {
 
         const myClaims = await ApiService.post<ApiResponse<FinanceClaimResponse>>('/claims/search', searchParams).then((res) => res.data)
         const totalClaims = myClaims.pageData.filter((claim) => {
-            if (claim.employee_info)
-                return claim.employee_info.user_id == user?._id
-            return true
+            return claim!.staff_id == user?._id
         })
         //const totalClaims = claims.pageData
         setTotalClaims(totalClaims)
@@ -175,7 +165,8 @@ function Profile() {
                 setRefresh((refreshes) => refreshes+1)
             }
         } catch (error) {
-            message.error(getApiErrorMessage(error))
+            // message.error(getApiErrorMessage(error))
+            console.log(error)
         }
     }
 
@@ -189,11 +180,11 @@ function Profile() {
             const response = await ApiService.put<ApiResponse<object>>('/users/change-password', updateBody)
             if (response.success){
                 message.success("Password changed successfully!")
-
                 setRefresh((refreshes) => refreshes+1)
             }
         } catch (error) {
-            message.error(getApiErrorMessage(error))
+            // message.error(getApiErrorMessage(error))
+            console.log(error)
         }
     }
 
@@ -222,7 +213,8 @@ function Profile() {
                 setRefresh((refreshes) => refreshes+1)
             }
         } catch (error) {
-            message.error(getApiErrorMessage(error))
+            // message.error(getApiErrorMessage(error))
+            console.log(error)
         }
     }
 
@@ -238,7 +230,7 @@ function Profile() {
     const [isNameMailModal, setIsNameMailModal] = useState(false)
     const [isPasswordModal, setIsPasswordModal] = useState(false)
 
-    const [isProjectModal, setIsProjectModal] = useState(false)
+    // const [isProjectModal, setIsProjectModal] = useState(false)
     const [isClaimModal, setIsClaimModal] = useState(false)
     const [claimModalTitle, setClaimModalTitle] = useState("")
     const [isClaimModal2, setIsClaimModal2] = useState(false)
@@ -246,6 +238,7 @@ function Profile() {
     const [refreshes, setRefresh] = useState(0)
 
     useEffect(() => {
+        console.log(fetchingProjects);
         fetchUser()
         fetchEmployee()
         fetchProjects()
@@ -646,8 +639,7 @@ function Profile() {
                 onCancel={() => setIsClaimModal(false)}
                 >
                     <ul className="flex flex-col item-center">
-                        {claims.filter(x=>x)
-                        .map((claim) => (
+                        {claims.map((claim) => (
                             <Card
                             hoverable
                             style={{borderColor:'gray', margin: "0.5rem"}}
@@ -739,7 +731,7 @@ export default Profile
 
 
 
-function ProjectModal(){
+// function ProjectModal(){
     // return (
     //     <Modal
     //       title="Edit Project"
@@ -869,4 +861,4 @@ function ProjectModal(){
     //       </Form>
     //     </Modal>
     // )
-}
+// }
