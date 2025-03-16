@@ -3,7 +3,7 @@ import { useAuthStore } from "../../store/authStore";
 
 import ApiService from '../../services/ApiService'
 
-import { ApiResponse, getApiErrorMessage } from "../../consts/ApiResponse";
+import { ApiResponse} from "../../consts/ApiResponse";
 import { Employee } from '../../model/EmployeeData'
 import { Project, PaginatedResponse } from '../../model/ProjectData'
 import { FinanceClaim, FinanceClaimResponse } from '../../pages/finance/DataType'
@@ -22,15 +22,7 @@ const roleMap: Record<string, string> = {
     A003: "BUL, PM",
     A004: "All Members Remaining",
 };
-const statusMap: Record<string, string> = {
-    DRAFT: "Draft",
-    PENDING_APPROVAL: "Pending Approval",
-    APPROVED: "Approved",
-    REJECTED: "Rejected",
-    PENDING_PAYMENT: "Pending Payment",
-    PAID: "Paid"
-};
-import { roleDefine } from "../../consts/UserRole";
+
 
 
 const formatDate = (dateTimeString: string | undefined) => {
@@ -49,7 +41,7 @@ function Profile() {
     const [employeeForm] = Form.useForm()
 
 
-    var user = useAuthStore((state) => state.user)
+    const user = useAuthStore((state) => state.user)
     const [employee, setEmployee] = useState<Employee | null>(null)
     const [claims, setClaims] = useState<FinanceClaim[]>([])
 
@@ -60,7 +52,7 @@ function Profile() {
     const [projects, setProjects] = useState<Project[]>([])
     
     const [selectedClaim, setSelectedClaim] = useState<FinanceClaim | null>(null)
-    const [selectedProject, setSelectecProject] = useState<Project | null>(null)
+    // const [selectedProject, setSelectecProject] = useState<Project | null>(null)
 
     const fetchUser = async () => {
         setFetchingUser(true)
@@ -173,7 +165,8 @@ function Profile() {
                 setRefresh((refreshes) => refreshes+1)
             }
         } catch (error) {
-            message.error(getApiErrorMessage(error))
+            // message.error(getApiErrorMessage(error))
+            console.log(error)
         }
     }
 
@@ -187,11 +180,11 @@ function Profile() {
             const response = await ApiService.put<ApiResponse<object>>('/users/change-password', updateBody)
             if (response.success){
                 message.success("Password changed successfully!")
-
                 setRefresh((refreshes) => refreshes+1)
             }
         } catch (error) {
-            message.error(getApiErrorMessage(error))
+            // message.error(getApiErrorMessage(error))
+            console.log(error)
         }
     }
 
@@ -220,7 +213,8 @@ function Profile() {
                 setRefresh((refreshes) => refreshes+1)
             }
         } catch (error) {
-            message.error(getApiErrorMessage(error))
+            // message.error(getApiErrorMessage(error))
+            console.log(error)
         }
     }
 
@@ -236,7 +230,7 @@ function Profile() {
     const [isNameMailModal, setIsNameMailModal] = useState(false)
     const [isPasswordModal, setIsPasswordModal] = useState(false)
 
-    const [isProjectModal, setIsProjectModal] = useState(false)
+    // const [isProjectModal, setIsProjectModal] = useState(false)
     const [isClaimModal, setIsClaimModal] = useState(false)
     const [claimModalTitle, setClaimModalTitle] = useState("")
     const [isClaimModal2, setIsClaimModal2] = useState(false)
@@ -244,6 +238,7 @@ function Profile() {
     const [refreshes, setRefresh] = useState(0)
 
     useEffect(() => {
+        console.log(fetchingProjects);
         fetchUser()
         fetchEmployee()
         fetchProjects()
@@ -736,7 +731,7 @@ export default Profile
 
 
 
-function ProjectModal(){
+// function ProjectModal(){
     // return (
     //     <Modal
     //       title="Edit Project"
@@ -866,4 +861,4 @@ function ProjectModal(){
     //       </Form>
     //     </Modal>
     // )
-}
+// }
