@@ -22,15 +22,15 @@ const roleMap: Record<string, string> = {
     A003: "BUL, PM",
     A004: "All Members Remaining",
 };
-// const statusMap: Record<string, string> = {
-//     DRAFT: "Draft",
-//     PENDING_APPROVAL: "Pending Approval",
-//     APPROVED: "Approved",
-//     REJECTED: "Rejected",
-//     PENDING_PAYMENT: "Pending Payment",
-//     PAID: "Paid"
-// };
-// import { roleDefine } from "../../consts/UserRole";
+const statusMap: Record<string, string> = {
+    DRAFT: "Draft",
+    PENDING_APPROVAL: "Pending Approval",
+    APPROVED: "Approved",
+    REJECTED: "Rejected",
+    PENDING_PAYMENT: "Pending Payment",
+    PAID: "Paid"
+};
+import { roleDefine } from "../../consts/UserRole";
 
 
 const formatDate = (dateTimeString: string | undefined) => {
@@ -49,7 +49,7 @@ function Profile() {
     const [employeeForm] = Form.useForm()
 
 
-    const user = useAuthStore((state) => state.user)
+    var user = useAuthStore((state) => state.user)
     const [employee, setEmployee] = useState<Employee | null>(null)
     const [claims, setClaims] = useState<FinanceClaim[]>([])
 
@@ -81,7 +81,7 @@ function Profile() {
 
         employee.job_rank = "DEV1"
         employee.contract_type = "THREE YEAR"
-        employee.department_name = "CMS"
+        employee.department_code = "CMS"
         employee.end_date = new Date().toISOString()
         employee.salary = 3000001
 
@@ -121,11 +121,11 @@ function Profile() {
 
         const searchParams = {
             searchCondition: {
-                keyword: "",
-                claim_status: "",
-                claim_start_date: employee?.start_date, // lower the scope
-                claim_end_date: employee?.end_date,
-                is_delete: false,
+                // keyword: "",
+                // claim_status: "",
+                // claim_start_date: "", // lower the scope
+                // claim_end_date: "",
+                // is_delete: false,
             },
             pageInfo: {
                 pageNum: 1,
@@ -135,9 +135,7 @@ function Profile() {
 
         const myClaims = await ApiService.post<ApiResponse<FinanceClaimResponse>>('/claims/search', searchParams).then((res) => res.data)
         const totalClaims = myClaims.pageData.filter((claim) => {
-            if (claim.employee_info)
-                return claim.employee_info.user_id == user?._id
-            return true
+            return claim!.staff_id == user?._id
         })
         //const totalClaims = claims.pageData
         setTotalClaims(totalClaims)
@@ -646,8 +644,7 @@ function Profile() {
                 onCancel={() => setIsClaimModal(false)}
                 >
                     <ul className="flex flex-col item-center">
-                        {claims.filter(x=>x)
-                        .map((claim) => (
+                        {claims.map((claim) => (
                             <Card
                             hoverable
                             style={{borderColor:'gray', margin: "0.5rem"}}
