@@ -3,20 +3,20 @@ export const PublicRoutes = {
   HOME: "/",
   LOGIN: "/login",
   REGISTER: "/register",
-  VERIFY: "/verifyEmail/:token",
+  VERIFY: "/verify-email/:token",
   FORGOTPASS:"/forgotPassword",
 };
 
 export const AdminRoutes = {
-  ADMIN_DASHBOARD: `/adminDashboard`, 
-  PROJECT_LIST_PAGE: `/projectList`, 
-  USER_LIST_PAGE: `/userList`, 
+  ADMIN_DASHBOARD: `/admin-dashboard`, 
+  PROJECT_LIST_PAGE: `/project-list`, 
+  USER_LIST_PAGE: `/user-list`, 
 };
 
 export const UserRoutes = {
-  USER_DASHBOARD: `/userdashboard`, 
+  USER_DASHBOARD: `/user-dashboard`, 
   REQUEST_PAGE: `/request`, 
-  APPROVAL_PAGE: `/approvalPage`, 
-  PROFILE_PAGE: `/userprofile`, 
-  PAID_PAGE: `/paidPage`, 
+  APPROVAL_PAGE: `/approval-page`, 
+  PROFILE_PAGE: `/user-profile`, 
+  PAID_PAGE: `/paid-page`, 
 };

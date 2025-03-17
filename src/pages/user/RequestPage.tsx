@@ -125,8 +125,15 @@ const RequestPage: React.FC = () => {
   const handleChangeStatus = async (claimId: string, newStatus: string) => {
     try {
       setLoading(true);
-      await authService.changeClaimStatus(claimId, newStatus);
+      const statusChangePayload = {
+        _id: claimId,
+        claim_status: newStatus,
+        comment: "", 
+      };
+      await authService.updateClaimStatusForApproval(statusChangePayload);
       message.success(`Claim status changed to ${newStatus}!`);
+
+      // Reload danh sách claim sau khi đổi trạng thái
       const result = await authService.getAllClaims();
       const rawClaims = result.pageData;
       const mappedClaims: ClaimRequest[] = rawClaims.map((item: any) => ({
@@ -159,6 +166,7 @@ const RequestPage: React.FC = () => {
       setLoading(false);
     }
   };
+
 
   const handleSubmit = async () => {
     try {

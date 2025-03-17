@@ -1,8 +1,8 @@
 import { useRef, useEffect, useState } from "react";
 import LoadingSpin from "../../../components/common/LoadingSpin";
 import { BackArrowBackSpaceIcon } from "../../../components/Icon/MuiIIcon";
-import useForgotPassword from "../../../hooks/auth/useForgotPassword";
-import useNavigateHome from "../../../hooks/navigate/useNavigateHome";
+import useForgotPassword from "../../../hooks/auth-hooks/useForgotPassword";
+import useNavigateHome from "../../../hooks/navigate-hooks/useNavigateHome";
 
 function ForgotPassword() {
   const inputRef = useRef<HTMLInputElement>(null);

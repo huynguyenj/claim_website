@@ -1,39 +1,49 @@
 import { ApiResponse } from "../consts/ApiResponse";
-import { UserInfo } from "../model/UserData";
+import { ApiResponseWithDataNull, UserInfo } from "../model/UserData";
 import { ClaimRequest, NewClaimRequest } from "../model/Claim";
 import apiService from "./ApiService";
-import { ProjectCondition } from "../model/SearchType";
+import { ClaimSearchCondition, PageReturn, ProjectCondition } from "../model/SearchType";
+import { ClaimResponseApproval, ClaimStatusChangeApproval } from "../model/ClaimData";
 
 const authService = {
-  getInfo: () => apiService.get<ApiResponse<UserInfo>>('/auth').then((res) => res),
+  getInfo: () =>
+    apiService.get<ApiResponse<UserInfo>>("/auth").then((res) => res),
 
   createClaim: (claimRequest: NewClaimRequest) =>
-    apiService.post<ApiResponse<ClaimRequest>>('claims', claimRequest)
+    apiService
+      .post<ApiResponse<ClaimRequest>>("claims", claimRequest)
       .then((res) => res),
 
   updateClaim: (claimId: string, data: Partial<ClaimRequest>) =>
-    apiService
-      .put<ClaimRequest>(`/claims/${claimId}`, data)
-      .then((res) => res),
+    apiService.put<ClaimRequest>(`/claims/${claimId}`, data).then((res) => res),
 
   getAllClaims: () =>
-    apiService.post<ApiResponse<{ pageData: any[] }>>(`claims/search`, {
-      // Không truyền searchCondition cụ thể để lấy toàn bộ claim
-      searchCondition: {},
-      pageInfo: { pageNum: 1, pageSize: 100 },
-    }).then((res) => res.data),
+    apiService
+      .post<ApiResponse<{ pageData: any[] }>>(`claims/search`, {
+        searchCondition: {},
+        pageInfo: { pageNum: 1, pageSize: 100 },
+      })
+      .then((res) => res.data),
 
-  searchProjectByUserId: (searchProject: { searchCondition: { user_id: string; is_delete: boolean }; pageInfo: { pageNum: number; pageSize: number } }) =>
-    apiService.post<ApiResponse<ProjectCondition[]>>(`projects/search`, searchProject)
+  searchProjectByUserId: (searchProject: {
+    searchCondition: { user_id: string; is_delete: boolean };
+    pageInfo: { pageNum: number; pageSize: number };
+  }) =>
+    apiService
+      .post<ApiResponse<ProjectCondition[]>>(`projects/search`, searchProject)
       .then((res) => res),
 
-  changeClaimStatus: (claimId: string, newStatus: string, comment?: string) =>
+  updateClaimStatusForApproval: (claimStatus: ClaimStatusChangeApproval) =>
     apiService
-      .put<ApiResponse<ClaimRequest>>('/claims/change-status', {
-        _id: claimId,
-        claim_status: newStatus,
-        comment: comment ?? "",
-      })
+      .put<ApiResponse<ApiResponseWithDataNull>>(
+        `claims/change-status`,
+        claimStatus
+      )
+      .then((res) => res),
+
+  getClaimApproval: (searchTerm: ClaimSearchCondition) =>
+    apiService
+      .post<ApiResponse<PageReturn<ClaimResponseApproval>>>("claims/approval-search", searchTerm)
       .then((res) => res),
 
   searchApprovals: () =>
@@ -41,7 +51,7 @@ const authService = {
       .post<ApiResponse<{ pageData: any[] }>>('/users/search', {
         searchCondition: {
           role_code: 'A003',
-          is_deleted: false, 
+          is_deleted: false,
         },
         pageInfo: {
           pageNum: 1,
@@ -49,8 +59,6 @@ const authService = {
         },
       })
       .then((res) => res.data),
+};
 
-
-}
-
-export default authService
+export default authService;
