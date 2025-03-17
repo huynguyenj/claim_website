@@ -1,3 +1,8 @@
+export interface ProjectMember {
+  user_id: string;
+  project_role: string;
+}
+
 export interface Project {
   _id: string;
   project_name: string;
@@ -19,6 +24,11 @@ export interface Project {
     user_name: string;
     full_name: string;
   }[];
+}
+
+export interface ProjectRole {
+  name: string;
+  value: string;
 }
 
 export interface SearchCondition {
@@ -53,11 +63,11 @@ export interface PaginatedResponse {
 }
 export interface ProjectResponse {
   pageData: Project[];
-    data: {
-      pageData: Project[];
-      pageInfo: {
-        totalItems: number;
-      };
-    }
-  
+  data: {
+    pageData: Project[];
+    pageInfo: {
+      totalItems: number;
+    };
+  }
+
 }

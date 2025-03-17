@@ -1,24 +1,24 @@
 import { Article, CheckCircleOutline, DehazeOutlined, EditCalendar, EditOutlined, PersonSearch, SearchOutlined, Today } from "@mui/icons-material";
-import { Button, DatePicker, Form, Input, message, Modal, Select, Spin, Table, TablePaginationConfig, Row, Col, InputNumber } from "antd";
+import { Button, Col, DatePicker, Form, Input, InputNumber, message, Modal, Row, Select, Spin, Table, TablePaginationConfig } from "antd";
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import { useEffect, useState } from "react";
 import UserCard from "../../components/Admin/UserCard";
 import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
+import { EmailIcon, PersonIcon } from "../../components/Icon/MuiIIcon";
 import { Notification } from "../../components/common/Notification";
-import { ApiResponse } from "../../consts/ApiResponse";
+import { ApiResponse, getApiErrorMessage } from "../../consts/ApiResponse";
 import { exportToExcel } from "../../consts/ExcelDownload";
 import { pagnitionAntd } from "../../consts/Pagination";
 import useUserData from "../../hooks/admin/useUserData";
+import { Contract } from "../../model/ContractData";
 import { Department } from "../../model/DepartmentData";
 import { Employee } from "../../model/EmployeeData";
+import { Job } from "../../model/JobData";
 import { Role } from "../../model/RoleData";
 import { PaginatedResponse, SearchRequest, User } from "../../model/UserData";
 import apiService from "../../services/ApiService";
-import { Job } from "../../model/JobData";
-import { Contract } from "../../model/ContractData";
-import { EmailIcon, PersonIcon } from "../../components/Icon/MuiIIcon";
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -59,54 +59,31 @@ export default function UserManagement() {
     const [editForm] = Form.useForm();
     const [employeeForm] = Form.useForm();
 
-    const convertToUTC7 = (utcDate: string) => {
-        return dayjs.utc(utcDate).tz('Asia/Jakarta').format('YYYY-MM-DD');
-    };
-
-    const validateEmail = (_: unknown, value: string, callback: (error?: string) => void) => {
-        const emailRegex = /^[A-Za-z0-9+_.-]+@(.+)$/;
-        if (!emailRegex.test(value)) {
-            callback('Invalid email address');
-        } else {
-            callback();
-        }
-    };
-
-    const validatePassword = (_: unknown, value: string, callback: (error?: string) => void) => {
-        const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
-        if (!passwordRegex.test(value)) {
-            callback('Password must contain at least 8 characters, including uppercase, lowercase, and numbers');
-        } else {
-            callback();
-        }
-    };
-
     const fetchDepartments = async () => {
         setLoading(true);
         try {
             const response = await apiService.get<ApiResponse<Department[]>>("/departments/get-all");
 
-            console.log("Departments:", response.data);
             setDepartments(response.data);
         } catch (error) {
-            message.error("Failed to fetch departments");
-            console.error(error);
+            Notification("error", error as string);
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchJob = async () => {
+    const fetchJobs = async () => {
         setLoading(true);
         try {
             const response = await apiService.get<ApiResponse<Job[]>>("/jobs/get-all");
 
             setJobs(response.data);
         } catch (error) {
-            message.error("Failed to fetch jobs");
-            console.error(error);
+            Notification("error", error as string);
+        } finally {
+            setLoading(false);
         }
-    }
+    };
 
     const fetchContracts = async () => {
         setLoading(true);
@@ -115,23 +92,34 @@ export default function UserManagement() {
 
             setContracts(response.data);
         } catch (error) {
-            message.error("Failed to fetch contracts");
-            console.error(error);
+            Notification("error", error as string);
+        } finally {
+            setLoading(false);
         }
-    }
+    };
+
+    const fetchRoles = async () => {
+        try {
+            const response = await apiService.get<{ data: Role[] }>('/roles/get-all');
+            setRoles(response.data);
+        } catch (error) {
+            Notification("error", error as string);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchEmployees = async (employeeId: string) => {
+        setLoading(true);
         try {
-            setLoading(true);
             const response = await apiService.get<{ data: Employee }>(`/employees/${employeeId}`);
-            console.log(selectedEmployee)
             if (response && response.data) {
                 setSelectedEmployee(response.data);
                 setEditingEmployee(response.data);
                 employeeForm.setFieldsValue({
                     ...response.data,
-                    start_date: dayjs(response.data.start_date),
-                    end_date: dayjs(response.data.end_date),
+                    start_date: response.data.start_date ? dayjs(response.data.start_date) : null,
+                    end_date: response.data.end_date ? dayjs(response.data.end_date) : null,
                 });
                 setIsEmployeeModalOpen(true);
             } else {
@@ -151,7 +139,7 @@ export default function UserManagement() {
                 searchCondition: {
                     keyword,
                     role_code: '',
-                    is_delete: false,
+                    is_deleted: false,
                     is_verified: '',
                 },
                 pageInfo: {
@@ -179,29 +167,39 @@ export default function UserManagement() {
     };
 
     useEffect(() => {
-        const debounceTimeout = setTimeout(() => {
-            fetchUsers(currentPage, pageSize, searchTerm, showBanned);
-        }, 2000);
-
-        return () => clearTimeout(debounceTimeout);
-    }, [searchTerm, currentPage, pageSize, showBanned]);
+        fetchUsers(currentPage, pageSize, searchTerm, showBanned);
+    }, [currentPage, pageSize, showBanned]);
 
     useEffect(() => {
-        fetchDepartments();
-    }, []);
+        if (isEmployeeModalOpen) {
+            const fetchData = async () => {
+                await fetchDepartments();
+                await fetchJobs();
+                await fetchContracts();
+                await fetchRoles();
+            };
+            fetchData();
+        }
+    }, [isEmployeeModalOpen]);
 
     useEffect(() => {
-        const fetchRoles = async () => {
-            try {
-                const response = await apiService.get<{ data: Role[] }>('/roles/get-all');
-                setRoles(response.data);
-                console.log(roles)
-            } catch (error) {
-                Notification("error", error as string);
-            }
-        };
-        fetchRoles();
-    }, []);
+        if (isEditModalOpen) {
+            const fetchData = async () => {
+                await fetchDepartments();
+                await fetchRoles();
+            };
+            fetchData();
+        }
+    }, [isEditModalOpen]);
+
+    useEffect(() => {
+        if (isAddModalOpen) {
+            const fetchData = async () => {
+                await fetchRoles();
+            };
+            fetchData();
+        }
+    }, [isAddModalOpen]);
 
     const handleTableChange = (pagination: TablePaginationConfig) => {
         setCurrentPage(pagination.current || currentPage);
@@ -209,24 +207,46 @@ export default function UserManagement() {
     };
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
+        const keyword = e.target.value;
+        setSearchTerm(keyword);
+
+        if (keyword === "") {
+            setCurrentPage(1);
+            fetchUsers(1, pageSize, "", showBanned);
+        }
+    };
+
+    const handleSearchSubmit = () => {
         setCurrentPage(1);
+        fetchUsers(1, pageSize, searchTerm, showBanned);
     };
 
     const showModal = () => setIsAddModalOpen(true);
 
     const handleAddCancel = () => {
         setIsAddModalOpen(false);
+        setRoles([]);
         addForm.resetFields();
     };
 
+    const handleEditCancel = () => {
+        setIsEditModalOpen(false);
+        setRoles([]);
+        editForm.resetFields();
+    }
+
     const handleEmployeeCancel = () => {
         setIsEmployeeModalOpen(false);
+        setDepartments([]);
+        setJobs([]);
+        setContracts([]);
+        setRoles([]);
         employeeForm.resetFields();
     };
 
     const handleAddUser = async () => {
         try {
+            setLoading(true);
             const values = await addForm.validateFields();
             const response = await apiService.post("/users", values);
 
@@ -236,20 +256,16 @@ export default function UserManagement() {
                 handleAddCancel();
             }
         } catch (error: any) {
-            if (error.response && error.response.data.message.includes('already exists')) {
-                addForm.setFields([
-                    {
-                        name: 'user_name',
-                        errors: ['This username is already taken'],
-                    },
-                ]);
-                Notification("error", "Username already exists!");
-            }
+            const errorMessage = getApiErrorMessage(error);
+            message.error(errorMessage);
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleUpdateUser = async () => {
         try {
+            setLoading(true);
             const values = await editForm.validateFields();
             if (!editingUser) return;
 
@@ -258,17 +274,23 @@ export default function UserManagement() {
                 content: `Do you want to update the user ${editingUser.user_name}?`,
                 onOk: async () => {
                     setLoading(true);
-                    await apiService.put(`/users/${editingUser._id}`, values);
-                    message.success("User updated successfully!");
-                    setIsEditModalOpen(false);
-                    fetchUsers(currentPage, pageSize, searchTerm);
+                    try {
+                        await apiService.put(`/users/${editingUser._id}`, values);
+                        message.success("User updated successfully!");
+                        setIsEditModalOpen(false);
+                        fetchUsers(currentPage, pageSize, searchTerm);
+                    } catch (error: any) {
+                        const errorMessage = getApiErrorMessage(error);
+                        message.error(errorMessage);
+                    } finally {
+                        setLoading(false);
+                    }
                 },
                 okText: 'Update',
                 cancelText: 'Cancel',
             });
         } catch (error) {
-            console.error("Update failed:", error);
-            message.error("Failed to update user.");
+            setLoading(false);
         } finally {
             setLoading(false);
         }
@@ -276,43 +298,42 @@ export default function UserManagement() {
 
     const handleUpdateEmployee = async () => {
         try {
+            setLoading(true);
             const values = await employeeForm.validateFields();
-            console.log("Form Values:", values);
 
-            if (!editingEmployee) {
-                console.error("No employee selected for editing");
-                return;
-            }
+            if (!editingEmployee) return;
 
             const updatedEmployee = {
                 user_id: editingEmployee.user_id,
                 ...values,
                 department_code: values.department_code,
-                start_date: values.start_date.utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
-                end_date: values.end_date.utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
+                start_date: values.start_date ? values.start_date.toISOString() : null,
+                end_date: values.end_date ? values.end_date.toISOString() : null,
                 updated_by: values.updated_by,
             };
-
-            console.log("Updated Employee Data:", updatedEmployee);
-            console.log("Editing Employee ID:", editingEmployee.user_id);
 
             Modal.confirm({
                 title: "Confirm Update",
                 content: `Do you want to update the employee ${editingEmployee.full_name}?`,
                 onOk: async () => {
                     setLoading(true);
-                    const response = await apiService.put(`/employees/${editingEmployee.user_id}`, updatedEmployee);
-                    console.log("API Response:", response);
-                    message.success("Employee updated successfully!");
-                    setIsEmployeeModalOpen(false);
-                    fetchEmployees(editingEmployee.user_id);
+                    try {
+                        const response = await apiService.put(`/employees/${editingEmployee.user_id}`, updatedEmployee);
+                        message.success("Employee updated successfully!");
+                        setIsEmployeeModalOpen(false);
+                        fetchEmployees(editingEmployee.user_id);
+                    } catch (error: any) {
+                        const errorMessage = getApiErrorMessage(error);
+                        message.error(errorMessage);
+                    } finally {
+                        setLoading(false);
+                    }
                 },
                 okText: "Update",
                 cancelText: "Cancel",
             });
         } catch (error) {
-            console.error("Update failed:", error);
-            Notification("error", "Failed to update employee.");
+            setLoading(false);
         } finally {
             setLoading(false);
         }
@@ -324,8 +345,7 @@ export default function UserManagement() {
             message.success("User deleted successfully!");
             fetchUsers(currentPage, pageSize, searchTerm);
         } catch (error) {
-            message.error("Failed to delete user.");
-            console.error(error);
+            Notification("error", "Failed to delete user.");
         }
     };
 
@@ -340,8 +360,7 @@ export default function UserManagement() {
             message.success(`User ${isBlocked ? "banned" : "unbanned"} successfully!`);
             fetchUsers(currentPage, pageSize, searchTerm);
         } catch (error) {
-            console.error("Failed to change user status:", error);
-            message.error("Failed to change user status.");
+            Notification("error", "Failed to change user status.");
         } finally {
             setLoading(false);
         }
@@ -364,8 +383,7 @@ export default function UserManagement() {
                     fetchUsers(currentPage, pageSize, searchTerm);
                     setIsRoleModalOpen(false);
                 } catch (error) {
-                    console.error("Failed to change role:", error);
-                    message.error("Error updating user role.");
+                    Notification("error", "Failed to update user role.");
                 } finally {
                     setLoading(false);
                 }
@@ -548,9 +566,10 @@ export default function UserManagement() {
                 <div className="mb-4 flex items-center">
                     <Input
                         placeholder="Search by name or email"
-                        prefix={<SearchOutlined />}
+                        prefix={<SearchOutlined onClick={handleSearchSubmit} style={{ cursor: 'pointer' }} />}
                         value={searchTerm}
                         onChange={handleSearch}
+                        onPressEnter={handleSearchSubmit}
                         size="large"
                         className="max-w-md shadow-[9px_6px_0px_rgba(0,0,0,1)]"
                         allowClear
@@ -571,7 +590,7 @@ export default function UserManagement() {
                             value={showBanned}
                             onChange={(value) => {
                                 setShowBanned(value);
-                                setCurrentPage(1); // Reset pagination
+                                setCurrentPage(1);
                                 fetchUsers(1, pageSize, searchTerm, value);
                             }}
                             options={[
@@ -597,7 +616,6 @@ export default function UserManagement() {
                             label="Email"
                             rules={[
                                 { required: true, message: 'Email is required' },
-                                { validator: validateEmail },
                             ]}
                         >
                             <Input />
@@ -607,7 +625,24 @@ export default function UserManagement() {
                             name="password"
                             rules={[
                                 { required: true, message: 'Password is required' },
-                                { validator: validatePassword },
+                            ]}
+                        >
+                            <Input.Password />
+                        </Form.Item>
+                        <Form.Item
+                            label="Confirm Password"
+                            name="confirmPassword"
+                            dependencies={['password']}
+                            rules={[
+                                { required: true, message: 'Please confirm your password' },
+                                ({ getFieldValue }) => ({
+                                    validator(_, value) {
+                                        if (!value || getFieldValue('password') === value) {
+                                            return Promise.resolve();
+                                        }
+                                        return Promise.reject('The two passwords do not match');
+                                    },
+                                }),
                             ]}
                         >
                             <Input.Password />
@@ -617,15 +652,6 @@ export default function UserManagement() {
                             name="user_name"
                             rules={[
                                 { required: true, message: "Please enter a username" },
-                                {
-                                    validator: async (_, value) => {
-                                        // Optional: Add client-side uniqueness check
-                                        if (value && users.some(user => user.user_name === value)) {
-                                            return Promise.reject('Username already exists');
-                                        }
-                                        return Promise.resolve();
-                                    }
-                                }
                             ]}
                         >
                             <Input />
@@ -635,11 +661,12 @@ export default function UserManagement() {
                             name="role_code"
                             rules={[{ required: true, message: "Please select a role" }]}
                         >
-                            <Select>
-                                <Select.Option value="A001">Administrator</Select.Option>
-                                <Select.Option value="A002">Finance</Select.Option>
-                                <Select.Option value="A003">BUL, PM</Select.Option>
-                                <Select.Option value="A004">All Members Remaining</Select.Option>
+                            <Select placeholder="Select a role">
+                                {roles.map((role) => (
+                                    <Select.Option key={role.role_code} value={role.role_code}>
+                                        {role.role_name}
+                                    </Select.Option>
+                                ))}
                             </Select>
                         </Form.Item>
                     </Form>
@@ -675,7 +702,7 @@ export default function UserManagement() {
                 <Modal
                     title="Edit User"
                     open={isEditModalOpen}
-                    onCancel={() => setIsEditModalOpen(false)}
+                    onCancel={handleEditCancel}
                     onOk={handleUpdateUser}
                     okText="Save"
                     cancelText="Cancel"
@@ -686,7 +713,6 @@ export default function UserManagement() {
                             label="Email"
                             rules={[
                                 { required: true, message: 'Email is required' },
-                                { validator: validateEmail },
                             ]}>
                             <Input />
                         </Form.Item>
@@ -695,15 +721,6 @@ export default function UserManagement() {
                             label="Username"
                             rules={[
                                 { required: true, message: "Please enter a username" },
-                                {
-                                    validator: async (_, value) => {
-                                        // Optional: Add client-side uniqueness check
-                                        if (value && users.some(user => user.user_name === value)) {
-                                            return Promise.reject('Username already exists');
-                                        }
-                                        return Promise.resolve();
-                                    }
-                                }
                             ]}>
                             <Input />
                         </Form.Item>
@@ -819,6 +836,8 @@ export default function UserManagement() {
                                     >
                                         <DatePicker
                                             format="YYYY-MM-DD"
+                                            value={employeeForm.getFieldValue('start_date') ? dayjs(employeeForm.getFieldValue('start_date')) : null}
+                                            onChange={(date) => employeeForm.setFieldsValue({ start_date: date })}
                                         />
                                     </Form.Item>
                                 </Col>
@@ -830,6 +849,8 @@ export default function UserManagement() {
                                     >
                                         <DatePicker
                                             format="YYYY-MM-DD"
+                                            value={employeeForm.getFieldValue('end_date') ? dayjs(employeeForm.getFieldValue('end_date')) : null}
+                                            onChange={(date) => employeeForm.setFieldsValue({ end_date: date })}
                                         />
                                     </Form.Item>
                                 </Col>
