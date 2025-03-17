@@ -1,6 +1,6 @@
-import { Button, message, Modal, Tag } from "antd";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import React from "react";
+import { Button, message, Modal, Spin, Tag } from "antd";
+import { ExclamationCircleOutlined, LoadingOutlined } from "@ant-design/icons";
+import { useState } from "react";
 import { ChangeStatusClaim, FinanceClaim } from "./DataType";
 import dayjs from "dayjs";
 import { Notification } from "../../components/common/Notification";
@@ -9,12 +9,11 @@ import { privateApiService } from "../../services/ApiService";
 const { confirm } = Modal;
 
 interface ModalConfirmProps {
-  typeConfirm: React.CSSProperties;
-  text: string;
   userData: FinanceClaim;
 }
 
-function ModalConfirm({ typeConfirm, text, userData }: ModalConfirmProps) {
+function ModalConfirm({ userData }: ModalConfirmProps) {
+  const [loading, setLoading] = useState<boolean>(false);
   function showConfirm() {
     const user = userData;
     console.log(user);
@@ -86,15 +85,17 @@ function ModalConfirm({ typeConfirm, text, userData }: ModalConfirmProps) {
     });
   }
   const status: ChangeStatusClaim = {
-    claim_id: userData._id,
+    _id: userData._id,
     claim_status: "Paid",
-    comment: "",
+    comment: "Payment",
   };
 
   const handleOK = (): void => {
+    setLoading(true);
     privateApiService
       .payForEmployee(status)
       .then((response) => {
+        setLoading(false);
         if (response.success) {
           message.success(`PAY FOR ${userData.staff_name} success`);
           Notification(
@@ -102,28 +103,34 @@ function ModalConfirm({ typeConfirm, text, userData }: ModalConfirmProps) {
             "Payment successful!",
             "The claim status has been updated."
           );
-        } else {
-          Notification(
-            "error",
-            "Payment failed!",
-            "Could not update claim status."
-          );
         }
       })
       .catch((error) => {
         console.error("Error processing payment:", error);
-        Notification("error", "Error", "Something went wrong.");
       });
   };
 
   return (
-    <Button
-      style={typeConfirm}
-      onClick={showConfirm}
-      className="text-[0.8rem] hover:tracking-[0.2rem] transition duration-300"
-    >
-      {text}
-    </Button>
+    <>
+      {loading ? (
+        <Button
+          style={{ backgroundColor: "var(--color-indigo-700)",color:"white" }}
+          className="text-[0.8rem]  tracking-[0.1rem] font-medium"
+          disabled
+        >
+          <Spin indicator={<LoadingOutlined spin />} size="small" />
+          Progress...
+        </Button>
+      ) : (
+        <Button
+          onClick={showConfirm}
+          style={{ backgroundColor: "#90EE90" }}
+          className=" text-[0.8rem] hover:tracking-[0.2rem] transition duration-300"
+        >
+          PAY
+        </Button>
+      )}
+    </>
   );
 }
 

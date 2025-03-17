@@ -1,11 +1,11 @@
-import { Dayjs } from "dayjs";
+
 
 interface FinanceSearchCondition {
   searchCondition?: {
     keyword?: string;
     claim_status?: string;
-    claim_start_date?: Date | Dayjs;
-    claim_end_date?: Date | Dayjs;
+    claim_start_date?: string;
+    claim_end_date?: string;
     is_delete?: boolean;
   };
   pageInfo?: {
@@ -88,6 +88,7 @@ interface FinanceClaim {
   claim_name: string;
   claim_start_date: string;
   claim_end_date: string;
+  total_work_time: number;
   claim_status: string;
   is_deleted: boolean;
   created_at: string;
@@ -100,7 +101,7 @@ interface FinanceClaimResponse {
 }
 
 interface ChangeStatusClaim {
-  claim_id: string;
+  _id: string;
   claim_status: string;
   comment: string;
 }

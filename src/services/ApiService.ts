@@ -8,6 +8,7 @@ import {
 } from "../pages/finance/DataType";
 import { Notification } from "../components/common/Notification";
 import { ApiResponseWithDataNull } from "../model/UserData";
+import {useErrorStore} from "../store/errorStore";
 
 const API_BASE_URL: string = "https://management-claim-request.vercel.app/api/";
 
@@ -31,12 +32,14 @@ apiClient.interceptors.request.use(
 );
 
 apiClient.interceptors.response.use(
-  (response: AxiosResponse) => response,
+  (response: AxiosResponse) => {
+    return response;},
   (error) => {
     const errorMessage = getApiErrorMessage(error);
-    if (errorMessage === 403 || errorMessage === 404) {
-      useAuthStore.getState().removeExpired();
-    }
+    console.log(errorMessage)
+      // useAuthStore.getState().removeExpired();
+    useErrorStore.setState({message:errorMessage});
+    // useErrorStore.getState().setMessage(errorMessage)
     return Promise.reject(errorMessage);
   }
 );
@@ -57,7 +60,7 @@ const privateApiService = {
   getFinanceClaimList: (
     filters: FinanceSearchCondition
   ): Promise<ApiResponse<FinanceClaimResponse> | null> => {
-    return apiClient
+    return apiClient  
       .post<ApiResponse<FinanceClaimResponse>>(
         API_BASE_URL + "claims/finance-search",
         filters
@@ -72,7 +75,7 @@ const privateApiService = {
     status: ChangeStatusClaim
   ): Promise<ApiResponseWithDataNull> => {
     return apiClient
-      .post<ApiResponseWithDataNull>(
+      .put<ApiResponseWithDataNull>(
         `${API_BASE_URL}claims/change-status`,
         status
       )
