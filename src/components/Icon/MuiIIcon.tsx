@@ -45,7 +45,7 @@ export {default as PendingRequestIcon} from '@mui/icons-material/MarkEmailUnread
 export {default as ApprovedRequestIcon} from '@mui/icons-material/MarkEmailRead';
 export {default as RejectedRequestIcon} from '@mui/icons-material/LabelOff';
 
-
+export {default as UploadIcon } from '@mui/icons-material/Upload';
 
 
 
