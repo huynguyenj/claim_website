@@ -31,6 +31,21 @@ const RequestPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [form] = Form.useForm();
 
+  const [approvals, setApprovals] = useState<any[]>([]);
+
+  useEffect(() => {
+
+    const fetchApprovals = async () => {
+      try {
+        const result = await authService.searchApprovals();
+        const rawUsers = result.pageData;
+        setApprovals(rawUsers);
+      } catch (error) {
+        console.error("Error fetching approvals:", error);
+      }
+    };
+    fetchApprovals();
+  }, []);
 
   useEffect(() => {
     if (!userId) return;
@@ -454,11 +469,13 @@ const RequestPage: React.FC = () => {
           editingId={editingId}
           form={form}
           projects={projects}
+          approvals={approvals}
           onCancel={() => {
             setIsModalOpen(false);
             form.resetFields();
           }}
           onSubmit={async () => {
+            // Xử lý submit, ví dụ gọi handleSubmit()
             if (editingId) {
               Modal.confirm({
                 title: "Do you want to update?",

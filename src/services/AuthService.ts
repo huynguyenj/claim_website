@@ -36,6 +36,20 @@ const authService = {
       })
       .then((res) => res),
 
+  searchApprovals: () =>
+    apiService
+      .post<ApiResponse<{ pageData: any[] }>>('/users/search', {
+        searchCondition: {
+          role_code: 'A003',
+          is_deleted: false, 
+        },
+        pageInfo: {
+          pageNum: 1,
+          pageSize: 50,
+        },
+      })
+      .then((res) => res.data),
+
 
 }
 

@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, Form, Input, Select, Button } from 'antd';
 import type { Project } from '../model/ProjectData';
-
 
 interface ClaimFormModalProps {
   visible: boolean;
   editingId: string | null;
   form: any;
   projects: Project[];
+  // Danh sách user có role A003 (Approval)
+  approvals: any[];
   onCancel: () => void;
   onSubmit: () => void;
   onSendRequest?: () => void;
@@ -18,17 +19,30 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
   editingId,
   form,
   projects,
+  approvals,
   onCancel,
   onSubmit,
   onSendRequest,
 }) => {
+  // State lưu keyword tìm kiếm cho Approval
+  const [approvalSearch, setApprovalSearch] = useState<string>('');
+
+  // Lọc danh sách approval dựa trên keyword và giới hạn 10 kết quả
+  const filteredApprovals = approvals
+    .filter((user) =>
+      (user.user_name || user.email)
+        .toLowerCase()
+        .includes(approvalSearch.toLowerCase())
+    )
+    .slice(0, 10);
+
   return (
     <Modal
       title={editingId ? "Edit Claim" : "Add New Claim"}
       open={visible}
       onCancel={onCancel}
       footer={[
-        // Nếu đang chỉnh sửa và claim có status Draft (hàm onSendRequest có giá trị) thì hiển thị nút Send Request
+        // Nếu đang chỉnh sửa và có hàm onSendRequest, hiển thị nút Send Request
         editingId && onSendRequest && (
           <Button key="send" type="primary" onClick={onSendRequest}>
             Send Request
@@ -43,7 +57,7 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
       ]}
     >
       <Form form={form} layout="vertical">
-        {/* Đưa trường Project lên đầu */}
+        {/* Trường Project */}
         <Form.Item
           label="Project"
           name="project_id"
@@ -57,6 +71,26 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
             ))}
           </Select>
         </Form.Item>
+        {/* Trường Approval: Dropdown có khả năng search và giới hạn kết quả */}
+        <Form.Item
+          label="Approval"
+          name="approval_id"
+          rules={[{ required: true, message: "Please select an approval user" }]}
+        >
+          <Select
+            showSearch
+            placeholder="Select an approval user"
+            onSearch={(value) => setApprovalSearch(value)}
+            filterOption={false} // Vì ta tự lọc
+          >
+            {filteredApprovals.map((user) => (
+              <Select.Option key={user._id} value={user._id}>
+                {user.user_name || user.email}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        {/* Các trường khác */}
         <Form.Item
           label="Claim Name"
           name="claim_name"
@@ -81,7 +115,7 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
         >
           <Input type="date" />
         </Form.Item>
-        {/* Đưa Work Time ở dưới cùng */}
+        {/* Trường Work Time ở cuối cùng */}
         <Form.Item
           label="Work Time (hours)"
           name="total_work_time"
