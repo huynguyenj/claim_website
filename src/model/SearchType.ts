@@ -2,6 +2,10 @@ type PageInfo = {
       pageNum?: number;
       pageSize?: number
 }
+export interface PageReturn<T> {
+      pageData: T[]
+}
+
 //Claim
 export interface ClaimCondition {
       keyword?: string;

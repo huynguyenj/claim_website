@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import {  PublicRoutes } from "../../../consts/RoutesConst";
 import LoadingSpin from "../../../components/common/LoadingSpin";
 
-import useLogin from "../../../hooks/auth/useLogin";
+import useLogin from "../../../hooks/auth-hooks/useLogin";
 function LoginForm() {
   const navigate = useNavigate();
   const {handleSubmitLogin, loading} = useLogin();
