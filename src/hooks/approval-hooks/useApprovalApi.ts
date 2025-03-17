@@ -7,29 +7,31 @@ import { FormProps } from "antd";
 
 export default function useApprovalApi() {
   const [approveClaim,setApproveClaim] = useState<ClaimResponseApproval[]>([]);
+  const [totalItems,setTotalItem] = useState<number>(0)
+  const [searchTerm,setSearchTerm] = useState<ClaimSearchCondition>({
+      searchCondition:{
+            keyword: "",
+            claim_status: "",
+            claim_start_date: "",
+            claim_end_date: "",
+            is_delete: false
+      },
+         pageInfo: {
+         pageNum: 1,
+         pageSize: pagnitionAntd.pageSize
+      }
+  })
   const [loading,setLoading] = useState<boolean>(false)
   
   useEffect(() => {
       getClaimWithApprovalRole();
-  },[]);
+  },[searchTerm]);
   const getClaimWithApprovalRole = async () => {
-      const searchTerm:ClaimSearchCondition = {
-            searchCondition:{
-                  keyword: "",
-                  claim_status: "",
-                  claim_start_date: "",
-                  claim_end_date: "",
-                  is_delete: false
-            },
-               pageInfo: {
-               pageNum: 1,
-               pageSize: pagnitionAntd.pageSize
-            }
-      }
       setLoading(true);
       try {
             const response = await authService.getClaimApproval(searchTerm);
             setApproveClaim(response.data.pageData)
+            setTotalItem(response.data.pageInfo.totalItems)
       } catch (error) {
             console.log(error);
       }finally{
@@ -47,5 +49,5 @@ export default function useApprovalApi() {
             setLoading(false)
       }
   }
-  return {approveClaim,updataClaimStatus,loading}
+  return {approveClaim,updataClaimStatus,loading,setSearchTerm,totalItems}
 }

@@ -1,11 +1,13 @@
-import { Table, TableProps, Tag } from "antd";
+import { Table, TablePaginationConfig, TableProps, Tag } from "antd";
 import useApprovalApi from "../../hooks/approval-hooks/useApprovalApi";
 import { ClaimResponseApproval } from "../../model/ClaimData";
 import { formatColorForClaimStatus, formatDate } from "../../utils/format";
 import { pagnitionAntd } from "../../consts/Pagination";
+import { useState } from "react";
 
 function ApprovalPageBackup() {
-  const { approveClaim ,loading} = useApprovalApi();
+  const { approveClaim ,loading,setSearchTerm,totalItems} = useApprovalApi();
+  const [currentPage,setCurrentPage] = useState<number>(1);
   const columns: TableProps<ClaimResponseApproval>["columns"] = [
     {
       title: "Claim Name",
@@ -56,18 +58,39 @@ function ApprovalPageBackup() {
     {
       title: "Actions",
       key: "actions",
+      render:(_:unknown,render: ClaimResponseApproval) =>(
+            <button onClick={() => handleCheck(render._id)} className="bg-amber-300 p-2 rounded-2xl">Edit</button>
+      )
     },
   ];
+
+  const handleCheck = (id:string) =>{
+      console.log(id)
+  }
  
+  const handleTablePagination = (pagination: TablePaginationConfig) =>{
+      setCurrentPage(pagination.current || currentPage)
+      console.log(pagination.current)
+      setSearchTerm((prevSearch) => ({
+            ...prevSearch,
+            pageInfo:{
+                  pageNum: currentPage,
+                  pageSize:pagination.pageSize
+            }
+      }))
+  }
   return (
     <div className="p-10 border-2 rounded-2xl m-5">
+      <div className="overflow-x-auto">
       <Table<ClaimResponseApproval>
         columns={columns}
         dataSource={approveClaim || []}
         loading={loading}
-        pagination={{ pageSize: pagnitionAntd.pageSize }}
+        pagination={{ pageSize: pagnitionAntd.pageSize, current:currentPage,total: totalItems}}
         rowKey="_id"
+        onChange={handleTablePagination}
       />
+      </div>
     </div>
   );
 }
