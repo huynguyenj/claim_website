@@ -1,6 +1,9 @@
 export interface ProjectMember {
-  user_id: string;
   project_role: string;
+  user_id: string;
+  employee_id: string;
+  user_name: string;
+  full_name: string;
 }
 
 export interface Project {
@@ -17,13 +20,7 @@ export interface Project {
   created_at: string;
   updated_at: string;
   project_comment: string;
-  project_members: {
-    project_role: string;
-    user_id: string;
-    employee_id: string;
-    user_name: string;
-    full_name: string;
-  }[];
+  project_members: ProjectMember[];
 }
 
 export interface ProjectRole {
