@@ -1,4 +1,4 @@
-import { AccountTree, Article, CheckCircleOutline, Comment, DehazeOutlined, Description, EditCalendar, EditOutlined, History, SearchOutlined, SettingsEthernet, Today, Update } from "@mui/icons-material";
+import { AccountTree, Article, CheckCircleOutline, Comment, DehazeOutlined, Description, EditCalendar, EditOutlined, History, SearchOutlined, SettingsEthernet, Today, Update, Visibility } from "@mui/icons-material";
 import { Button, Col, DatePicker, Form, Input, message, Modal, Row, Select, Spin, Table, TablePaginationConfig } from "antd";
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
@@ -30,13 +30,13 @@ export default function ProjectManagement() {
   const [userPageSize, setUserPageSize] = useState<number>(10);
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const [userSearchTerm, setUserSearchTerm] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(pagnitionAntd.pageSize);
   const [totalItems, setTotalItems] = useState<number>(0);
-  const [searchTerm, setSearchTerm] = useState<string>("");
   const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState<boolean>(false);
   const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -44,6 +44,16 @@ export default function ProjectManagement() {
   const [projectMembers, setProjectMembers] = useState<Project["project_members"]>([]);
   const [addProjectForm] = Form.useForm();
   const [editProjectForm] = Form.useForm();
+
+  const [selectedDescription, setSelectedDescription] = useState<string | null>(null);
+
+  const handleViewDescription = (description: string) => {
+    setSelectedDescription(description);
+  };
+
+  const handleCloseDescriptionModal = () => {
+    setSelectedDescription(null);
+  };
 
   const fetchProjects = async (page: number, size: number, keyword: string) => {
     setLoading(true);
@@ -204,21 +214,6 @@ export default function ProjectManagement() {
     addProjectForm.resetFields();
   };
 
-  const handleEditProject = (project: Project) => {
-    setEditingProject(project);
-    setIsEditProjectModalOpen(true);
-
-    editProjectForm.setFieldsValue({
-      ...project,
-      project_start_date: project.project_start_date ? dayjs(project.project_start_date) : null,
-      project_end_date: project.project_end_date ? dayjs(project.project_end_date) : null,
-      project_members: project.project_members.map((member) => ({
-        user_id: member.user_id.toString(),
-        project_role: member.project_role,
-      })),
-    });
-  };
-
   const handleUpdateProject = async () => {
     try {
       setLoading(true);
@@ -339,7 +334,20 @@ export default function ProjectManagement() {
           <Description />
           Description
         </div>
-      ), dataIndex: "project_description", key: "project_description",
+      ),
+      dataIndex: "project_description",
+      key: "project_description",
+      render: (text: string) => (
+        <div className="flex items-center gap-2">
+          <Button
+            type="link"
+            icon={<Visibility />}
+            onClick={() => handleViewDescription(text)}
+          >
+            View
+          </Button>
+        </div>
+      ),
     },
     {
       title: (
@@ -433,14 +441,13 @@ export default function ProjectManagement() {
             icon={<EditOutlined />}
             type="link"
             onClick={() => {
-              // Set the form values with the editingProject data
+
               editProjectForm.setFieldsValue({
                 ...record,
                 project_start_date: record.project_start_date ? dayjs(record.project_start_date) : null,
                 project_end_date: record.project_end_date ? dayjs(record.project_end_date) : null,
               });
 
-              // Set the editingProject state and open the modal
               setEditingProject(record);
               setIsEditProjectModalOpen(true);
             }}
@@ -495,9 +502,10 @@ export default function ProjectManagement() {
         <div className="mb-4 flex items-center">
           <Input
             placeholder="Search by project name"
-            prefix={<SearchOutlined />}
+            prefix={<SearchOutlined onClick={handleSearchSubmit} style={{ cursor: 'pointer' }} />}
             value={searchTerm}
             onChange={handleSearch}
+            onPressEnter={handleSearchSubmit}
             size="large"
             className="max-w-md shadow-[9px_6px_0px_rgba(0,0,0,1)]"
             allowClear
@@ -517,165 +525,169 @@ export default function ProjectManagement() {
         </div>
 
         <Modal
+          title="Project Description"
+          open={!!selectedDescription}
+          onCancel={handleCloseDescriptionModal}
+          footer={null}
+        >
+          <p>{selectedDescription}</p>
+        </Modal>
+
+        {/* Add Project Modal */}
+        <Modal
           title="Add New Project"
           open={isAddProjectModalOpen}
           onCancel={handleAddProjectCancel}
           onOk={handleAddProject}
           okText="Add Project"
           cancelText="Cancel"
+          width={1200} // Increase modal width
         >
           <Form form={addProjectForm} layout="vertical">
-            <Form.Item
-              label="Project Name"
-              name="project_name"
-              rules={[{ required: true, message: "Please enter the project name" }]}
-            >
-              <Input />
-            </Form.Item>
+            <Row gutter={24}>
+              {/* Left Column - Project Details */}
+              <Col xs={24} md={16}>
+                <Row gutter={16}>
+                  <Col span={24}>
+                    <Form.Item
+                      label="Project Name"
+                      name="project_name"
+                      rules={[{ required: true, message: "Please enter the project name" }]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col>
 
-            <Form.Item
-              label="Project Code"
-              name="project_code"
-              rules={[{ required: true, message: "Please enter the project code" }]}
-            >
-              <Input />
-            </Form.Item>
+                  <Col span={12}>
+                    <Form.Item
+                      label="Project Code"
+                      name="project_code"
+                      rules={[{ required: true, message: "Please enter the project code" }]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col>
 
-            <Form.Item
-              label="Project Description"
-              name="project_description"
-              rules={[{ required: true, message: "Write the project description" }]}
-            >
-              <Input />
-            </Form.Item>
+                  <Col span={12}>
+                    <Form.Item
+                      label="Project Department"
+                      name="project_department"
+                      rules={[{ required: true, message: 'Please select a department' }]}
+                    >
+                      <Select placeholder="Select department" loading={loading}>
+                        {departments.map((dept) => (
+                          <Select.Option key={dept.department_code} value={dept.department_code}>
+                            {dept.department_code}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
 
+                  <Col span={24}>
+                    <Form.Item
+                      label="Project Description"
+                      name="project_description"
+                      rules={[{ required: true, message: "Write the project description" }]}
+                    >
+                      <Input.TextArea rows={3} />
+                    </Form.Item>
+                  </Col>
 
-            <Form.Item
-              label="Project Department"
-              name="project_department"
-              rules={[{ required: true, message: 'Please select a department' }]}
-            >
-              <Select placeholder="Select a department" loading={loading}>
-                {departments.map((dept) => (
-                  <Select.Option key={dept.department_code} value={dept.department_code}>
-                    {dept.department_code}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
+                  <Col span={12}>
+                    <Form.Item
+                      label="Project Start Date"
+                      name="project_start_date"
+                      rules={[{ required: true, message: "Please select start date" }]}
+                    >
+                      <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
+                    </Form.Item>
+                  </Col>
 
-
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  label="Project Start Date"
-                  name="project_start_date"
-                  rules={[{ required: true, message: "Please select the project start date" }]}
-                >
-                  <DatePicker
-                    format="YYYY-MM-DD"
-                    value={editProjectForm.getFieldValue('project_start_date') ? dayjs(editProjectForm.getFieldValue('project_start_date')) : null}
-                    onChange={(date) => editProjectForm.setFieldsValue({ project_start_date: date })}
-                  />
-                </Form.Item>
+                  <Col span={12}>
+                    <Form.Item
+                      label="Project End Date"
+                      name="project_end_date"
+                      rules={[{ required: true, message: "Please select end date" }]}
+                    >
+                      <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
+                    </Form.Item>
+                  </Col>
+                </Row>
               </Col>
 
-              <Col span={12}>
-                <Form.Item
-                  label="Project End Date"
-                  name="project_end_date"
-                  rules={[{ required: true, message: "Please select the project start date" }]}
-                >
-                  <DatePicker
-                    format="YYYY-MM-DD"
-                    value={editProjectForm.getFieldValue('project_end_date') ? dayjs(editProjectForm.getFieldValue('project_end_date')) : null}
-                    onChange={(date) => editProjectForm.setFieldsValue({ project_end_date: date })}
-                  />
-                </Form.Item>
+              {/* Right Column - Members (Scrollable) */}
+              <Col xs={24} md={8}>
+                <div className="border-l-2 pl-4 h-[500px] overflow-y-auto">
+                  <div className="mb-4">Project Members</div>
+                  <Form.List name="project_members">
+                    {(fields, { add, remove }) => (
+                      <>
+                        {fields.map(({ key, name, ...restField }) => (
+                          <div key={key} className="flex gap-2 mb-4">
+                            <Form.Item
+                              {...restField}
+                              name={[name, 'user_id']}
+                              rules={[{ required: true, message: 'Select member' }]}
+                              className="flex-1"
+                            >
+                              <Select
+                                placeholder="Select a member"
+                                showSearch
+                                onSearch={value => {
+                                  setUserSearchTerm(value);
+                                  fetchUsers(1, userPageSize, value);
+                                }}
+                                filterOption={false}
+                              >
+                                {users.map(user => (
+                                  <Select.Option key={user._id} value={user._id}>
+                                    {user.user_name}
+                                  </Select.Option>
+                                ))}
+                              </Select>
+                            </Form.Item>
+
+                            <Form.Item
+                              {...restField}
+                              name={[name, 'project_role']}
+                              rules={[{ required: true, message: 'Select role' }]}
+                              className="flex-1"
+                            >
+                              <Select placeholder="Select a role">
+                                {projectRoles.map(role => (
+                                  <Select.Option key={role.name} value={role.name}>
+                                    {role.name}
+                                  </Select.Option>
+                                ))}
+                              </Select>
+                            </Form.Item>
+
+                            <Button
+                              type="link"
+                              danger
+                              onClick={() => remove(name)}
+                              icon={<StopFilled />}
+                              className="mt-1"
+                            />
+                          </div>
+                        ))}
+
+                        <Button
+                          type="dashed"
+                          onClick={() => add()}
+                          block
+                          icon={<PlusOutlined />}
+                          className="mb-4"
+                        >
+                          Add Member
+                        </Button>
+                      </>
+                    )}
+                  </Form.List>
+                </div>
               </Col>
             </Row>
-
-
-            <Form.List name="project_members">
-              {(fields, { add, remove }) => (
-                <>
-                  {fields.map(({ key, name, ...restField }) => (
-                    <div key={key} style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
-                      {/* Project Member Field */}
-                      <Form.Item
-                        {...restField}
-                        name={[name, 'user_id']}
-                        rules={[{ required: true, message: 'Please select a project member' }]}
-                        style={{ flex: 1 }}
-                      >
-                        <Select
-                          placeholder="Select a member"
-                          showSearch
-                          className="max-w-[250px] overflow-hidden"
-                          onSearch={(value) => {
-                            setUserSearchTerm(value);
-                            fetchUsers(1, userPageSize, value);
-                          }}
-                          onPopupScroll={(e) => {
-                            const { target } = e;
-                            if ((target as HTMLElement).scrollTop + (target as HTMLElement).clientHeight === (target as HTMLElement).scrollHeight) {
-                              if (users.length < totalUsers) {
-                                fetchUsers(userCurrentPage + 1, userPageSize, userSearchTerm);
-                                setUserCurrentPage(userCurrentPage + 1);
-                              }
-                            }
-                          }}
-                          filterOption={false}
-                          notFoundContent={loading ? <Spin size="small" /> : null}
-                        >
-                          {users.map((user) => (
-                            <Select.Option key={user._id} value={user._id}>
-                              {user.user_name}
-                            </Select.Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-
-                      {/* Project Role Field */}
-                      <Form.Item
-                        {...restField}
-                        name={[name, 'project_role']}
-                        rules={[{ required: true, message: 'Please select a role' }]}
-                        style={{ flex: 1 }}
-                      >
-                        <Select placeholder="Select a role">
-                          {projectRoles.map((projectRole) => (
-                            <Select.Option key={projectRole.name} value={projectRole.name}>
-                              {projectRole.name}
-                            </Select.Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-
-                      {/* Remove Button */}
-                      <Button
-                        type="link"
-                        danger
-                        onClick={() => remove(name)}
-                        style={{ marginTop: '4px' }}
-                      >
-                        <StopFilled />
-                      </Button>
-                    </div>
-                  ))}
-
-                  {/* Add Member Button */}
-                  <Button
-                    type="dashed"
-                    onClick={() => add()}
-                    style={{ width: '100%' }}
-                    icon={<PlusOutlined />}
-                  >
-                    Add Member
-                  </Button>
-                </>
-              )}
-            </Form.List>
           </Form>
         </Modal>
 
@@ -808,7 +820,7 @@ export default function ProjectManagement() {
                 <>
                   {fields.map(({ key, name, ...restField }) => (
                     <div key={key} style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
-                      {/* Project Member Field */}
+
                       <Form.Item
                         {...restField}
                         name={[name, 'user_name']}
@@ -843,7 +855,6 @@ export default function ProjectManagement() {
                         </Select>
                       </Form.Item>
 
-                      {/* Project Role Field */}
                       <Form.Item
                         {...restField}
                         name={[name, 'project_role']}
@@ -859,7 +870,6 @@ export default function ProjectManagement() {
                         </Select>
                       </Form.Item>
 
-                      {/* Remove Button */}
                       <Button
                         type="link"
                         danger
@@ -871,7 +881,6 @@ export default function ProjectManagement() {
                     </div>
                   ))}
 
-                  {/* Add Member Button */}
                   <Button
                     type="dashed"
                     onClick={() => add()}

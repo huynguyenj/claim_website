@@ -59,6 +59,24 @@ export default function UserManagement() {
     const [editForm] = Form.useForm();
     const [employeeForm] = Form.useForm();
 
+    const validateEmail = (_: unknown, value: string, callback: (error?: string) => void) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+            callback('Invalid email address');
+        } else {
+            callback();
+        }
+    };
+
+    const validatePassword = (_: unknown, value: string, callback: (error?: string) => void) => {
+        const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+        if (!passwordRegex.test(value)) {
+            callback('Password must contain at least 8 characters, including uppercase, lowercase, and numbers');
+        } else {
+            callback();
+        }
+    };
+
     const fetchDepartments = async () => {
         setLoading(true);
         try {
@@ -616,6 +634,7 @@ export default function UserManagement() {
                             label="Email"
                             rules={[
                                 { required: true, message: 'Email is required' },
+                                { validator: validateEmail },
                             ]}
                         >
                             <Input />
@@ -625,6 +644,7 @@ export default function UserManagement() {
                             name="password"
                             rules={[
                                 { required: true, message: 'Password is required' },
+                                { validator: validatePassword },
                             ]}
                         >
                             <Input.Password />
