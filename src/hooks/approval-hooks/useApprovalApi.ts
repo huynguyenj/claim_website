@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ClaimResponseApproval, ClaimStatusChangeApproval } from "../../model/ClaimData"
 import authService from "../../services/AuthService";
 import { pagnitionAntd } from "../../consts/Pagination";
@@ -9,6 +9,7 @@ import { Notification } from "../../components/common/Notification";
 export default function useApprovalApi() {
   const [approveClaim,setApproveClaim] = useState<ClaimResponseApproval[]>([]);
   const [totalItems,setTotalItem] = useState<number>(0)
+  const [sortTerm,setSortTerm] = useState<string>('')
   const [searchTerm,setSearchTerm] = useState<ClaimSearchCondition>({
       searchCondition:{
             keyword: "",
@@ -52,5 +53,23 @@ export default function useApprovalApi() {
             setLoading(false)
       }
   }
-  return {approveClaim,updataClaimStatus,loading,setSearchTerm,totalItems}
+
+  const approveClaimSortList = useMemo(() => {
+      const sortedClaims = [...approveClaim]; 
+      switch (sortTerm) {
+          case 'newest':
+              return sortedClaims.sort((a, b) => 
+                  new Date(b.claim_start_date).getDate() - new Date(a.claim_start_date).getDate()
+              );
+          case 'oldest':
+              return sortedClaims.sort((a, b) => 
+                  new Date(a.claim_start_date).getDate() - new Date(b.claim_start_date).getDate()
+              );
+          default:
+              return sortedClaims;
+      }
+  }, [approveClaim, sortTerm]);
+  
+  
+  return {approveClaim,updataClaimStatus,loading,setSearchTerm,totalItems,setSortTerm,approveClaimSortList}
 }
