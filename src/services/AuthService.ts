@@ -20,7 +20,6 @@ const authService = {
   getAllClaims: () =>
     apiService
       .post<ApiResponse<{ pageData: any[] }>>(`claims/search`, {
-        // Không truyền searchCondition cụ thể để lấy toàn bộ claim
         searchCondition: {},
         pageInfo: { pageNum: 1, pageSize: 100 },
       })
@@ -33,7 +32,7 @@ const authService = {
     apiService
       .post<ApiResponse<ProjectCondition[]>>(`projects/search`, searchProject)
       .then((res) => res),
-    
+
   updateClaimStatusForApproval: (claimStatus: ClaimStatusChangeApproval) =>
     apiService
       .put<ApiResponse<ApiResponseWithDataNull>>(
@@ -41,10 +40,25 @@ const authService = {
         claimStatus
       )
       .then((res) => res),
-  getClaimApproval: (searchTerm:ClaimSearchCondition) =>
+
+  getClaimApproval: (searchTerm: ClaimSearchCondition) =>
     apiService
-      .post<ApiResponse<PageReturn<ClaimResponseApproval>>>("claims/approval-search",searchTerm)
+      .post<ApiResponse<PageReturn<ClaimResponseApproval>>>("claims/approval-search", searchTerm)
       .then((res) => res),
+
+  searchApprovals: () =>
+    apiService
+      .post<ApiResponse<{ pageData: any[] }>>('/users/search', {
+        searchCondition: {
+          role_code: 'A003',
+          is_deleted: false,
+        },
+        pageInfo: {
+          pageNum: 1,
+          pageSize: 50,
+        },
+      })
+      .then((res) => res.data),
 };
 
 export default authService;
