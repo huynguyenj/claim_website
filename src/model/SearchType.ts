@@ -1,9 +1,14 @@
-type PageInfo = {
+interface PageInfo {
       pageNum?: number;
       pageSize?: number
 }
+interface PageInfoExtends extends PageInfo{
+      totalItems:number,
+      totalPages:number
+}
 export interface PageReturn<T> {
-      pageData: T[]
+      pageData: T[],
+      pageInfo: PageInfoExtends
 }
 
 //Claim
