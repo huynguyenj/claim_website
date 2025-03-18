@@ -4,7 +4,7 @@ import { UserRoutes, AdminRoutes } from "../consts/RoutesConst";
 import { roleDefine } from "../consts/UserRole";
 
 const AdminDashboard = lazy(() => import("../pages/admin/Dashboard"));
-const ApprovalPage = lazy(() => import("../pages/user/ApprovalPage"));
+const ApprovalPage = lazy(() => import("../pages/user/ApprovalPageBackup"));
 const RequestPage = lazy(() => import("../pages/user/RequestPage"));
 const UserListPage = lazy(() => import("../pages/admin/User"));
 const ProjectListPage = lazy(() => import("../pages/admin/Project"));

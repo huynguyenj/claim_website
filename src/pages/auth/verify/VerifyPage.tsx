@@ -1,8 +1,8 @@
 import {useRef} from "react";
 import { BackArrowBackSpaceIcon } from "../../../components/Icon/MuiIIcon";
 import LoadingSpin from "../../../components/common/LoadingSpin";
-import useVerify from "../../../hooks/auth/useVerify";
-import useNavigateHome from "../../../hooks/navigate/useNavigateHome";
+import useVerify from "../../../hooks/auth-hooks/useVerify";
+import useNavigateHome from "../../../hooks/navigate-hooks/useNavigateHome";
 
 function VerifyPage() {
   const inputRef = useRef<HTMLInputElement>(null);

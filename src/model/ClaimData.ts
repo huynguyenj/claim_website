@@ -1,3 +1,7 @@
+import { Employee } from "./EmployeeData";
+import { ProjectInfoForApproval } from "./ProjectData";
+import { ApprovalUserInfo } from "./UserData";
+
 export interface Claim {
   _id: string;
   user_id: string;
@@ -58,3 +62,30 @@ export interface ClaimResponse {
         pageInfo: PageInfo;
     };
 }
+
+export interface ClaimStatusChangeApproval{
+    _id:string,
+    claim_status:string,
+    comment:string
+}
+
+export interface ClaimResponseApproval{
+    _id: string;
+  staff_id: string;
+  staff_name: string;
+  staff_email: string;
+  staff_role: string | null;
+  employee_info: Employee;
+  approval_info: ApprovalUserInfo;
+  project_info: ProjectInfoForApproval;
+  role_in_project: string;
+  claim_name: string;
+  claim_start_date: string;
+  claim_end_date: string;
+  total_work_time: number;
+  claim_status: string;
+  is_deleted: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
