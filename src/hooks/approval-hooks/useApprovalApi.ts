@@ -4,6 +4,7 @@ import authService from "../../services/AuthService";
 import { pagnitionAntd } from "../../consts/Pagination";
 import { ClaimSearchCondition } from "../../model/SearchType";
 import { FormProps } from "antd";
+import { Notification } from "../../components/common/Notification";
 
 export default function useApprovalApi() {
   const [approveClaim,setApproveClaim] = useState<ClaimResponseApproval[]>([]);
@@ -42,7 +43,9 @@ export default function useApprovalApi() {
   const updataClaimStatus:FormProps<ClaimStatusChangeApproval>['onFinish'] = async(updateStatus) => {
       setLoading(true)
       try {
-            await authService.updateClaimStatusForApproval(updateStatus)
+            await authService.updateClaimStatusForApproval(updateStatus);
+            Notification('success','Update successfully!')
+            getClaimWithApprovalRole();
       } catch (error) {
             console.log(error)
       }finally{
