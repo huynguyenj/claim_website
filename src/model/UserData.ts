@@ -41,7 +41,7 @@ export interface SearchCondition {
       keyword?: string;
       role_code?: string;
       is_blocked?: boolean;
-      is_delete?: boolean;
+      is_deleted?: boolean;
       is_verified?: string | boolean;
 }
 
@@ -67,7 +67,19 @@ export interface User {
       updated_at: string;
       token_version: number;
 }
-
+export interface ApprovalUserInfo {
+      _id: string;
+      email: string;
+      user_name: string;
+      role_code: string;
+      is_verified: boolean;
+      is_blocked: boolean;
+      is_deleted: boolean;
+      created_at: string;
+      updated_at: string;
+      __v: number;
+      token_version: number;
+    }
 export interface PaginatedResponse {
       success: boolean;
       data: {
