@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import authService from '../../services/AuthService';
+
 import {
   Table,
   TableBody,
@@ -24,13 +26,17 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
+import { useAuthStore } from '../../store/authStore';
+import { Spin } from 'antd';
 
 interface ApprovalItem {
   id: string;
   title: string;
-  status: 'pending' | 'approved' | 'returned' | 'rejected';
+  status: string;
   submittedBy: string;
-  date: string;
+  startDate: string;
+  endDate: string;
+  projectName: string;
 }
 
 interface ConfirmDialogState {
@@ -40,73 +46,51 @@ interface ConfirmDialogState {
 }
 
 function ApprovalPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [status, setStatus] = useState<string | "">("");
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [status, setStatus] = useState<string>("");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(5);
+  const userId = useAuthStore((state) => state.user?._id);
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>({
     open: false,
     itemId: '',
     action: null,
   });
-  const [items, setItems] = useState<ApprovalItem[]>([
-    {
-      id: '1',
-      title: 'Project Proposal A',
-      status: 'pending',
-      submittedBy: 'John Doe',
-      date: '2025-01-15',
-    },
-    {
-      id: '2',
-      title: 'Budget Request B',
-      status: 'pending',
-      submittedBy: 'Jane Smith',
-      date: '2025-01-16',
-    },
-    {
-      id: '3',
-      title: 'Budget Request C',
-      status: 'pending',
-      submittedBy: 'Alex Brown',
-      date: '2025-01-16',
-    },
-    {
-      id: '4',
-      title: 'Salary Request D',
-      status: 'pending',
-      submittedBy: 'Tom Cruise',
-      date: '2025-01-17',
-    },
-    {
-      id: '5',
-      title: 'Project Proposal E',
-      status: 'pending',
-      submittedBy: 'Mary Jane',
-      date: '2025-01-17',
-    },
-    {
-      id: '6',
-      title: 'Equipment Request F',
-      status: 'pending',
-      submittedBy: 'Robert Wilson',
-      date: '2025-01-18',
-    },
-    {
-      id: '7',
-      title: 'Training Program G',
-      status: 'pending',
-      submittedBy: 'Sarah Connor',
-      date: '2025-01-18',
-    },
-  ]);
+  const [claims, setClaims] = useState<ApprovalItem[]>([] as ApprovalItem[]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [totalItems, setTotalItems] = useState<number>(0);
 
-  const statusOptions = [
-    { value: 'pending', label: 'Pending' },
+  const statusOptions: { value: string; label: string }[] = [
+    { value: 'pending approval', label: 'Pending Approval' },
     { value: 'approved', label: 'Approved' },
     { value: 'rejected', label: 'Rejected' },
     { value: 'returned', label: 'Returned' }
   ];
+
+  useEffect(() => {
+    if (!userId) return;
+    setLoading(true);
+    authService.getAllClaims()
+      .then((result) => {
+        const rawClaims = result.pageData;
+        const mappedClaims: ApprovalItem[] = rawClaims.map((item) => ({
+          id: item._id,
+          title: item.claim_name,
+          status: item.claim_status,
+          submittedBy: item.staff_id,
+          startDate: item.claim_start_date,
+          endDate: item.claim_end_date,
+          projectName: item.project_name,
+        }));
+        const userClaims = mappedClaims.filter((c) => c.submittedBy === userId);
+        setClaims(userClaims);
+        setTotalItems(userClaims.length);
+      })
+      .catch((error: unknown) => {
+        console.error("Error fetching claims:", error);
+      })
+      .finally(() => setLoading(false));
+  }, [userId]);
 
   const handleConfirmOpen = (id: string, action: 'approve' | 'return' | 'reject') => {
     setConfirmDialog({
@@ -125,21 +109,21 @@ function ApprovalPage() {
   };
 
   const handleConfirm = () => {
-    if (!confirmDialog.action || !confirmDialog.itemId) return;
+    if (!confirmDialog || !confirmDialog.action || !confirmDialog.itemId) return;
 
     switch (confirmDialog.action) {
       case 'approve':
-        setItems(items.map(item =>
+        setClaims(claims.map(item =>
           item.id === confirmDialog.itemId ? { ...item, status: 'approved' } : item
         ));
         break;
       case 'return':
-        setItems(items.map(item =>
+        setClaims(claims.map(item =>
           item.id === confirmDialog.itemId ? { ...item, status: 'returned' } : item
         ));
         break;
       case 'reject':
-        setItems(items.map(item =>
+        setClaims(claims.map(item =>
           item.id === confirmDialog.itemId ? { ...item, status: 'rejected' } : item
         ));
         break;
@@ -157,11 +141,10 @@ function ApprovalPage() {
     setPage(0);
   };
 
-  const filteredItems = items.filter(item => {
+  const filteredItems = claims.filter((item: ApprovalItem) => {
     const matchTitle = item.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchUser = item.submittedBy.toLowerCase().includes(searchQuery.toLowerCase());
     const matchStatus = status ? item.status === status : true;
-    return (matchTitle || matchUser) && matchStatus;
+    return matchTitle && matchStatus;
   });
 
   // Pagination calculation
@@ -184,7 +167,7 @@ function ApprovalPage() {
   };
 
   const getDialogContent = () => {
-    const item = items.find(i => i.id === confirmDialog.itemId);
+    const item = claims.find(i => i.id === confirmDialog?.itemId);
     if (!item) return '';
 
     switch (confirmDialog.action) {
@@ -208,8 +191,8 @@ function ApprovalPage() {
             variant="outlined"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by title or submitter name..."
-            sx={{ width: { xs: "100%", sm: "250px", md: "400px" }, boxShadow: 4}}
+            placeholder="Search by title..."
+            sx={{ width: { xs: "100%", sm: "250px", md: "400px" }, boxShadow: 4 }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -247,78 +230,87 @@ function ApprovalPage() {
           </FormControl>
         </Box>
 
-        <Paper sx={{ width: '100%', mb: 2, boxShadow: 10}}>
+        <Paper sx={{ width: '100%', mb: 2, boxShadow: 10 }}>
           <TableContainer>
             <Table sx={{ minWidth: 650 }}>
               <TableHead>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 'bold' }}>Title</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Submitted By</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Date</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Project</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Start Date</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>End Date</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }} align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
-                {paginatedItems.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center">
-                      No items found matching your search.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedItems.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{item.title}</TableCell>
-                      <TableCell>{item.submittedBy}</TableCell>
-                      <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                          color={getStatusChipColor(item.status)}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        {item.status === 'pending' && (
-                          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                            <Button
-                              variant="contained"
-                              color="success"
-                              size="small"
-                              onClick={() => handleConfirmOpen(item.id, 'approve')}
-                            >
-                              Approve
-                            </Button>
-                            <Button
-                              variant="contained"
-                              color="warning"
-                              size="small"
-                              onClick={() => handleConfirmOpen(item.id, 'return')}
-                            >
-                              Return
-                            </Button>
-                            <Button
-                              variant="contained"
-                              color="error"
-                              size="small"
-                              onClick={() => handleConfirmOpen(item.id, 'reject')}
-                            >
-                              Reject
-                            </Button>
-                          </Box>
-                        )}
+              {loading ? (
+                <div className="text-center px-auto py-12">
+                  <Spin size="large" />
+                </div>
+              ) : (
+                <TableBody>
+                  {paginatedItems.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center">
+                        No items found matching your search.
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
+                  ) : (
+                    paginatedItems.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>{item.title}</TableCell>
+                        <TableCell>{item.projectName}</TableCell>
+                        <TableCell>{new Date(item.startDate).toLocaleDateString()}</TableCell>
+                        <TableCell>{new Date(item.endDate).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                            color={getStatusChipColor(item.status)}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          {item.status  && (
+                            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                              <Button
+                                variant="contained"
+                                color="success"
+                                size="small"
+                                onClick={() => handleConfirmOpen(item.id, 'approve')}
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                variant="contained"
+                                color="warning"
+                                size="small"
+                                onClick={() => handleConfirmOpen(item.id, 'return')}
+                              >
+                                Return
+                              </Button>
+                              <Button
+                                variant="contained"
+                                color="error"
+                                size="small"
+                                onClick={() => handleConfirmOpen(item.id, 'reject')}
+                              >
+                                Reject
+                              </Button>
+                            </Box>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              )}
+
             </Table>
           </TableContainer>
           <TablePagination
             rowsPerPageOptions={[5, 10, 20]}
             component="div"
-            count={filteredItems.length}
+            count={totalItems}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
