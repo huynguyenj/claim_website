@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Form, Input, Select, Button } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import type { Project } from '../model/ProjectData';
 
 interface ClaimFormModalProps {
@@ -7,11 +8,11 @@ interface ClaimFormModalProps {
   editingId: string | null;
   form: any;
   projects: Project[];
-  // Danh sách user có role A003 (Approval)
   approvals: any[];
   onCancel: () => void;
-  onSubmit: () => void;
-  onSendRequest?: () => void;
+  onSubmit: () => Promise<void>;
+  onSendRequest?: () => Promise<void>;
+  loading?: boolean;
 }
 
 const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
@@ -23,11 +24,11 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
   onCancel,
   onSubmit,
   onSendRequest,
+  loading = false,
 }) => {
-  // State lưu keyword tìm kiếm cho Approval
   const [approvalSearch, setApprovalSearch] = useState<string>('');
 
-  // Lọc danh sách approval dựa trên keyword và giới hạn 10 kết quả
+  // Lọc danh sách approvals theo keyword, giới hạn 10 kết quả
   const filteredApprovals = approvals
     .filter((user) =>
       (user.user_name || user.email)
@@ -36,28 +37,54 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
     )
     .slice(0, 10);
 
+  // Nút "Send Request" chỉ hiển thị nếu đang edit + onSendRequest tồn tại
+  const renderSendRequestButton = editingId && onSendRequest && (
+    <Button
+      key="send"
+      type="primary"
+      loading={loading}
+      onClick={onSendRequest}
+    >
+      Send Request
+    </Button>
+  );
+
+
+  // Nút "Save" hoặc "Add Claim" hiển thị confirm khi bấm OK
+  const renderSaveButton = (
+    <Button
+      key="ok"
+      type="primary"
+      loading={loading}
+      onClick={() => {
+        Modal.confirm({
+          title: editingId
+            ? "Do you want to update?"
+            : "Do you want to create a new claim?",
+          icon: <ExclamationCircleOutlined />,
+          onOk: onSubmit, // Gọi hàm onSubmit
+        });
+      }}
+    >
+      {editingId ? "Save" : "Add Claim"}
+    </Button>
+  );
+
   return (
     <Modal
       title={editingId ? "Edit Claim" : "Add New Claim"}
       open={visible}
       onCancel={onCancel}
       footer={[
-        // Nếu đang chỉnh sửa và có hàm onSendRequest, hiển thị nút Send Request
-        editingId && onSendRequest && (
-          <Button key="send" type="primary" onClick={onSendRequest}>
-            Send Request
-          </Button>
-        ),
+        renderSendRequestButton,
         <Button key="cancel" onClick={onCancel}>
           Cancel
         </Button>,
-        <Button key="ok" type="primary" onClick={onSubmit}>
-          {editingId ? "Save" : "Add Claim"}
-        </Button>,
+        renderSaveButton,
       ]}
     >
       <Form form={form} layout="vertical">
-        {/* Trường Project */}
+        {/* Project */}
         <Form.Item
           label="Project"
           name="project_id"
@@ -71,7 +98,8 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
             ))}
           </Select>
         </Form.Item>
-        {/* Trường Approval: Dropdown có khả năng search và giới hạn kết quả */}
+
+        {/* Approval */}
         <Form.Item
           label="Approval"
           name="approval_id"
@@ -81,7 +109,7 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
             showSearch
             placeholder="Select an approval user"
             onSearch={(value) => setApprovalSearch(value)}
-            filterOption={false} // Vì ta tự lọc
+            filterOption={false}
           >
             {filteredApprovals.map((user) => (
               <Select.Option key={user._id} value={user._id}>
@@ -90,7 +118,8 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
             ))}
           </Select>
         </Form.Item>
-        {/* Các trường khác */}
+
+        {/* Claim Name */}
         <Form.Item
           label="Claim Name"
           name="claim_name"
@@ -98,9 +127,13 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
         >
           <Input />
         </Form.Item>
+
+        {/* Description */}
         <Form.Item label="Description" name="remark">
           <Input.TextArea />
         </Form.Item>
+
+        {/* Start Date */}
         <Form.Item
           label="Start Date"
           name="claim_start_date"
@@ -108,6 +141,8 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
         >
           <Input type="date" />
         </Form.Item>
+
+        {/* End Date */}
         <Form.Item
           label="End Date"
           name="claim_end_date"
@@ -115,7 +150,8 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
         >
           <Input type="date" />
         </Form.Item>
-        {/* Trường Work Time ở cuối cùng */}
+
+        {/* Work Time */}
         <Form.Item
           label="Work Time (hours)"
           name="total_work_time"
