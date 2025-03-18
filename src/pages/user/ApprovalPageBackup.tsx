@@ -12,7 +12,7 @@ import { SearchOutlined } from "../../components/Icon/AntdIcon";
 import useDebounce from "../../hooks/delay-hooks/useDebounce";
 
 function ApprovalPageBackup() {
-  const { approveClaim, loading, setSearchTerm, totalItems,updataClaimStatus } = useApprovalApi();
+  const { approveClaim, loading, setSearchTerm, totalItems,updateClaimStatus } = useApprovalApi();
   const [searchTermInput,setSearchTermInput] = useState<string>('')
   const debouncedSearch = useDebounce(searchTermInput,500)
   const [isModalOpen,setIsModalOpen] = useState<boolean>(false)
@@ -145,9 +145,8 @@ function ApprovalPageBackup() {
             {value:'',label:'All'},
             {value:ClaimStatusChoice.pending,label:'Pending'},
             {value:ClaimStatusChoice.draft,label:'Draft'},
-            {value:ClaimStatusChoice.approve,label:'Approve'},
+            {value:ClaimStatusChoice.approved,label:'Approved'},
             {value:ClaimStatusChoice.rejected,label:'Rejected'},
-            {value:ClaimStatusChoice.canceled,label:'Cancel'},
           ]}/>
           </div>
           
@@ -171,14 +170,14 @@ function ApprovalPageBackup() {
                   <div className="flex justify-center mt-5">
                         <LoadingSpin width="2rem" border_color="black" border_top_clr="white" height="2rem"/>
                   </div>  :
-          <Form form={form} onFinish={updataClaimStatus}>
+          <Form form={form} onFinish={updateClaimStatus}>
             <Form.Item<ClaimStatusChangeApproval> label='Id' name='_id' initialValue={chosenClaim}>
               <Input readOnly disabled/>
             </Form.Item>
               <Form.Item<ClaimStatusChangeApproval> label='Claim Status' name='claim_status'>
                   <Select placeholder='Choose status' options={[
-                    {value:ClaimStatusChoice.approve,label:'Approve'},
-                    {value:ClaimStatusChoice.canceled,label:'Cancel'},
+                    {value:ClaimStatusChoice.approved,label:'Approve'},
+                    {value:ClaimStatusChoice.returned,label:'Return'},
                     {value:ClaimStatusChoice.rejected,label:'Reject'},
                   ]}>
                   </Select>

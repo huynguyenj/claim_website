@@ -40,7 +40,7 @@ export default function useApprovalApi() {
       }
   }
 
-  const updataClaimStatus:FormProps<ClaimStatusChangeApproval>['onFinish'] = async(updateStatus) => {
+  const updateClaimStatus:FormProps<ClaimStatusChangeApproval>['onFinish'] = async(updateStatus) => {
       setLoading(true)
       try {
             await authService.updateClaimStatusForApproval(updateStatus);
@@ -52,5 +52,5 @@ export default function useApprovalApi() {
             setLoading(false)
       }
   }
-  return {approveClaim,updataClaimStatus,loading,setSearchTerm,totalItems}
+  return {approveClaim,updateClaimStatus,loading,setSearchTerm,totalItems}
 }

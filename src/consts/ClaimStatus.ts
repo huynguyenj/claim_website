@@ -2,8 +2,8 @@
 export const ClaimStatusChoice = {
       draft: "Draft",
       pending:"Pending Approval",
-      approve:"Approved",
+      approved:"Approved",
       paid:"Paid",
       rejected:"Rejected",
-      canceled:"Canceled"
+      returned:"Draft"
 }

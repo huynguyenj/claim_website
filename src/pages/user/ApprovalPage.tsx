@@ -28,6 +28,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
 import { useAuthStore } from '../../store/authStore';
 import { Spin } from 'antd';
+import { ClaimStatusChoice } from '../../consts/ClaimStatus';
 
 interface ApprovalItem {
   id: string;
@@ -42,7 +43,7 @@ interface ApprovalItem {
 interface ConfirmDialogState {
   open: boolean;
   itemId: string;
-  action: 'approve' | 'return' | 'reject' | null;
+  action: 'approve' | 'cancel' | 'reject' | null;
 }
 
 function ApprovalPage() {
@@ -61,10 +62,10 @@ function ApprovalPage() {
   const [totalItems, setTotalItems] = useState<number>(0);
 
   const statusOptions: { value: string; label: string }[] = [
-    { value: 'pending approval', label: 'Pending Approval' },
-    { value: 'approved', label: 'Approved' },
-    { value: 'rejected', label: 'Rejected' },
-    { value: 'returned', label: 'Returned' }
+    { value: ClaimStatusChoice.pending, label: 'Pending Approval' },
+    { value: ClaimStatusChoice.approved, label: 'Approved' },
+    { value: ClaimStatusChoice.rejected, label: 'Rejected' },
+    { value: ClaimStatusChoice.returned, label: 'Returned' }
   ];
 
   useEffect(() => {
@@ -92,7 +93,7 @@ function ApprovalPage() {
       .finally(() => setLoading(false));
   }, [userId]);
 
-  const handleConfirmOpen = (id: string, action: 'approve' | 'return' | 'reject') => {
+  const handleConfirmOpen = (id: string, action: 'approve' | 'cancel' | 'reject') => {
     setConfirmDialog({
       open: true,
       itemId: id,
@@ -117,9 +118,9 @@ function ApprovalPage() {
           item.id === confirmDialog.itemId ? { ...item, status: 'approved' } : item
         ));
         break;
-      case 'return':
+      case 'cancel':
         setClaims(claims.map(item =>
-          item.id === confirmDialog.itemId ? { ...item, status: 'returned' } : item
+          item.id === confirmDialog.itemId ? { ...item, status: 'canceled' } : item
         ));
         break;
       case 'reject':
@@ -157,7 +158,7 @@ function ApprovalPage() {
     switch (status) {
       case 'approved':
         return 'success';
-      case 'returned':
+      case 'canceled':
         return 'warning';
       case 'rejected':
         return 'error';
@@ -173,8 +174,8 @@ function ApprovalPage() {
     switch (confirmDialog.action) {
       case 'approve':
         return `Are you sure you want to approve "${item.title}"?`;
-      case 'return':
-        return `Are you sure you want to return "${item.title}"?`;
+      case 'cancel':
+        return `Are you sure you want to cancel "${item.title}"?`;
       case 'reject':
         return `Are you sure you want to reject "${item.title}"?`;
       default:
@@ -284,7 +285,7 @@ function ApprovalPage() {
                                 variant="contained"
                                 color="warning"
                                 size="small"
-                                onClick={() => handleConfirmOpen(item.id, 'return')}
+                                onClick={() => handleConfirmOpen(item.id, 'cancel')}
                               >
                                 Return
                               </Button>
