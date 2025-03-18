@@ -41,7 +41,7 @@ export interface SearchCondition {
       keyword?: string;
       role_code?: string;
       is_blocked?: boolean;
-      is_delete?: boolean;
+      is_deleted?: boolean;
       is_verified?: string | boolean;
 }
 
