@@ -22,7 +22,6 @@ const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
-    console.log(token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -36,7 +35,6 @@ apiClient.interceptors.response.use(
     return response;},
   (error) => {
     const errorMessage = getApiErrorMessage(error);
-    console.log(errorMessage)
       // useAuthStore.getState().removeExpired();
     useErrorStore.setState({message:errorMessage});
     // useErrorStore.getState().setMessage(errorMessage)
