@@ -14,7 +14,7 @@ export default function StatisticCard({
   loading,
 }: StatisticCardProps) {
   return (
-    <div className="col-span-1 relative bg-white  p-5 rounded-xl border border-black shadow-[8px_4px_black]">
+    <div className="w-full relative bg-white  p-5 rounded-xl border border-black shadow-[8px_4px_black]">
       <p className="text-md text-gray-600 font-bold flex items-center mb-5">
         <span>{icon}</span>
         {title}
