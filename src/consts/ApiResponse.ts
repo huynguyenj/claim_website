@@ -1,4 +1,5 @@
 import { AxiosError } from "axios"
+import { useAuthStore } from "../store/authStore";
 
 export interface ApiResponse<T> {
       success: boolean,
@@ -7,7 +8,6 @@ export interface ApiResponse<T> {
 
 export const getApiErrorMessage = (error: unknown): string | number => {
       const axiosError = error as AxiosError<{ message?: string; errors?: Array<{ message: string; field: string }> }>;
-
       switch (axiosError.response?.status) {
             case 400:
                   if (axiosError.response.data?.errors && axiosError.response.data.errors.length > 0) {
@@ -15,6 +15,7 @@ export const getApiErrorMessage = (error: unknown): string | number => {
                   }
                   return axiosError.response.data?.message || "A validation error occurred.";
             case 403:
+                  useAuthStore.getState().removeExpired();
                   return axiosError.response?.status as number;
             case 404:
                   return axiosError.response?.status as number;
