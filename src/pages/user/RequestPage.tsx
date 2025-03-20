@@ -25,6 +25,8 @@ import { Article } from '@mui/icons-material';
 import { UserIcon } from '../../components/Icon/MuiIIcon';
 import { exportToExcel } from '../../consts/ExcelDownload';
 import ClaimFormModal from '../../components/ClaimFormModal';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { formatColorForClaimStatus } from '../../utils/format';
 
 const RequestPage: React.FC = () => {
   const userId = useAuthStore((state) => state.user?._id);
@@ -35,7 +37,7 @@ const RequestPage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [approvals, setApprovals] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<number>(pagnitionAntd.pageSize || 1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(pagnitionAntd.pageSize);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
@@ -286,14 +288,7 @@ const RequestPage: React.FC = () => {
       dataIndex: "claim_status",
       key: "claim_status",
       render: (status: string) => {
-        let color = "default";
-        if (status === "Draft") color = "blue";
-        else if (status === "Pending Approval") color = "orange";
-        else if (status === "Approved") color = "green";
-        else if (status === "Paid") color = "purple";
-        else if (status === "Rejected") color = "red";
-        else if (status === "Canceled") color = "gray";
-        return <Tag color={color}>{status}</Tag>;
+        return <Tag color={formatColorForClaimStatus(status)}>{status}</Tag>;
       },
     },
     {
@@ -309,6 +304,12 @@ const RequestPage: React.FC = () => {
       render: (_: string, record: ClaimRequest) => (
         <span>{new Date(record.claim_end_date).toLocaleDateString()}</span>
       ),
+    },
+    {
+      title: "Work Time",
+      dataIndex: "total_work_time",
+      key: "total_work_time",
+      render: (time: number) => `${time} hours`,
     },
     {
       title: "Actions",
@@ -339,7 +340,14 @@ const RequestPage: React.FC = () => {
             onClick={() =>
               exportToExcel(
                 requests,
-                ['_id', 'claim_name', 'claim_status', 'claim_start_date', 'claim_end_date', 'total_work_time'],
+                [
+                  '_id',
+                  'claim_name',
+                  'claim_status',
+                  'claim_start_date',
+                  'claim_end_date',
+                  'total_work_time'
+                ],
                 'claims'
               )
             }
@@ -351,12 +359,7 @@ const RequestPage: React.FC = () => {
 
       {/* Statistic Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
-        <UserCard
-          icon={<UserIcon />}
-          title="Total Claims"
-          growth={15}
-          data={requests.length} 
-        />
+        <UserCard icon={<UserIcon />} title="Total Claims" growth={15} data={requests.length} />
         <UserCard
           icon={<Article />}
           title="Pending Claims"
@@ -370,7 +373,6 @@ const RequestPage: React.FC = () => {
           data={requests.filter((r) => r.claim_status === 'Approved').length}
         />
       </div>
-
 
       {/* Search & Table */}
       <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
@@ -447,16 +449,18 @@ const RequestPage: React.FC = () => {
           onSendRequest={
             editingId && currentEditingClaim && currentEditingClaim.claim_status === "Draft"
               ? async () => {
-                Modal.confirm({
-                  title: "Do you want to send request?",
-                  onOk: async () => {
-                    await handleChangeStatus(editingId, "Pending Approval");
-                    setIsModalOpen(false);
-                    form.resetFields();
-                    setEditingId(null);
-                  },
-                });
-              }
+                  Modal.confirm({
+                    title: "Do you want to send request?",
+                    icon: <ExclamationCircleOutlined />,
+                    onOk: async () => {
+                      await handleChangeStatus(editingId, "Pending Approval");
+                      setIsModalOpen(false);
+                      form.resetFields();
+                      setEditingId(null);
+                    },
+                    onCancel: () => setLoading(false),
+                  });
+                }
               : undefined
           }
           loading={loading}
