@@ -1,12 +1,13 @@
 import { ChangeEvent, useState } from "react";
-import { LineChart } from '@mui/x-charts/LineChart';
-import Stack from '@mui/material/Stack';
-import { Box, Chip, Typography, Select, MenuItem, TextField, SelectChangeEvent } from '@mui/material';
-import useChartData from '../../hooks/user/Chartdata';
+import { LineChart } from "@mui/x-charts/LineChart";
+import Stack from "@mui/material/Stack";
+import { Box, Chip, Typography, Select, MenuItem, TextField, SelectChangeEvent } from "@mui/material";
+import useChartData from "../../hooks/user/Chartdata";
 
 const chartsParams = {
     margin: { bottom: 40, left: 40, right: 10, top: 20 },
     height: 350,
+    grid: { horizontal: true, stroke: "#E0E0E0", strokeDasharray: "4 4" }
 };
 
 export default function BasicColor() {
