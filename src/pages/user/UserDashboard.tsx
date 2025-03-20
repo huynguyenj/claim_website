@@ -252,6 +252,7 @@ const UserDashboard: React.FC = () => {
                   <Option value={ClaimStatus.Draft}>Draft</Option>
                   <Option value={ClaimStatus.Approved}>Approved</Option>
                   <Option value={ClaimStatus.Canceled}>Rejected</Option>
+                  <Option value={ClaimStatus.PendingApproval}>Pending Approval</Option>
                 </Select>
               </Col>
             </Row>
