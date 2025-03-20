@@ -51,7 +51,7 @@ const UserDashboard: React.FC = () => {
   const filteredClaims: Claim[] = useMemo(() => {
     return claims.filter((claim) => {
       return (
-        (searchTerm ? claim._id.includes(searchTerm) : true) &&
+        (searchTerm ? claim.claim_name.includes(searchTerm) : true) &&
         (statusFilter === "all" ? true : claim.claim_status === statusFilter)
       );
     });
@@ -76,7 +76,7 @@ const UserDashboard: React.FC = () => {
 
 
   const columns = [
-    { title: "Claim ID", dataIndex: "_id", key: "_id" },
+    { title: "Claim Name", dataIndex: "claim_name", key: "claim_name" },
     {
       title: "Status",
       dataIndex: "claim_status",
@@ -98,6 +98,7 @@ const UserDashboard: React.FC = () => {
         </span>
       ),
     },
+    { title: "Total work time", dataIndex: "total_work_time", key: "total_work_time" },
     {
       title: "Start Date",
       dataIndex: "claim_start_date",
@@ -232,7 +233,7 @@ const UserDashboard: React.FC = () => {
             <Row gutter={[16, 16]} style={{ marginTop: "20px", marginBottom: "10px" }}>
               <Col xs={24} md={4}>
                 <Input
-                  placeholder="Search by Claim ID"
+                  placeholder="Search by Claim Name "
                   value={searchTerm}
                   onChange={handleSearch}
                   prefix={<SearchOutlined />}
