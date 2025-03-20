@@ -20,7 +20,7 @@ export default function useUserData() {
         try {
             setUserLoading(true);
             const searchParams: SearchRequest = {
-                searchCondition: { keyword: searchTerm, role_code: "", is_delete: false, is_verified: "" },
+                searchCondition: { keyword: searchTerm, role_code: "", is_deleted: false, is_verified: "" },
                 pageInfo: { pageNum: currentPage, pageSize },
             };
 
@@ -43,13 +43,11 @@ export default function useUserData() {
             setUserLoading(true);
 
             const searchParams: SearchRequest = {
-                searchCondition: { keyword: searchTerm, role_code: "", is_delete: false, is_verified: "" },
+                searchCondition: { keyword: searchTerm, role_code: "", is_deleted: false, is_verified: "" },
                 pageInfo: { pageNum: currentPage, pageSize },
             };
 
             if (showBanned !== null) searchParams.searchCondition.is_blocked = showBanned;
-
-            console.log("Fetching all users this month:", searchParams);
 
             const response = await apiService.post<PaginatedResponse>("/users/search", searchParams);
 
@@ -72,7 +70,6 @@ export default function useUserData() {
                 setTotalUsersThisMonth(filteredUsers.length);
             }
         } catch (error) {
-            console.error("Error fetching users this month:", error);
             Notification("error", "Failed to fetch users for this month");
         } finally {
             setUserLoading(false);
@@ -83,7 +80,7 @@ export default function useUserData() {
         try {
             setUserLoading(true);
             const searchParams: SearchRequest = {
-                searchCondition: { keyword: searchTerm, role_code: "", is_delete: false, is_verified: true },
+                searchCondition: { keyword: searchTerm, role_code: "", is_deleted: false, is_verified: true },
                 pageInfo: { pageNum: currentPage, pageSize },
             };
 

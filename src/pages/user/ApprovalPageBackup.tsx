@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Select, Table, TablePaginationConfig, TableProps, Tag } from "antd";
+import { Button, Form, Input, Modal, Select, Table, TablePaginationConfig, TableProps, Tag } from "antd";
 import useApprovalApi from "../../hooks/approval-hooks/useApprovalApi";
 import { ClaimResponseApproval, ClaimStatusChangeApproval } from "../../model/ClaimData";
 import { formatColorForClaimStatus, formatDate } from "../../utils/format";
@@ -12,7 +12,7 @@ import { SearchOutlined } from "../../components/Icon/AntdIcon";
 import useDebounce from "../../hooks/delay-hooks/useDebounce";
 
 function ApprovalPageBackup() {
-  const { approveClaim, loading, setSearchTerm, totalItems,updataClaimStatus } = useApprovalApi();
+  const {loading, setSearchTerm, totalItems,updataClaimStatus,setSortTerm,approveClaimSortList } = useApprovalApi();
   const [searchTermInput,setSearchTermInput] = useState<string>('')
   const debouncedSearch = useDebounce(searchTermInput,500)
   const [isModalOpen,setIsModalOpen] = useState<boolean>(false)
@@ -41,7 +41,7 @@ function ApprovalPageBackup() {
       title: "Actions",
       key: "actions",
       render: (_: unknown, render: ClaimResponseApproval) => (
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-35">
         <button
           onClick={() => handleOpenModel(render._id,1)}
           className="bg-dark-fig p-2 rounded-2xl w-10  hover:w-20 cursor-pointer group flex  gap-2 overflow-hidden duration-300 ease-in-out active:opacity-75"
@@ -77,10 +77,18 @@ function ApprovalPageBackup() {
     }
   };
 
-  const handleCloseModel = () => {
-    form.resetFields();
-    setIsModalOpen(false);
+  const handleCloseModel = (modalNum: number) => {
+    switch(modalNum){
+      case 1:
+        form.resetFields();
+        setIsModalOpen(false);
+        break;
+      case 2:
+      setIsModalOpen2(false)
+      break;
+
   }
+}
 
   const handleTablePagination = (pagination: TablePaginationConfig) => {
     setCurrentPage(pagination.current || currentPage);
@@ -93,18 +101,37 @@ function ApprovalPageBackup() {
     }));
   };
 
-  const handleOk = (modalNum:number) =>{
-    switch(modalNum){
-      case 1:
+  const handleOk = (modalNum:number, status?:string) =>{
+    const validateFields:ClaimStatusChangeApproval = form.getFieldsValue();
+    if(modalNum == 1){
+      if( validateFields.claim_status == ClaimStatusChoice.rejected && !validateFields.comment){
+        form.setFields([
+          {
+            name:"comment",
+            errors:["Comment is required when reject a claim!"]
+          }
+        ])
+        return;
+      }else{
         form.submit();
-        break;
-      case 2:
-        setIsModalOpen2(false)
-
+      }
+    }else if(modalNum == 2){
+      if(!validateFields.comment){
+        form.setFields([
+          {
+            name:"comment",
+            errors:["Comment is required when return a claim!"]
+          }
+        ])
+        return;
+      }
+      form.setFieldsValue({claim_status:status})
+      form.submit();
     }
+    
   }
   const filterById = () =>{
-    const finalResult = approveClaim.filter((data) =>data._id === chosenClaim);
+    const finalResult = approveClaimSortList.filter((data) =>data._id === chosenClaim);
     setClaimDetail(finalResult)
   }
 
@@ -128,33 +155,29 @@ function ApprovalPageBackup() {
     }));
   
   }
+  
   return (
-    <div className="overflow-y-auto ">
-      <div className="p-10 border-2 rounded-2xl m-5">
-        <div className="overflow-x-auto">
-          <div className="flex justify-between">
+      <div className="p-5 border-2 rounded-2xl m-3 mx-auto w-[20rem] sm:w-[95%] sm:h-fit">
+          <div className="flex flex-col justify-between lg:flex-row lg:items-center">
            <Input
                 placeholder="Search by claim-name"
                 prefix={<SearchOutlined />}
-                size="large"
                 onChange={(e:React.ChangeEvent<HTMLInputElement>) => setSearchTermInput(e.target.value)}
-                className="max-w-md shadow-[9px_6px_0px_rgba(0,0,0,1)] mb-5"
+                className="shadow-[9px_6px_0px_rgba(0,0,0,1)] mb-5"
                 allowClear
+                style={{width:'fit-content'}}
           />
-          <Select placeholder='Choose status claim' onChange={(value:string) => handleSearch(value)} options={[
-            {value:'',label:'All'},
-            {value:ClaimStatusChoice.pending,label:'Pending'},
-            {value:ClaimStatusChoice.draft,label:'Draft'},
-            {value:ClaimStatusChoice.approve,label:'Approve'},
-            {value:ClaimStatusChoice.rejected,label:'Rejected'},
-            {value:ClaimStatusChoice.canceled,label:'Cancel'},
+          <Select placeholder='Choose status claim'className="w-30"  onChange={(value:string) => setSortTerm(value)} options={[
+            {value:'newest',label:'Newest'},
+            {value:'oldest',label:'Oldest'},
+
           ]}/>
           </div>
           
         <div className="overflow-x-auto">
         <Table<ClaimResponseApproval>
           columns={columns}
-          dataSource={approveClaim || []}
+          dataSource={approveClaimSortList|| []}
           loading={loading}
           pagination={{
             pageSize: pagnitionAntd.pageSize,
@@ -162,23 +185,29 @@ function ApprovalPageBackup() {
             total: totalItems,
           }}
           rowKey="_id"
+          className="overflow-x-auto overflow-y-auto"
           onChange={handleTablePagination}
         />
         </div>
-      </div>
-      <Modal open={isModalOpen} onCancel={handleCloseModel} onOk={() =>handleOk(1)} title='Update claim'>
+      <Modal open={isModalOpen} onCancel={() => handleCloseModel(1)} onOk={() =>handleOk(1)} title='Update claim' footer={[
+        loading ? '':
+        <Button key="back" type="primary" onClick={() => handleOk(2,ClaimStatusChoice.draft)} >
+        Return claim
+      </Button>,
+      <Button key="submit" type="primary" loading={loading} onClick={() => handleOk(1)}>
+        Submit
+      </Button>,
+      ]}>
       {loading ? 
                   <div className="flex justify-center mt-5">
                         <LoadingSpin width="2rem" border_color="black" border_top_clr="white" height="2rem"/>
                   </div>  :
           <Form form={form} onFinish={updataClaimStatus}>
-            <Form.Item<ClaimStatusChangeApproval> label='Id' name='_id' initialValue={chosenClaim}>
-              <Input readOnly disabled/>
+            <Form.Item<ClaimStatusChangeApproval> name='_id' initialValue={chosenClaim} className="hidden">
             </Form.Item>
               <Form.Item<ClaimStatusChangeApproval> label='Claim Status' name='claim_status'>
                   <Select placeholder='Choose status' options={[
                     {value:ClaimStatusChoice.approve,label:'Approve'},
-                    {value:ClaimStatusChoice.canceled,label:'Cancel'},
                     {value:ClaimStatusChoice.rejected,label:'Reject'},
                   ]}>
                   </Select>
@@ -189,7 +218,7 @@ function ApprovalPageBackup() {
           </Form>
       }
       </Modal>
-      <Modal title='Claim information' open={isModalOpen2} onCancel={() => handleOk(2)} footer=''>
+      <Modal title='Claim information' open={isModalOpen2} onCancel={() => handleCloseModel(2)} footer=''>
         {claimDetail?.map((value,index) => (
           <Fragment key={index}>
            <div>
@@ -224,9 +253,7 @@ function ApprovalPageBackup() {
           </Fragment>
         ))}
       </Modal>
-    </div>
-  </div>
-    
+    </div>    
   );
 }
 
