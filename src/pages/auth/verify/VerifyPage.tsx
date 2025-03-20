@@ -21,11 +21,23 @@ function VerifyPage() {
             Verify email
           </h1>
           {tokenSuccess ? (
-            <div className="flex items-center justify-center mt-3">
+            <div className="flex flex-col items-center justify-center mt-3">
                 <p className="text-[1.2rem] text-white mix-blend-difference">
                   Your email is verified!
                 </p>
+                <button
+                    onClick={changeToHomePage}
+                    className="w-15 sm:w-20 sm:h-20 hover:w-60 hover:h-20 flex items-center justify-center rounded-full py-2 mix border-dark-fig ring-1 border-2 text-3xl transform-[translateY(-5px)] active:shadow-fig-active active:transform-[translateY(5px)] duration-300 mt-4 bg-white-fig cursor-pointer shadow-fig hover:scale-[0.95] group"
+                  >
+                    <div className="transform-[translateX(150%)] group-hover:transform-[translateX(-20%)] duration-300 ease-in">
+                      <BackArrowBackSpaceIcon sx={{ fontSize: 30 }} />
+                    </div>
+                    <p className="transform-[scale(0)] group-hover:transform-[scale(1)] duration-500 ease-in-out ">
+                      Home
+                    </p>
+                  </button>
             </div>
+            
           ) : (
             <div className="flex flex-col items-center justify-center">
               <p className="mix-blend-difference text-white-fig ">

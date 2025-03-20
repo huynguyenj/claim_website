@@ -13,6 +13,7 @@ export default function useVerify() {
 
       useEffect(() => {
         const handleVerify = async () => {
+          setLoading(true);
           try {
             await publicApiService.verifyToken({ token: token });
             Notification("success", "Your email verified successfully!");
@@ -21,7 +22,9 @@ export default function useVerify() {
           } catch (error) {
             Notification("error", error as string);
             console.log(tokenSuccess);
-          } 
+          } finally{
+            setLoading(false)
+          }
         };
         handleVerify();
       }, [location]);
