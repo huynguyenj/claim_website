@@ -1,10 +1,10 @@
 import StackedAreaChart from "../../components/Admin/StackedAreaChart";
 import { Article } from "@mui/icons-material";
 import { UserIcon } from "../../components/Icon/MuiIIcon";
-import StatisticCard from "../../components/Admin/StatisticCard";
 import useUsers from "../../hooks/admin/useUsers";
 import useClaims from "../../hooks/admin/useClaims";
 import useProjects from "../../hooks/admin/useProjects";
+import StatisticCard from "../../components/Admin/StatisticCard";
 export default function Dashboard() {
   // Hooks
   const { userLoading, totalUsers } = useUsers();

@@ -25,17 +25,7 @@ function VerifyPage() {
                 <p className="text-[1.2rem] text-white mix-blend-difference">
                   Your email is verified!
                 </p>
-                <button
-                    onClick={changeToHomePage}
-                    className="w-15 sm:w-20 sm:h-20 hover:w-60 hover:h-20 flex items-center justify-center rounded-full py-2 mix border-dark-fig ring-1 border-2 text-3xl transform-[translateY(-5px)] active:shadow-fig-active active:transform-[translateY(5px)] duration-300 mt-4 bg-white-fig cursor-pointer shadow-fig hover:scale-[0.95] group"
-                  >
-                    <div className="transform-[translateX(150%)] group-hover:transform-[translateX(-20%)] duration-300 ease-in">
-                      <BackArrowBackSpaceIcon sx={{ fontSize: 30 }} />
-                    </div>
-                    <p className="transform-[scale(0)] group-hover:transform-[scale(1)] duration-500 ease-in-out ">
-                      Home
-                    </p>
-                  </button>
+                
             </div>
             
           ) : (
@@ -45,7 +35,7 @@ function VerifyPage() {
               </p>
               <input
                 ref={inputRef}
-                type="text"
+                type="email"
                 placeholder="Enter your email"
                 className="text-dark-fig bg-white mix-blend-difference p-2 rounded-2xl w-60 border-none outline-none"
               />
