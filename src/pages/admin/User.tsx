@@ -77,6 +77,22 @@ export default function UserManagement() {
         }
     };
 
+    const validateURL = (_: unknown, value: string, callback: (error?: string) => void) => {
+        try {
+
+            new URL(value);
+
+            if (!value.startsWith('http://') && !value.startsWith('https://')) {
+                callback('URL must start with http:// or https://');
+                return;
+            }
+
+            callback();
+        } catch (error) {
+            callback('Invalid URL address');
+        }
+    };
+
     const fetchDepartments = async () => {
         setLoading(true);
         try {
@@ -219,6 +235,16 @@ export default function UserManagement() {
         }
     }, [isAddModalOpen]);
 
+    useEffect(() => {
+        if (selectedEmployee) {
+            employeeForm.setFieldsValue({
+                ...selectedEmployee,
+                start_date: selectedEmployee.start_date ? dayjs(selectedEmployee.start_date) : null,
+                end_date: selectedEmployee.end_date ? dayjs(selectedEmployee.end_date) : null,
+            });
+        }
+    }, [selectedEmployee, employeeForm]);
+
     const handleTableChange = (pagination: TablePaginationConfig) => {
         setCurrentPage(pagination.current || currentPage);
         setPageSize(pagination.pageSize || pageSize);
@@ -273,7 +299,7 @@ export default function UserManagement() {
                 fetchUsers(currentPage, pageSize, searchTerm);
                 handleAddCancel();
             }
-        } catch (error: any) {
+        } catch (error) {
             const errorMessage = getApiErrorMessage(error);
             message.error(errorMessage);
         } finally {
@@ -287,28 +313,13 @@ export default function UserManagement() {
             const values = await editForm.validateFields();
             if (!editingUser) return;
 
-            Modal.confirm({
-                title: 'Confirm Update',
-                content: `Do you want to update the user ${editingUser.user_name}?`,
-                onOk: async () => {
-                    setLoading(true);
-                    try {
-                        await apiService.put(`/users/${editingUser._id}`, values);
-                        message.success("User updated successfully!");
-                        setIsEditModalOpen(false);
-                        fetchUsers(currentPage, pageSize, searchTerm);
-                    } catch (error: any) {
-                        const errorMessage = getApiErrorMessage(error);
-                        message.error(errorMessage);
-                    } finally {
-                        setLoading(false);
-                    }
-                },
-                okText: 'Update',
-                cancelText: 'Cancel',
-            });
+            await apiService.put(`/users/${editingUser._id}`, values);
+            message.success("User updated successfully!");
+            setIsEditModalOpen(false);
+            fetchUsers(currentPage, pageSize, searchTerm);
         } catch (error) {
-            setLoading(false);
+            const errorMessage = getApiErrorMessage(error);
+            message.error(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -330,28 +341,15 @@ export default function UserManagement() {
                 updated_by: values.updated_by,
             };
 
-            Modal.confirm({
-                title: "Confirm Update",
-                content: `Do you want to update the employee ${editingEmployee.full_name}?`,
-                onOk: async () => {
-                    setLoading(true);
-                    try {
-                        const response = await apiService.put(`/employees/${editingEmployee.user_id}`, updatedEmployee);
-                        message.success("Employee updated successfully!");
-                        setIsEmployeeModalOpen(false);
-                        fetchEmployees(editingEmployee.user_id);
-                    } catch (error: any) {
-                        const errorMessage = getApiErrorMessage(error);
-                        message.error(errorMessage);
-                    } finally {
-                        setLoading(false);
-                    }
-                },
-                okText: "Update",
-                cancelText: "Cancel",
-            });
+            await apiService.put(`/employees/${editingEmployee.user_id}`, updatedEmployee);
+
+            message.success("Employee updated successfully!");
+
+            setIsEmployeeModalOpen(false);
+            // fetchEmployees(editingEmployee.user_id);
         } catch (error) {
-            setLoading(false);
+            const errorMessage = getApiErrorMessage(error);
+            message.error(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -370,12 +368,18 @@ export default function UserManagement() {
     const handleChangeUserStatus = async (userId: string, isBlocked: boolean) => {
         try {
             setLoading(true);
+            setUsers(prevUsers => prevUsers.map(user =>
+                user._id === userId ? { ...user, is_blocked: isBlocked } : user
+            ));
             await apiService.put(`/users/change-status`, {
                 user_id: userId,
                 is_blocked: isBlocked
             });
 
             message.success(`User ${isBlocked ? "banned" : "unbanned"} successfully!`);
+
+            setShowBanned(null);
+
             fetchUsers(currentPage, pageSize, searchTerm);
         } catch (error) {
             Notification("error", "Failed to change user status.");
@@ -386,6 +390,9 @@ export default function UserManagement() {
 
     const handleChangeUserRole = async () => {
         if (!editingUser || !selectedRole) return;
+
+        console.log("Current Role:", editingUser.role_code);
+        console.log("Selected Role:", selectedRole);
 
         Modal.confirm({
             title: 'Confirm Role Change',
@@ -764,16 +771,13 @@ export default function UserManagement() {
                                 okText="Update Role"
                                 cancelText="Cancel"
                             >
-                                <Form layout="vertical">
-                                    <Form.Item label="Select New Role">
-                                        <Select value={selectedRole} onChange={setSelectedRole}>
-                                            <Select.Option value="A001">Administrator</Select.Option>
-                                            <Select.Option value="A002">Finance</Select.Option>
-                                            <Select.Option value="A003">BUL, PM</Select.Option>
-                                            <Select.Option value="A004">All Members Remaining</Select.Option>
-                                        </Select>
-                                    </Form.Item>
-                                </Form>
+                                <Select placeholder="Select a role" style={{ width: "100%" }} onChange={(value) => setSelectedRole(value)}>
+                                    {roles.map((role) => (
+                                        <Select.Option key={role.role_code} value={role.role_code}>
+                                            {role.role_name}
+                                        </Select.Option>
+                                    ))}
+                                </Select>
                             </Modal>
                         </Form.Item>
                     </Form>
@@ -794,19 +798,26 @@ export default function UserManagement() {
                             <Row gutter={16}> {/* Add gutter for spacing between columns */}
                                 {/* Left Column */}
                                 <Col span={12}>
-                                    <Form.Item label="Avatar URL" name="avatar_url">
+                                    <Form.Item
+                                        label="Avatar URL"
+                                        name="avatar_url"
+                                        rules={[
+                                            { required: true, message: 'Avatar URL is required' },
+                                            { validator: validateURL },
+                                        ]}
+                                    >
                                         <Input />
                                     </Form.Item>
-                                    <Form.Item label="Full Name" name="full_name">
+                                    <Form.Item label="Full Name" name="full_name" rules={[{ required: true, message: 'Full name is required' },]}>
                                         <Input />
                                     </Form.Item>
-                                    <Form.Item label="Account" name="account">
+                                    <Form.Item label="Account" name="account" rules={[{ required: true, message: 'Account name is required' },]}>
                                         <Input />
                                     </Form.Item>
-                                    <Form.Item label="Address" name="address">
+                                    <Form.Item label="Address" name="address" rules={[{ required: true, message: 'Address is required' },]}>
                                         <Input />
                                     </Form.Item>
-                                    <Form.Item label="Phone" name="phone">
+                                    <Form.Item label="Phone" name="phone" rules={[{ required: true, message: 'Phone is required' },]}>
                                         <Input />
                                     </Form.Item>
                                 </Col>
@@ -865,7 +876,18 @@ export default function UserManagement() {
                                     <Form.Item
                                         label="End Date"
                                         name="end_date"
-                                        rules={[{ required: true, message: 'End date is required' }]}
+                                        rules={[
+                                            { required: true, message: 'End date is required' },
+                                            ({ getFieldValue }) => ({
+                                                validator(_, value) {
+                                                    const startDate = getFieldValue('start_date');
+                                                    if (value && startDate && value.isBefore(startDate)) {
+                                                        return Promise.reject('End date must be greater than start date');
+                                                    }
+                                                    return Promise.resolve();
+                                                },
+                                            }),
+                                        ]}
                                     >
                                         <DatePicker
                                             format="YYYY-MM-DD"
