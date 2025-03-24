@@ -89,6 +89,7 @@ export default function UserManagement() {
 
             callback();
         } catch (error) {
+            console.log(error);
             callback('Invalid URL address');
         }
     };
@@ -361,7 +362,7 @@ export default function UserManagement() {
             message.success("User deleted successfully!");
             fetchUsers(currentPage, pageSize, searchTerm);
         } catch (error) {
-            Notification("error", "Failed to delete user.");
+            console.log(error)
         }
     };
 
@@ -382,7 +383,7 @@ export default function UserManagement() {
 
             fetchUsers(currentPage, pageSize, searchTerm);
         } catch (error) {
-            Notification("error", "Failed to change user status.");
+            console.log(error)
         } finally {
             setLoading(false);
         }
@@ -408,7 +409,7 @@ export default function UserManagement() {
                     fetchUsers(currentPage, pageSize, searchTerm);
                     setIsRoleModalOpen(false);
                 } catch (error) {
-                    Notification("error", "Failed to update user role.");
+                    console.log(error)
                 } finally {
                     setLoading(false);
                 }

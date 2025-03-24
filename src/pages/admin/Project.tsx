@@ -268,7 +268,7 @@ export default function ProjectManagement() {
       message.success("Project deleted successfully!");
       fetchProjects(currentPage, pageSize, searchTerm);
     } catch (error) {
-      Notification("error", "Failed to delete projects.");
+      console.log(error)
     }
   };
 
