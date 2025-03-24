@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Button, Input, Table, Form, Modal, Select, Spin, message,
-  TablePaginationConfig
+  Button,
+  Input,
+  Table,
+  Form,
+  Spin,
+  message,
+  TablePaginationConfig,
+  Tag,
+  Select,
+  Modal,
 } from 'antd';
 import { EditOutlined, SearchOutlined } from '@mui/icons-material';
 import { PlusOutlined } from '../../components/Icon/AntdIcon';
@@ -16,6 +24,7 @@ import UserCard from '../../components/Admin/UserCard';
 import { Article } from '@mui/icons-material';
 import { UserIcon } from '../../components/Icon/MuiIIcon';
 import { exportToExcel } from '../../consts/ExcelDownload';
+import ClaimFormModal from '../../components/ClaimFormModal';
 
 const RequestPage: React.FC = () => {
   const userId = useAuthStore((state) => state.user?._id);
@@ -24,25 +33,36 @@ const RequestPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [approvals, setApprovals] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(pagnitionAntd.pageSize || 1);
   const [pageSize, setPageSize] = useState<number>(pagnitionAntd.pageSize);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [form] = Form.useForm();
 
-  // Lấy tất cả các claim từ API (endpoint trả về đối tượng có key pageData chứa mảng)
+  // Fetch Approvals (users có role_code A003)
+  useEffect(() => {
+    const fetchApprovals = async () => {
+      try {
+        const result = await authService.searchApprovals();
+        setApprovals(result.pageData);
+      } catch (error) {
+        console.error("Error fetching approvals:", error);
+      }
+    };
+    fetchApprovals();
+  }, []);
+
+  // Fetch Claims
   useEffect(() => {
     if (!userId) return;
     setLoading(true);
     authService.getAllClaims()
       .then((result) => {
-        // result có cấu trúc: { pageData: [ ... ] }
-        const rawClaims = result.pageData;
-        // Map các claim từ API sang kiểu ClaimRequest, chuyển đổi các trường nếu cần
-        const mappedClaims: ClaimRequest[] = rawClaims.map((item) => ({
+        const mappedClaims: ClaimRequest[] = result.pageData.map((item: any) => ({
           _id: item._id,
-          user_id: item.staff_id, // chuyển staff_id thành user_id
+          user_id: item.staff_id,
           project_id: item.project_info ? item.project_info._id : "",
           approval_id: item.approval_info ? item.approval_info._id : "",
           claim_name: item.claim_name,
@@ -56,7 +76,6 @@ const RequestPage: React.FC = () => {
           remark: item.remark || "",
           __v: item.__v || 0,
         }));
-        // Lọc ra các claim của user đang đăng nhập
         const userClaims = mappedClaims.filter((c) => c.user_id === userId);
         setRequests(userClaims);
         setTotalItems(userClaims.length);
@@ -72,23 +91,19 @@ const RequestPage: React.FC = () => {
       .finally(() => setLoading(false));
   }, [userId]);
 
+  // Fetch Projects
   useEffect(() => {
-    const fetchProjects = async () => {
-      if (!userId) {
-        console.error("User ID is not defined.");
-        return;
-      }
-      const searchProject = {
-        searchCondition: { user_id: userId, is_delete: false },
-        pageInfo: { pageNum: 1, pageSize: 10 },
-      };
-      try {
-        const response = await authService.searchProjectByUserId(searchProject);
-        console.log("Project API response:", response);
+    if (!userId) return;
+    const searchProject = {
+      searchCondition: { user_id: userId, is_delete: false },
+      pageInfo: { pageNum: 1, pageSize: 10 },
+    };
+    authService.searchProjectByUserId(searchProject)
+      .then((response) => {
         const projectResponse = response as unknown as ProjectResponse;
         const projectData = projectResponse.data?.pageData || projectResponse.pageData;
         if (Array.isArray(projectData)) {
-          const formattedProjects: Project[] = projectData.map((p) => ({
+          const formattedProjects = projectData.map((p) => ({
             _id: p._id,
             project_name: p.project_name,
             project_code: p.project_code || '',
@@ -101,106 +116,118 @@ const RequestPage: React.FC = () => {
             updated_by: p.updated_by || '',
             created_at: p.created_at || '',
             updated_at: p.updated_at || '',
-            project_comment: '',
-            project_members:[]
+            project_comment: p.project_comment || '',
+            project_members: p.project_members || [],
           }));
-          console.log("Formatted Projects:", formattedProjects);
           setProjects(formattedProjects);
-        } else {
-          console.error("Invalid project response format:", response);
         }
-      } catch (error: unknown) {
+      })
+      .catch((error: unknown) => {
         console.error("Error fetching projects", error);
-      }
-    };
-    fetchProjects();
+      });
   }, [userId]);
 
-  // Handle claim creation / update
+  // Handle Change Status (Send Request)
+  const handleChangeStatus = async (claimId: string, newStatus: string) => {
+    try {
+      setLoading(true);
+      const statusChangePayload = {
+        _id: claimId,
+        claim_status: newStatus,
+        comment: "",
+      };
+      await authService.updateClaimStatusForApproval(statusChangePayload);
+      message.success(`Claim status changed to ${newStatus}!`);
+      // Reload claims
+      const result = await authService.getAllClaims();
+      const mappedClaims: ClaimRequest[] = result.pageData.map((item: any) => ({
+        _id: item._id,
+        user_id: item.staff_id,
+        project_id: item.project_info ? item.project_info._id : "",
+        approval_id: item.approval_info ? item.approval_info._id : "",
+        claim_name: item.claim_name,
+        claim_status: item.claim_status,
+        claim_start_date: item.claim_start_date,
+        claim_end_date: item.claim_end_date,
+        total_work_time: item.total_work_time,
+        is_deleted: item.is_deleted,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        remark: item.remark || "",
+        __v: item.__v || 0,
+      }));
+      const userClaims = mappedClaims.filter((c) => c.user_id === userId);
+      setRequests(userClaims);
+      setTotalItems(userClaims.length);
+    } catch (error: unknown) {
+      console.error("Error changing claim status:", error);
+      if (axios.isAxiosError(error)) {
+        Notification("error", error.response?.data?.message || "Unable to change status");
+      } else {
+        Notification("error", "Unable to change status");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Submit (Create/Update Claim)
   const handleSubmit = async () => {
     try {
-      // Validate form values
       const values = await form.validateFields();
       if (!values.project_id) {
         message.error("Please select a project before submitting");
         return;
       }
-      // Xây dựng payload để tạo mới claim
       const requestData: NewClaimRequest = {
         project_id: values.project_id,
-        approval_id: '67b2fd17f6afc068678f14b5',
+        approval_id: values.approval_id,
         claim_name: values.claim_name,
         claim_start_date: new Date(values.claim_start_date).toISOString(),
         claim_end_date: new Date(values.claim_end_date).toISOString(),
-        total_work_time: values.total_work_time ? parseInt(values.total_work_time.toString(), 10) : 0,
+        total_work_time: parseInt(values.total_work_time, 10),
         remark: values.remark || "",
       };
-
       setLoading(true);
-
-      // Nếu editingId tồn tại => Update claim
       if (editingId) {
-        // Tìm claim hiện có dựa theo editingId
         const existingRequest = requests.find((req) => req._id === editingId);
         if (!existingRequest) {
           message.error("Error: Unable to find the request for updating");
           return;
         }
-        // Tạo object updateData chỉ chứa các trường được phép cập nhật
-        const updateData: Partial<ClaimRequest> = {
-          // Nếu bạn cho phép update project_id, approval_id thì truyền vào, ngược lại lấy từ existingRequest
-          project_id: existingRequest.project_id,
-          approval_id: existingRequest.approval_id,
-          claim_name: requestData.claim_name,
-          claim_start_date: requestData.claim_start_date,
-          claim_end_date: requestData.claim_end_date,
-          total_work_time: requestData.total_work_time,
-          remark: requestData.remark,
-        };
-        // Gọi API update với claimId (editingId) và updateData
-        await authService.updateClaim(editingId, updateData);
+        if (existingRequest.claim_status !== "Draft") {
+          message.error("Only Draft claims can be edited.");
+          return;
+        }
+        await authService.updateClaim(editingId, requestData);
         message.success("Claim updated successfully!");
       } else {
-        // Nếu không có editingId, tức là tạo mới claim
         await authService.createClaim(requestData);
         message.success("Claim created successfully!");
       }
-
-      // Sau khi tạo hoặc cập nhật, làm mới danh sách claim của người đăng nhập
+      // Reload claims
       if (userId) {
-        setLoading(true);
-        authService.getAllClaims()
-          .then((result) => {
-            // result có cấu trúc: { pageData: [ ... ] }
-            const rawClaims = result.pageData;
-            // Map từng phần tử, chuyển staff_id thành user_id và lấy các trường cần thiết
-            const mappedClaims: ClaimRequest[] = rawClaims.map((item) => ({
-              _id: item._id,
-              user_id: item.staff_id,
-              project_id: item.project_info ? item.project_info._id : "",
-              approval_id: item.approval_info ? item.approval_info._id : "",
-              claim_name: item.claim_name,
-              claim_status: item.claim_status,
-              claim_start_date: item.claim_start_date,
-              claim_end_date: item.claim_end_date,
-              total_work_time: item.total_work_time,
-              is_deleted: item.is_deleted,
-              created_at: item.created_at,
-              updated_at: item.updated_at,
-              remark: item.remark || "",
-              __v: item.__v || 0,
-            }));
-            // Lọc ra các claim của user đang đăng nhập (dựa theo user_id)
-            const userClaims = mappedClaims.filter((c) => c.user_id === userId);
-            setRequests(userClaims);
-            setTotalItems(userClaims.length);
-          })
-          .catch((error: unknown) => {
-            console.error("Error fetching claims after update:", error);
-          })
-          .finally(() => setLoading(false));
+        const result = await authService.getAllClaims();
+        const mappedClaims: ClaimRequest[] = result.pageData.map((item: any) => ({
+          _id: item._id,
+          user_id: item.staff_id,
+          project_id: item.project_info ? item.project_info._id : "",
+          approval_id: item.approval_info ? item.approval_info._id : "",
+          claim_name: item.claim_name,
+          claim_status: item.claim_status,
+          claim_start_date: item.claim_start_date,
+          claim_end_date: item.claim_end_date,
+          total_work_time: item.total_work_time,
+          is_deleted: item.is_deleted,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          remark: item.remark || "",
+          __v: item.__v || 0,
+        }));
+        const userClaims = mappedClaims.filter((c) => c.user_id === userId);
+        setRequests(userClaims);
+        setTotalItems(userClaims.length);
       }
-      // Đóng Modal, reset form và reset editingId
       setIsModalOpen(false);
       form.resetFields();
       setEditingId(null);
@@ -216,31 +243,34 @@ const RequestPage: React.FC = () => {
     }
   };
 
-
+  // Handle Edit (mở modal chỉnh sửa claim)
   const handleEdit = (request: ClaimRequest) => {
+    if (request.claim_status !== "Draft") {
+      message.error("Only Draft claims can be edited.");
+      return;
+    }
     setEditingId(request._id);
     form.setFieldsValue({
+      project_id: request.project_id,
+      approval_id: approvals.find((a) => a._id === request.approval_id)?._id || undefined,
       claim_name: request.claim_name,
       remark: request.remark || "",
-      claim_start_date: new Date(request.claim_start_date).toISOString().split('T')[0],
-      claim_end_date: new Date(request.claim_end_date).toISOString().split('T')[0],
+      claim_start_date: request.claim_start_date.split('T')[0],
+      claim_end_date: request.claim_end_date.split('T')[0],
       total_work_time: request.total_work_time?.toString() || "",
-      project_id: request.project_id,
     });
     setIsModalOpen(true);
   };
 
   const handleTableChange = (pagination: TablePaginationConfig) => {
-    setCurrentPage(pagination.current || currentPage);
+    setCurrentPage(pagination.current || 1);
     setPageSize(pagination.pageSize || pageSize);
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
-    setCurrentPage(1);
   };
 
-  // Lọc các claim theo tên và trạng thái nếu có
   const filteredRequests = requests.filter((req) => {
     const matchesSearch = searchText
       ? req.claim_name.toLowerCase().includes(searchText.toLowerCase())
@@ -251,7 +281,21 @@ const RequestPage: React.FC = () => {
 
   const columns = [
     { title: "Claim Name", dataIndex: "claim_name", key: "claim_name" },
-    { title: "Status", dataIndex: "claim_status", key: "claim_status" },
+    {
+      title: "Status",
+      dataIndex: "claim_status",
+      key: "claim_status",
+      render: (status: string) => {
+        let color = "default";
+        if (status === "Draft") color = "blue";
+        else if (status === "Pending Approval") color = "orange";
+        else if (status === "Approved") color = "green";
+        else if (status === "Paid") color = "purple";
+        else if (status === "Rejected") color = "red";
+        else if (status === "Canceled") color = "gray";
+        return <Tag color={color}>{status}</Tag>;
+      },
+    },
     {
       title: "Start Date",
       key: "claim_start_date",
@@ -271,14 +315,23 @@ const RequestPage: React.FC = () => {
       key: "actions",
       render: (_: string, record: ClaimRequest) => (
         <div className="flex gap-2">
-          <Button icon={<EditOutlined />} type="link" onClick={() => handleEdit(record)} />
+          <Button
+            icon={<EditOutlined />}
+            type="link"
+            onClick={() => handleEdit(record)}
+            disabled={record.claim_status !== "Draft"}
+            title={record.claim_status !== "Draft" ? "Only Draft claims can be edited" : ""}
+          />
         </div>
       ),
     },
   ];
 
+  const currentEditingClaim = editingId ? requests.find((r) => r._id === editingId) : null;
+
   return (
     <div className="overflow-y-scroll">
+      {/* Export Button */}
       <div className="flex justify-end items-center p-5">
         <div className="flex gap-2">
           <Button
@@ -296,12 +349,30 @@ const RequestPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Statistic Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
-        <UserCard icon={<UserIcon />} title="Total Claims" growth={15} />
-        <UserCard icon={<Article />} title="Pending Claims" growth={20} />
-        <UserCard icon={<Article />} title="Approved Claims" growth={30} />
+        <UserCard
+          icon={<UserIcon />}
+          title="Total Claims"
+          growth={15}
+          data={requests.length} 
+        />
+        <UserCard
+          icon={<Article />}
+          title="Pending Claims"
+          growth={20}
+          data={requests.filter((r) => r.claim_status === 'Pending Approval').length}
+        />
+        <UserCard
+          icon={<Article />}
+          title="Approved Claims"
+          growth={30}
+          data={requests.filter((r) => r.claim_status === 'Approved').length}
+        />
       </div>
 
+
+      {/* Search & Table */}
       <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
         <div className="mb-4 flex items-center">
           <Input
@@ -329,10 +400,7 @@ const RequestPage: React.FC = () => {
               className="w-fit"
               placeholder="Claim Status"
               value={statusFilter}
-              onChange={(value) => {
-                setStatusFilter(value);
-                setCurrentPage(1);
-              }}
+              onChange={(value) => setStatusFilter(value)}
               options={[
                 { value: "PENDING", label: "Pending Claims" },
                 { value: "APPROVED", label: "Approved Claims" },
@@ -365,44 +433,34 @@ const RequestPage: React.FC = () => {
           </div>
         )}
 
-        <Modal
-          title={editingId ? "Edit Claim" : "Add New Claim"}
-          open={isModalOpen}
+        <ClaimFormModal
+          visible={isModalOpen}
+          editingId={editingId}
+          form={form}
+          projects={projects}
+          approvals={approvals}
           onCancel={() => {
             setIsModalOpen(false);
             form.resetFields();
           }}
-          onOk={handleSubmit}
-          okText={editingId ? "Save" : "Add Claim"}
-          cancelText="Cancel"
-        >
-          <Form form={form} layout="vertical">
-            <Form.Item label="Claim Name" name="claim_name" rules={[{ required: true, message: "Please enter a claim name" }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item label="Description" name="remark">
-              <Input.TextArea />
-            </Form.Item>
-            <Form.Item label="Start Date" name="claim_start_date" rules={[{ required: true, message: "Please select a start date" }]}>
-              <Input type="date" />
-            </Form.Item>
-            <Form.Item label="End Date" name="claim_end_date" rules={[{ required: true, message: "Please select an end date" }]}>
-              <Input type="date" />
-            </Form.Item>
-            <Form.Item label="Work Time (hours)" name="total_work_time" rules={[{ required: true, message: "Please enter work time" }]}>
-              <Input type="number" />
-            </Form.Item>
-            <Form.Item label="Project" name="project_id" rules={[{ required: true, message: "Please select a project" }]}>
-              <Select placeholder="Select a project">
-                {projects.map(project => (
-                  <Select.Option key={project._id} value={project._id}>
-                    {project.project_name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Form>
-        </Modal>
+          onSubmit={handleSubmit}
+          onSendRequest={
+            editingId && currentEditingClaim && currentEditingClaim.claim_status === "Draft"
+              ? async () => {
+                Modal.confirm({
+                  title: "Do you want to send request?",
+                  onOk: async () => {
+                    await handleChangeStatus(editingId, "Pending Approval");
+                    setIsModalOpen(false);
+                    form.resetFields();
+                    setEditingId(null);
+                  },
+                });
+              }
+              : undefined
+          }
+          loading={loading}
+        />
       </div>
     </div>
   );

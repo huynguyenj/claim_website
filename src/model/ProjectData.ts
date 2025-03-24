@@ -60,11 +60,34 @@ export interface PaginatedResponse {
 }
 export interface ProjectResponse {
   pageData: Project[];
-  data: {
-    pageData: Project[];
-    pageInfo: {
-      totalItems: number;
-    };
-  }
+    data: {
+      pageData: Project[];
+      pageInfo: {
+        totalItems: number;
+      };
+    }
+  
+}
 
+interface ProjectMember2 {
+  user_id: string;
+  project_role: string;
+  _id: string;
+}
+
+export interface ProjectInfoForApproval {
+  _id: string;
+  project_name: string;
+  project_code: string;
+  project_department: string;
+  project_description: string;
+  project_members: ProjectMember2[];
+  project_status: string;
+  project_start_date: string;
+  project_end_date: string;
+  updated_by: string;
+  is_deleted: boolean;
+  created_at: string;
+  updated_at: string;
+  __v: number;
 }
