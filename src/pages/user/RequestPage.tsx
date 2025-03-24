@@ -13,6 +13,7 @@ import {
 } from 'antd';
 import { EditOutlined, SearchOutlined } from '@mui/icons-material';
 import { PlusOutlined } from '../../components/Icon/AntdIcon';
+import { CloseCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import type { ClaimRequest, NewClaimRequest } from '../../model/Claim';
 import authService from '../../services/AuthService';
 import axios from 'axios';
@@ -25,8 +26,15 @@ import { Article } from '@mui/icons-material';
 import { UserIcon } from '../../components/Icon/MuiIIcon';
 import { exportToExcel } from '../../consts/ExcelDownload';
 import ClaimFormModal from '../../components/ClaimFormModal';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { formatColorForClaimStatus } from '../../utils/format';
+
+interface ClaimLog {
+  _id: string;
+  updated_by: string;
+  old_status: string;
+  new_status: string;
+  created_at?: string;
+}
 
 const RequestPage: React.FC = () => {
   const userId = useAuthStore((state) => state.user?._id);
@@ -43,6 +51,14 @@ const RequestPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [form] = Form.useForm();
 
+  // State cho modal log và hiển thị tiêu đề modal log
+  const [logModalOpen, setLogModalOpen] = useState(false);
+  const [logData, setLogData] = useState<ClaimLog[]>([]);
+  const [selectedClaimName, setSelectedClaimName] = useState('');
+
+  // Tính tổng số giờ làm của user
+  const totalWorkTime = requests.reduce((acc, cur) => acc + cur.total_work_time, 0);
+
   // Fetch Approvals (users có role_code A003)
   useEffect(() => {
     const fetchApprovals = async () => {
@@ -56,7 +72,7 @@ const RequestPage: React.FC = () => {
     fetchApprovals();
   }, []);
 
-  // Fetch Claims
+  // Fetch Claims và đặt currentPage về 1 sau khi load
   useEffect(() => {
     if (!userId) return;
     setLoading(true);
@@ -79,8 +95,11 @@ const RequestPage: React.FC = () => {
           __v: item.__v || 0,
         }));
         const userClaims = mappedClaims.filter((c) => c.user_id === userId);
-        setRequests(userClaims);
-        setTotalItems(userClaims.length);
+        // Nếu muốn hiển thị theo thứ tự cũ nhất đầu tiên, bạn có thể sắp xếp:
+        const sortedClaims = userClaims.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        setRequests(sortedClaims);
+        setTotalItems(sortedClaims.length);
+        setCurrentPage(1);
       })
       .catch((error: unknown) => {
         console.error("Error fetching claims:", error);
@@ -129,7 +148,31 @@ const RequestPage: React.FC = () => {
       });
   }, [userId]);
 
-  // Handle Change Status (Send Request)
+  // Hàm xử lý xem log của claim
+  const handleViewLogs = async (record: ClaimRequest) => {
+    try {
+      setLoading(true);
+      const result = await authService.searchClaimLogs(record._id) as { pageData: any[] };
+      console.log("Claim logs raw data:", result.pageData); // Xem dữ liệu thực tế
+      const logs: ClaimLog[] = result.pageData.map((item: any) => ({
+        _id: item._id,
+        updated_by: item.updated_by, // Hoặc item.updated_by?
+        old_status: item.old_status,
+        new_status: item.new_status,
+        created_at: item.created_at,
+      }));
+      setLogData(logs);
+      setSelectedClaimName(record.claim_name);
+      setLogModalOpen(true);
+    } catch (error: unknown) {
+      console.error("Error fetching claim logs:", error);
+      message.error("Unable to fetch claim logs");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Hàm xử lý thay đổi trạng thái (Send Request / Cancel Claim)
   const handleChangeStatus = async (claimId: string, newStatus: string) => {
     try {
       setLoading(true);
@@ -173,7 +216,7 @@ const RequestPage: React.FC = () => {
     }
   };
 
-  // Handle Submit (Create/Update Claim)
+  // Hàm xử lý submit (Tạo/Update Claim)
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
@@ -229,6 +272,8 @@ const RequestPage: React.FC = () => {
         const userClaims = mappedClaims.filter((c) => c.user_id === userId);
         setRequests(userClaims);
         setTotalItems(userClaims.length);
+        // Đặt lại trang về 1 khi reload dữ liệu
+        setCurrentPage(1);
       }
       setIsModalOpen(false);
       form.resetFields();
@@ -245,7 +290,7 @@ const RequestPage: React.FC = () => {
     }
   };
 
-  // Handle Edit (mở modal chỉnh sửa claim)
+  // Handle Edit (Mở modal chỉnh sửa claim)
   const handleEdit = (request: ClaimRequest) => {
     if (request.claim_status !== "Draft") {
       message.error("Only Draft claims can be edited.");
@@ -282,14 +327,21 @@ const RequestPage: React.FC = () => {
   });
 
   const columns = [
-    { title: "Claim Name", dataIndex: "claim_name", key: "claim_name" },
+    {
+      title: "Claim Name",
+      dataIndex: "claim_name",
+      key: "claim_name",
+      render: (text: string, record: ClaimRequest) => (
+        <a style={{ cursor: 'pointer' }} onClick={() => handleViewLogs(record)}>
+          {text}
+        </a>
+      ),
+    },
     {
       title: "Status",
       dataIndex: "claim_status",
       key: "claim_status",
-      render: (status: string) => {
-        return <Tag color={formatColorForClaimStatus(status)}>{status}</Tag>;
-      },
+      render: (status: string) => <Tag color={formatColorForClaimStatus(status)}>{status}</Tag>,
     },
     {
       title: "Start Date",
@@ -323,6 +375,22 @@ const RequestPage: React.FC = () => {
             disabled={record.claim_status !== "Draft"}
             title={record.claim_status !== "Draft" ? "Only Draft claims can be edited" : ""}
           />
+          {record.claim_status === "Pending Approval" && (
+            <Button
+              icon={<CloseCircleOutlined />}
+              type="link"
+              onClick={() =>
+                Modal.confirm({
+                  title: "Do you want to cancel this claim?",
+                  icon: <ExclamationCircleOutlined />,
+                  onOk: async () => {
+                    await handleChangeStatus(record._id, "Draft");
+                  },
+                })
+              }
+              title="Cancel claim to revert status to Draft"
+            />
+          )}
         </div>
       ),
     },
@@ -358,7 +426,7 @@ const RequestPage: React.FC = () => {
       </div>
 
       {/* Statistic Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 bg-[#FCFCFC] p-5">
         <UserCard icon={<UserIcon />} title="Total Claims" growth={15} data={requests.length} />
         <UserCard
           icon={<Article />}
@@ -371,6 +439,12 @@ const RequestPage: React.FC = () => {
           title="Approved Claims"
           growth={30}
           data={requests.filter((r) => r.claim_status === 'Approved').length}
+        />
+        <UserCard
+          icon={<Article />}
+          title="Total Work Time"
+          growth={25}
+          data={totalWorkTime}
         />
       </div>
 
@@ -449,23 +523,68 @@ const RequestPage: React.FC = () => {
           onSendRequest={
             editingId && currentEditingClaim && currentEditingClaim.claim_status === "Draft"
               ? async () => {
-                  Modal.confirm({
-                    title: "Do you want to send request?",
-                    icon: <ExclamationCircleOutlined />,
-                    onOk: async () => {
-                      await handleChangeStatus(editingId, "Pending Approval");
-                      setIsModalOpen(false);
-                      form.resetFields();
-                      setEditingId(null);
-                    },
-                    onCancel: () => setLoading(false),
-                  });
-                }
+                Modal.confirm({
+                  title: "Do you want to send request?",
+                  icon: <ExclamationCircleOutlined />,
+                  onOk: async () => {
+                    await handleChangeStatus(editingId, "Pending Approval");
+                    setIsModalOpen(false);
+                    form.resetFields();
+                    setEditingId(null);
+                  },
+                  onCancel: () => setLoading(false),
+                });
+              }
               : undefined
           }
           loading={loading}
         />
       </div>
+
+      {/* Modal hiển thị Claim Logs */}
+      <Modal
+        title={`Claim Logs - ${selectedClaimName}`}
+        visible={logModalOpen}
+        onCancel={() => setLogModalOpen(false)}
+        footer={[
+          <Button key="close" onClick={() => setLogModalOpen(false)}>
+            Close
+          </Button>,
+        ]}
+      >
+        {loading ? (
+          <Spin />
+        ) : (
+          <Table
+            dataSource={logData}
+            rowKey="_id"
+            pagination={false}
+            columns={[
+              {
+                title: 'Updated By',
+                dataIndex: 'updated_by',
+                key: 'updated_by',
+              },
+              {
+                title: 'Old Status',
+                dataIndex: 'old_status',
+                key: 'old_status',
+              },
+              {
+                title: 'New Status',
+                dataIndex: 'new_status',
+                key: 'new_status',
+              },
+              {
+                title: 'Created At',
+                dataIndex: 'created_at',
+                key: 'created_at',
+                render: (val: string) => (val ? new Date(val).toLocaleString() : ''),
+              },
+            ]}
+          />
+        )}
+      </Modal>
     </div>
   );
 };

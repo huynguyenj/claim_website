@@ -1,3 +1,11 @@
+export interface ProjectMember {
+  project_role: string;
+  user_id: string;
+  employee_id: string;
+  user_name: string;
+  full_name: string;
+}
+
 export interface Project {
   _id: string;
   project_name: string;
@@ -12,13 +20,12 @@ export interface Project {
   created_at: string;
   updated_at: string;
   project_comment: string;
-  project_members: {
-    project_role: string;
-    user_id: string;
-    employee_id: string;
-    user_name: string;
-    full_name: string;
-  }[];
+  project_members: ProjectMember[];
+}
+
+export interface ProjectRole {
+  name: string;
+  value: string;
 }
 
 export interface SearchCondition {
@@ -62,7 +69,7 @@ export interface ProjectResponse {
   
 }
 
-interface ProjectMember {
+interface ProjectMember2 {
   user_id: string;
   project_role: string;
   _id: string;
@@ -74,7 +81,7 @@ export interface ProjectInfoForApproval {
   project_code: string;
   project_department: string;
   project_description: string;
-  project_members: ProjectMember[];
+  project_members: ProjectMember2[];
   project_status: string;
   project_start_date: string;
   project_end_date: string;
