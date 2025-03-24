@@ -814,9 +814,6 @@ export default function UserManagement() {
                                     <Form.Item label="Account" name="account" rules={[{ required: true, message: 'Account name is required' },]}>
                                         <Input />
                                     </Form.Item>
-                                    <Form.Item label="Address" name="address" rules={[{ required: true, message: 'Address is required' },]}>
-                                        <Input />
-                                    </Form.Item>
                                     <Form.Item label="Phone" name="phone" rules={[{ required: true, message: 'Phone is required' },]}>
                                         <Input />
                                     </Form.Item>
@@ -857,6 +854,14 @@ export default function UserManagement() {
                                 </Col>
                             </Row>
 
+                            <Row gutter={16}>
+                                <Col span={24}>
+                                    <Form.Item label="Address" name="address" rules={[{ required: true, message: 'Address is required' },]}>
+                                        <Input />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
                             {/* Start Date and End Date on the same row */}
                             <Row gutter={16}>
                                 <Col span={12}>
@@ -869,6 +874,7 @@ export default function UserManagement() {
                                             format="YYYY-MM-DD"
                                             value={employeeForm.getFieldValue('start_date') ? dayjs(employeeForm.getFieldValue('start_date')) : null}
                                             onChange={(date) => employeeForm.setFieldsValue({ start_date: date })}
+                                            style={{ width: "100%" }}
                                         />
                                     </Form.Item>
                                 </Col>
@@ -893,6 +899,7 @@ export default function UserManagement() {
                                             format="YYYY-MM-DD"
                                             value={employeeForm.getFieldValue('end_date') ? dayjs(employeeForm.getFieldValue('end_date')) : null}
                                             onChange={(date) => employeeForm.setFieldsValue({ end_date: date })}
+                                            style={{ width: "100%" }}
                                         />
                                     </Form.Item>
                                 </Col>
