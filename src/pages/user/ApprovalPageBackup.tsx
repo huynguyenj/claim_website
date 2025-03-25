@@ -33,7 +33,7 @@ function ApprovalPageBackup() {
       key: "claim_status",
       render: (_: unknown, record: ClaimResponseApproval) => (
         <Tag color={formatColorForClaimStatus(record.claim_status)}>
-          <span className="text-[0.9rem]">{record.claim_status}</span>
+          <span className="text-[0.5rem] lg:text-[0.9rem]">{record.claim_status}</span>
         </Tag>
       ),
     },
@@ -44,7 +44,7 @@ function ApprovalPageBackup() {
         <div className="flex gap-2 w-35">
         <button
           onClick={() => handleOpenModel(render._id,1)}
-          className="bg-dark-fig p-2 rounded-2xl w-10  hover:w-20 cursor-pointer group flex  gap-2 overflow-hidden duration-300 ease-in-out active:opacity-75"
+          className="bg-dark-fig p-2 rounded-2xl w-10 hover:w-20 cursor-pointer group flex  gap-2 overflow-hidden duration-300 ease-in-out active:opacity-75"
         >
           <EditIcon sx={{color:'white'}} />
           <div className="text-white-fig transform-[scale(0)] group-hover:transform-[scale(1)] transition-all duration-300 ease-in-out">
@@ -89,13 +89,15 @@ function ApprovalPageBackup() {
 
   }
 }
+  
 
   const handleTablePagination = (pagination: TablePaginationConfig) => {
-    setCurrentPage(pagination.current || currentPage);
+    const newPage = pagination.current || currentPage;
+    setCurrentPage(newPage);
     setSearchTerm((prevSearch) => ({
       ...prevSearch,
       pageInfo: {
-        pageNum: currentPage,
+        pageNum: newPage,
         pageSize: pagination.pageSize,
       },
     }));
@@ -157,8 +159,8 @@ function ApprovalPageBackup() {
   }
   
   return (
-      <div className="p-5 border-2 rounded-2xl m-3 mx-auto w-[20rem] sm:w-[95%] sm:h-fit">
-          <div className="flex flex-col justify-between lg:flex-row lg:items-center">
+      <div className="py-4 px-10 border-2 rounded-2xl mx-auto mb-5 w-[20rem] sm:w-[95%] sm:h-fit h-fit">
+          <div className="flex flex-col justify-between lg:flex-row lg:items-center overflow-y-auto">
            <Input
                 placeholder="Search by claim-name"
                 prefix={<SearchOutlined />}
@@ -185,8 +187,8 @@ function ApprovalPageBackup() {
             total: totalItems,
           }}
           rowKey="_id"
-          className="overflow-x-auto overflow-y-auto"
           onChange={handleTablePagination}
+          scroll={{y: 55 * 5,x:55*5}}
         />
         </div>
       <Modal open={isModalOpen} onCancel={() => handleCloseModel(1)} onOk={() =>handleOk(1)} title='Update claim' footer={[

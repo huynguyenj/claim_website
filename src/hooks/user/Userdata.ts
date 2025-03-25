@@ -27,7 +27,7 @@ export default function useDashboardData() {
         pageInfo: { pageNum: currentPage, pageSize },
       };
 
-      const response = await apiService.post<ClaimResponse>("/claims/search", searchParams);
+      const response = await apiService.post<ClaimResponse>("/claims/claimer-search", searchParams);
       console.log("Claims API Response:", response);
       if (response) {
         setClaims(response.data.pageData);
