@@ -9,7 +9,7 @@ import {
   UserIcon,
 } from "../../components/Icon/MuiIIcon";
 import Footer from "../../layouts/Footer";
-import useCallApiGithub from "../../hooks/auth/useCallApiGithub";
+import useCallApiGithub from "../../hooks/auth-hooks/useCallApiGithub";
 
 type ItemOverview = {
   title: string;

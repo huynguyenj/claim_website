@@ -23,9 +23,8 @@ export default function useLogin() {
       addAuthInfo(response.data.token);
       const userInfo = await authService.getInfo();
       setUserInfo(userInfo.data);
+      navigate(userInfo.data.role_code === roleDefine.ADMIN_ROLE ? AdminRoutes.ADMIN_DASHBOARD : UserRoutes.USER_DASHBOARD);      
       Notification("success", "Login successful!")
-      const role = useAuthStore.getState().user?.role_code;
-      navigate(role === roleDefine.ADMIN_ROLE ? AdminRoutes.ADMIN_DASHBOARD : UserRoutes.USER_DASHBOARD);      
     } catch (error) {
       Notification(
         "error",
