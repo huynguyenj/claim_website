@@ -43,7 +43,7 @@ export default function StackedAreaChart() {
           margin={{
             top: 10,
             right: 30,
-            left: -30,
+            left: -20,
             bottom: 30,
           }}
         >

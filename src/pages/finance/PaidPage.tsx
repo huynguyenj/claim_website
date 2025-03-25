@@ -1,12 +1,6 @@
-
 import SalaryTable from "./SalaryTable";
 
 const PaidPage: React.FC = () => {
-  
-  return (
- 
-        <SalaryTable />
-   
-  );
+  return <SalaryTable />;
 };
 export default PaidPage;
