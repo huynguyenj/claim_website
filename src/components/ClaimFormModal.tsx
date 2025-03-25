@@ -54,8 +54,7 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
     if (!editingId) return;
     try {
       setLogLoading(true);
-      // Gọi API searchClaimLogs với claim id (editingId)
-      // Ép kiểu kết quả trả về theo { pageData: any[] }
+      
       const result = await authService.searchClaimLogs(editingId) as { pageData: any[] };
       const logs: ClaimLog[] = result.pageData.map((item: any) => ({
         _id: item._id,
@@ -108,7 +107,7 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
             ? "Do you want to update?"
             : "Do you want to create a new claim?",
           icon: <ExclamationCircleOutlined />,
-          onOk: onSubmit, // Gọi hàm onSubmit
+          onOk: onSubmit, 
         });
       }}
     >
