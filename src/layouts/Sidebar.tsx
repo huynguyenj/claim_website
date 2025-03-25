@@ -2,12 +2,14 @@ import { useEffect,useState } from "react";
 import { SidebarItem } from "../model/SidebarData";
 import { BackRightKeyboardIcon } from "../components/Icon/MuiIIcon";
 import logo from "../assets/logowebsite.png";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { PublicRoutes } from "../consts/RoutesConst";
 
 function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const [active, setActive] = useState<number>(0);
   const location = useLocation();
+  const navigate = useNavigate();
   const handleActive = (index:number):void=>{
       setActive(index);
   }
@@ -42,8 +44,8 @@ function Sidebar({ itemList }: { itemList: SidebarItem[] }) {
         isOpen ? "w-60" : "w-22"
       } duration-400 ease-in-out relative`}
     >
-      <nav className="flex flex-col ">
-        <div className="w-full flex rounded-full mt-13 gap-3 items-center px-5">
+      <nav className="flex flex-col">
+        <div className="w-full flex rounded-full mt-13 gap-3 items-center px-5 cursor-pointer" onClick={()=>navigate(PublicRoutes.HOME)}>
           <img
             className="w-9 h-9 sm:w-14 sm:h-14"
             src={logo}

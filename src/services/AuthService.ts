@@ -19,7 +19,7 @@ const authService = {
 
   getAllClaims: () =>
     apiService
-      .post<ApiResponse<{ pageData: any[] }>>(`claims/search`, {
+      .post<ApiResponse<{ pageData: any[] }>>(`claims/claimer-search`, {
         searchCondition: {},
         pageInfo: { pageNum: 1, pageSize: 100 },
       })

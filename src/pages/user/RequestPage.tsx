@@ -95,7 +95,6 @@ const RequestPage: React.FC = () => {
           __v: item.__v || 0,
         }));
         const userClaims = mappedClaims.filter((c) => c.user_id === userId);
-        // Nếu muốn hiển thị theo thứ tự cũ nhất đầu tiên, bạn có thể sắp xếp:
         const sortedClaims = userClaims.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
         setRequests(sortedClaims);
         setTotalItems(sortedClaims.length);
@@ -153,10 +152,10 @@ const RequestPage: React.FC = () => {
     try {
       setLoading(true);
       const result = await authService.searchClaimLogs(record._id) as { pageData: any[] };
-      console.log("Claim logs raw data:", result.pageData); // Xem dữ liệu thực tế
+      console.log("Claim logs raw data:", result.pageData); 
       const logs: ClaimLog[] = result.pageData.map((item: any) => ({
         _id: item._id,
-        updated_by: item.updated_by, // Hoặc item.updated_by?
+        updated_by: item.updated_by, 
         old_status: item.old_status,
         new_status: item.new_status,
         created_at: item.created_at,
@@ -272,7 +271,6 @@ const RequestPage: React.FC = () => {
         const userClaims = mappedClaims.filter((c) => c.user_id === userId);
         setRequests(userClaims);
         setTotalItems(userClaims.length);
-        // Đặt lại trang về 1 khi reload dữ liệu
         setCurrentPage(1);
       }
       setIsModalOpen(false);
@@ -375,7 +373,7 @@ const RequestPage: React.FC = () => {
             disabled={record.claim_status !== "Draft"}
             title={record.claim_status !== "Draft" ? "Only Draft claims can be edited" : ""}
           />
-          {record.claim_status === "Pending Approval" && (
+          {record.claim_status === "Draft" && (
             <Button
               icon={<CloseCircleOutlined />}
               type="link"
@@ -384,7 +382,7 @@ const RequestPage: React.FC = () => {
                   title: "Do you want to cancel this claim?",
                   icon: <ExclamationCircleOutlined />,
                   onOk: async () => {
-                    await handleChangeStatus(record._id, "Draft");
+                    await handleChangeStatus(record._id, "Canceled");
                   },
                 })
               }
