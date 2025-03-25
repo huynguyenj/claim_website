@@ -27,6 +27,7 @@ import {
   Divider,
   Card,
   Spin,
+  Tabs,
   message,
 } from "antd";
 
@@ -55,6 +56,7 @@ function Profile() {
   const [employeeForm] = Form.useForm();
 
   const user = useAuthStore((state) => state.user);
+  console.log(useAuthStore(state => state.token))
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [claims, setClaims] = useState<FinanceClaim[]>([]);
 
@@ -65,7 +67,7 @@ function Profile() {
   const [projects, setProjects] = useState<Project[]>([]);
 
   const [selectedClaim, setSelectedClaim] = useState<FinanceClaim | null>(null);
-  // const [selectedProject, setSelectecProject] = useState<Project | null>(null)
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
   const fetchUser = async () => {
     setFetchingUser(true);
@@ -107,14 +109,12 @@ function Profile() {
 
     const searchParams = {
       searchCondition: {
-        project_start_date: "",
-        project_end_date: "",
         is_delete: false,
         user_id: user?._id,
       },
       pageInfo: {
-        pageNum: 10,
-        pageSize: 10,
+        pageNum: 1,
+        pageSize: 100,
       },
     };
     const projects = await ApiService.post<PaginatedResponse>(
@@ -131,11 +131,7 @@ function Profile() {
 
     const searchParams = {
       searchCondition: {
-        // keyword: "",
-        // claim_status: "",
-        // claim_start_date: "", // lower the scope
-        // claim_end_date: "",
-        // is_delete: false,
+        is_delete: false,
       },
       pageInfo: {
         pageNum: 1,
@@ -263,12 +259,10 @@ function Profile() {
   const [fetchingProjects, setFetchingProjects] = useState(false);
 
   const [isAvatarModal, setIsAvatarModal] = useState(false);
-  const [isNameMailModal, setIsNameMailModal] = useState(false);
-  const [isPasswordModal, setIsPasswordModal] = useState(false);
 
-  // const [isProjectModal, setIsProjectModal] = useState(false)
+  const [isProjectModal, setIsProjectModal] = useState(false)
   const [isClaimModal, setIsClaimModal] = useState(false);
-  const [claimModalTitle, setClaimModalTitle] = useState("");
+  const [claimModalType, setClaimModalType] = useState("");
   const [isClaimModal2, setIsClaimModal2] = useState(false);
 
   const [refreshes, setRefresh] = useState(0);
@@ -289,6 +283,7 @@ function Profile() {
       >
         <br />
 
+        {/* AVATAR CIRCLE  */}
         <Spin tip="Loading" size="large" spinning={fetchingEmployee}>
           <Button
             style={{
@@ -314,7 +309,7 @@ function Profile() {
           </Button>
         </Spin>
 
-        {/* Modal for Image URL Input */}
+        {/* AVATAR MODAL */}
         <Modal
           className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
                     shadow-[2px_2px_0px_black]"
@@ -344,112 +339,248 @@ function Profile() {
           />
         </Modal>
 
+        {/* LOWER DIV, BELOW AVATAR */}
         <div className="relative w-full px-4">
-          <Spin tip="Loading" size="large" spinning={fetchingUser}>
-            <Form
-              form={nameMailForm}
-              layout="vertical"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <Divider style={{ borderColor: "#b3b3b3" }}>
-                Account Information
-              </Divider>
 
-              {/* Email and Phone */}
-              <div className="grid grid-cols-1 md:grid-cols-2 w-full">
-                <div className="mx-5 lg:mx-10">
-                  <Form.Item
-                    name="usernameInput"
-                    label="Username"
-                    rules={[
-                      {
-                        required: true,
-                        min: 1,
-                        message: "Username must not be empty !",
-                      },
-                    ]}
-                  >
-                    <Input
-                      disabled={!isNameMailModal}
-                      className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
-                                        shadow-[2px_2px_0px_black]"
-                    />
-                  </Form.Item>
-                </div>
-                <div className="mx-5 lg:mx-10">
-                  <Form.Item
-                    name="emailInput"
-                    label="Email"
-                    rules={[
-                      {
-                        required: true,
-                        type: "email",
-                        message: "Please enter a valid email !",
-                      },
-                    ]}
-                  >
-                    <Input
-                      disabled={!isNameMailModal}
-                      className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
-                                        shadow-[2px_2px_0px_black]"
-                    />
-                  </Form.Item>
-                </div>
-              </div>
+          <Tabs 
+          defaultActiveKey="tab1"
+          centered
+          >
+            <Tabs.TabPane tab="Profile" key='tab1'>
+              {/* PERSONAL & COMPANY INFORMATION */}
+              <Spin tip="Loading" size="large" spinning={fetchingEmployee}>
+                <Form
+                  form={employeeForm}
+                  layout="vertical"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <Divider style={{ borderColor: "#b3b3b3" }}>
+                    Personal Information
+                  </Divider>
 
-              {!isNameMailModal ? (
-                <Form.Item>
-                  <Button
-                    type="default"
-                    onClick={() => {
-                      setIsNameMailModal(true);
-                    }}
-                  >
-                    Change Username & Email
-                  </Button>
-                </Form.Item>
-              ) : (
-                <div className="flex flex-cols gap-4">
-                  <Form.Item>
-                    <Button
-                      type="default"
-                      onClick={() => {
-                        setIsNameMailModal(false);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </Form.Item>
+                  {/* Full name */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 w-full">
+                    <div className="mx-5 lg:mx-10">
+                      <Form.Item
+                        name="fullnameInput"
+                        label="Full name"
+                        rules={[
+                          {
+                            required: true,
+                            min: 1,
+                            message: "Full name cannot be empty !",
+                          },
+                        ]}
+                      >
+                        <Input
+                          className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
+                                            shadow-[2px_2px_0px_black]"
+                        />
+                      </Form.Item>
+                    </div>
+                    <div className="mx-5 lg:mx-10">
+                      <Form.Item
+                        name="phoneInput"
+                        label="Phone number"
+                        rules={[
+                          {
+                            required: true,
+                            min: 1,
+                            message: "Phone number cannot be empty !",
+                          },
+                          {
+                            pattern: /^\+?[1-9]\d{0,2} ?\d{1,4} ?\d{1,4} ?\d{1,9}$/,
+                            message: "Incorrect phone number format !",
+                          },
+                        ]}
+                      >
+                        <PhoneInput
+                          international
+                          placeholder="Enter phone number"
+                          onChange={() => {}}
+                          className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
+                                            shadow-[2px_2px_0px_black]"
+                        />
+                      </Form.Item>
+                    </div>
+                  </div>
+
+                  {/* Address and Phone */}
+                  <div className="grid grid-cols-1 md:grid-cols-1 w-full">
+                    <div className="mx-5 lg:mx-10">
+                      <Form.Item
+                        name="addressInput"
+                        label="Address"
+                        rules={[
+                          {
+                            required: true,
+                            min: 1,
+                            message: "Address cannot be empty !",
+                          },
+                        ]}
+                      >
+                        <Input
+                          className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
+                                            shadow-[2px_2px_0px_black]"
+                        />
+                      </Form.Item>
+                    </div>
+                  </div>
+
+                  <Divider style={{ borderColor: "#b3b3b3" }}>
+                    Company Information
+                  </Divider>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 w-full">
+                    <div className="mx-5 lg:mx-10">
+                      <Form.Item label="Role">
+                        <Input
+                          value={roleMap[user?.role_code || "A004"]}
+                          disabled={true}
+                          className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
+                                            shadow-[2px_2px_0px_black]"
+                        />
+                      </Form.Item>
+                    </div>
+                    <div className="mx-5 lg:mx-10">
+                      <Form.Item label="Department">
+                        <Input
+                          value={employee?.department_code}
+                          disabled={true}
+                          className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
+                                            shadow-[2px_2px_0px_black]"
+                        />
+                      </Form.Item>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 w-full">
+                    <div className="mx-5 lg:mx-10">
+                      <Form.Item label="Contract">
+                        <Input
+                          value={employee?.contract_type}
+                          disabled={true}
+                          className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
+                                            shadow-[2px_2px_0px_black]"
+                        />
+                      </Form.Item>
+                    </div>
+                    <div className="mx-5 lg:mx-10">
+                      <Form.Item label="Salary">
+                        <Input
+                          value={employee?.salary}
+                          disabled={true}
+                          className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
+                                            shadow-[2px_2px_0px_black]"
+                        />
+                      </Form.Item>
+                    </div>
+                    <div className="mx-5 lg:mx-10">
+                      <Form.Item label="Job rank">
+                        <Input
+                          value={employee?.job_rank}
+                          disabled={true}
+                          className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
+                                            shadow-[2px_2px_0px_black]"
+                        />
+                      </Form.Item>
+                    </div>
+                  </div>
+
                   <Form.Item>
                     <Button
                       type="primary"
-                      onClick={() => {
-                        updateUser();
-                        setIsNameMailModal(false);
-                      }}
+                      htmlType="submit"
+                      onClick={updateEmployee}
                     >
-                      Save Changes
+                      Save changes
                     </Button>
                   </Form.Item>
-                </div>
-              )}
-            </Form>
+                </Form>
+              </Spin>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Username & Email" key='tab2'>
+              {/* ACCOUNT INFORMATION */}
+              <Divider style={{ borderColor: "#b3b3b3" }}/>
+              <Spin tip="Loading" size="large" spinning={fetchingUser}>
+                <Form
+                  form={nameMailForm}
+                  layout="vertical"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  {/* Email and Phone */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 w-full">
+                    <div className="mx-5 lg:mx-10">
+                      <Form.Item
+                        name="usernameInput"
+                        label="Username"
+                        rules={[
+                          {
+                            required: true,
+                            min: 1,
+                            message: "Username must not be empty !",
+                          },
+                        ]}
+                      >
+                        <Input
+                          className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
+                                            shadow-[2px_2px_0px_black]"
+                        />
+                      </Form.Item>
+                    </div>
+                    <div className="mx-5 lg:mx-10">
+                      <Form.Item
+                        name="emailInput"
+                        label="Email"
+                        rules={[
+                          {
+                            required: true,
+                            type: "email",
+                            message: "Please enter a valid email !",
+                          },
+                        ]}
+                      >
+                        <Input
+                          className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
+                                            shadow-[2px_2px_0px_black]"
+                        />
+                      </Form.Item>
+                    </div>
+                  </div>
 
-            <Form
-              form={passwordForm}
-              layout="vertical"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              {/* Birthdate, and Gender */}
-              {isPasswordModal && (
+                  <Form.Item>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      onClick={updateUser}
+                    >
+                      Save changes
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </Spin>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Password" key='tab3'>
+              {/* ACCOUNT INFORMATION */}
+              <Divider style={{ borderColor: "#b3b3b3" }}/>
+              <Form
+                form={passwordForm}
+                layout="vertical"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 w-full">
                   <div className="mx-5 lg:mx-10">
                     <Form.Item
@@ -496,206 +627,27 @@ function Profile() {
                     </Form.Item>
                   </div>
                 </div>
-              )}
 
-              {!isPasswordModal ? (
                 <Form.Item>
                   <Button
-                    type="default"
-                    onClick={() => {
-                      setIsPasswordModal(true);
-                    }}
+                    type="primary"
+                    htmlType="submit"
+                    onClick={changePassword}
                   >
-                    Change Password
+                    Save changes
                   </Button>
                 </Form.Item>
-              ) : (
-                <div className="flex flex-cols gap-4">
-                  <Form.Item>
-                    <Button
-                      type="default"
-                      onClick={() => {
-                        setIsPasswordModal(false);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </Form.Item>
-                  <Form.Item>
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        changePassword();
-                        setIsPasswordModal(false);
-                      }}
-                    >
-                      Save Changes
-                    </Button>
-                  </Form.Item>
-                </div>
-              )}
-            </Form>
-          </Spin>
+              </Form>
+            </Tabs.TabPane>
+          </Tabs>
 
-          <Spin tip="Loading" size="large" spinning={fetchingEmployee}>
-            <Form
-              form={employeeForm}
-              layout="vertical"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <Divider style={{ borderColor: "#b3b3b3" }}>
-                Personal Information
-              </Divider>
-
-              {/* Full name */}
-              <div className="grid grid-cols-1 md:grid-cols-2 w-full">
-                <div className="mx-5 lg:mx-10">
-                  <Form.Item
-                    name="fullnameInput"
-                    label="Full name"
-                    rules={[
-                      {
-                        required: true,
-                        min: 1,
-                        message: "Full name cannot be empty !",
-                      },
-                    ]}
-                  >
-                    <Input
-                      className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
-                                        shadow-[2px_2px_0px_black]"
-                    />
-                  </Form.Item>
-                </div>
-                <div className="mx-5 lg:mx-10">
-                  <Form.Item
-                    name="phoneInput"
-                    label="Phone number"
-                    rules={[
-                      {
-                        required: true,
-                        min: 1,
-                        message: "Phone number cannot be empty !",
-                      },
-                      {
-                        pattern: /^\+?[1-9]\d{0,2} ?\d{1,4} ?\d{1,4} ?\d{1,9}$/,
-                        message: "Incorrect phone number format !",
-                      },
-                    ]}
-                  >
-                    <PhoneInput
-                      international
-                      placeholder="Enter phone number"
-                      onChange={() => {}}
-                      className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
-                                        shadow-[2px_2px_0px_black]"
-                    />
-                  </Form.Item>
-                </div>
-              </div>
-
-              {/* Address and Phone */}
-              <div className="grid grid-cols-1 md:grid-cols-1 w-full">
-                <div className="mx-5 lg:mx-10">
-                  <Form.Item
-                    name="addressInput"
-                    label="Address"
-                    rules={[
-                      {
-                        required: true,
-                        min: 1,
-                        message: "Address cannot be empty !",
-                      },
-                    ]}
-                  >
-                    <Input
-                      className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
-                                        shadow-[2px_2px_0px_black]"
-                    />
-                  </Form.Item>
-                </div>
-              </div>
-
-              <Divider style={{ borderColor: "#b3b3b3" }}>
-                Company Information
-              </Divider>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 w-full">
-                <div className="mx-5 lg:mx-10">
-                  <Form.Item label="Role">
-                    <Input
-                      value={roleMap[user?.role_code || "A004"]}
-                      disabled={true}
-                      className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
-                                        shadow-[2px_2px_0px_black]"
-                    />
-                  </Form.Item>
-                </div>
-                <div className="mx-5 lg:mx-10">
-                  <Form.Item label="Department">
-                    <Input
-                      value={employee?.department_code}
-                      disabled={true}
-                      className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
-                                        shadow-[2px_2px_0px_black]"
-                    />
-                  </Form.Item>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 w-full">
-                <div className="mx-5 lg:mx-10">
-                  <Form.Item label="Contract">
-                    <Input
-                      value={employee?.contract_type}
-                      disabled={true}
-                      className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
-                                        shadow-[2px_2px_0px_black]"
-                    />
-                  </Form.Item>
-                </div>
-                <div className="mx-5 lg:mx-10">
-                  <Form.Item label="Salary">
-                    <Input
-                      value={employee?.salary}
-                      disabled={true}
-                      className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
-                                        shadow-[2px_2px_0px_black]"
-                    />
-                  </Form.Item>
-                </div>
-                <div className="mx-5 lg:mx-10">
-                  <Form.Item label="Job rank">
-                    <Input
-                      value={employee?.job_rank}
-                      disabled={true}
-                      className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
-                                        shadow-[2px_2px_0px_black]"
-                    />
-                  </Form.Item>
-                </div>
-              </div>
-
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  onClick={updateEmployee}
-                >
-                  Save changes
-                </Button>
-              </Form.Item>
-            </Form>
-          </Spin>
         </div>
       </div>
 
       <br />
       <div className="w-3/4 grid grid-cols-1 lg:grid-cols-2 gap-10">
+
+        {/* CLAIMS DIV */}
         <div
           className="w-100% border-1 border-black rounded-xl flex flex-col items-center
                 shadow-[2px_2px_0px_black]"
@@ -709,11 +661,10 @@ function Profile() {
                   padding: "1rem",
                   margin: "1rem",
                   borderRadius: "0.5rem",
-                  gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
                   boxShadow: "2px 2px 0px black",
                 }}
                 onClick={() => {
-                  setClaimModalTitle("Total Requests");
+                  setClaimModalType("Total Requests");
                   setClaims(totalClaims);
                   setIsClaimModal(true);
                 }}
@@ -723,7 +674,7 @@ function Profile() {
                   <TotalRequestIcon /> <Space />{" "}
                 </p>
                 <p className="col-span-4 text-lg"> Total Requests: </p>
-                <p className="col-span-1 text-lg bg-gray-200 flex items-center justify-center rounded-full">
+                <p className="col-span-1 px-2 text-lg bg-blue-200 flex items-center justify-center rounded-full">
                   {totalClaims.length}
                 </p>
               </Button>
@@ -732,11 +683,10 @@ function Profile() {
                   padding: "1rem",
                   margin: "1rem",
                   borderRadius: "0.5rem",
-                  gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
                   boxShadow: "2px 2px 0px black",
                 }}
                 onClick={() => {
-                  setClaimModalTitle("Pending Requests");
+                  setClaimModalType("Pending Requests");
                   setClaims(pendingClaims);
                   setIsClaimModal(true);
                 }}
@@ -746,7 +696,7 @@ function Profile() {
                   <PendingRequestIcon /> <Space />{" "}
                 </p>
                 <p className="col-span-4 text-lg"> Pending Requests: </p>
-                <p className="col-span-1 text-lg bg-gray-200 flex items-center justify-center rounded-full">
+                <p className="col-span-1 px-2 text-lg bg-blue-200 flex items-center justify-center rounded-full">
                   {pendingClaims.length}
                 </p>
               </Button>
@@ -755,11 +705,10 @@ function Profile() {
                   padding: "1rem",
                   margin: "1rem",
                   borderRadius: "0.5rem",
-                  gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
                   boxShadow: "2px 2px 0px black",
                 }}
                 onClick={() => {
-                  setClaimModalTitle("Approved Requests");
+                  setClaimModalType("Approved Requests");
                   setClaims(approvedClaims);
                   setIsClaimModal(true);
                 }}
@@ -769,7 +718,7 @@ function Profile() {
                   <ApprovedRequestIcon /> <Space />{" "}
                 </p>
                 <p className="col-span-4 text-lg"> Approved Requests: </p>
-                <p className="col-span-1 text-lg bg-gray-200 flex items-center justify-center rounded-full">
+                <p className="col-span-1 px-2 text-lg bg-blue-200 flex items-center justify-center rounded-full">
                   {approvedClaims.length}
                 </p>
               </Button>
@@ -778,11 +727,10 @@ function Profile() {
                   padding: "1rem",
                   margin: "1rem",
                   borderRadius: "0.5rem",
-                  gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
                   boxShadow: "2px 2px 0px black",
                 }}
                 onClick={() => {
-                  setClaimModalTitle("Rejected Requests");
+                  setClaimModalType("Rejected Requests");
                   setClaims(rejectedClaims);
                   setIsClaimModal(true);
                 }}
@@ -792,7 +740,7 @@ function Profile() {
                   <RejectedRequestIcon /> <Space />{" "}
                 </p>
                 <p className="col-span-4 text-lg"> Rejected Requests: </p>
-                <p className="col-span-1 text-lg bg-gray-200 flex items-center justify-center rounded-full">
+                <p className="col-span-1 px-2 text-lg bg-blue-200 flex items-center justify-center rounded-full">
                   {rejectedClaims.length}
                 </p>
               </Button>
@@ -800,8 +748,9 @@ function Profile() {
           </Spin>
         </div>
 
+        {/* CLAIMS LIST MODAL */}
         <Modal
-          title={claimModalTitle}
+          title={claimModalType}
           open={isClaimModal}
           footer={null}
           onCancel={() => setIsClaimModal(false)}
@@ -840,6 +789,7 @@ function Profile() {
           </ul>
         </Modal>
 
+        {/* CLAIMS DETAIL MODAL */}
         <Modal
           title="Request Details"
           open={isClaimModal2}
@@ -848,51 +798,133 @@ function Profile() {
         >
           <Form>
             <Form.Item label="Request Name">
-              <Input disabled value={selectedClaim?.claim_name} />
+              <Input readOnly value={selectedClaim?.claim_name} />
             </Form.Item>
             <Form.Item label="Start Date">
               <Input
-                disabled
+                readOnly
                 value={formatDate(selectedClaim?.claim_start_date)}
               />
             </Form.Item>
             <Form.Item label="End Date">
               <Input
-                disabled
+                readOnly
                 value={formatDate(selectedClaim?.claim_start_date)}
               />
             </Form.Item>
             <Form.Item label="Total Work Time">
               <Input
-                disabled
+                readOnly
                 value={`${selectedClaim?.total_work_time} hours`}
               />
             </Form.Item>
             <Form.Item label="Status">
-              <Input disabled value={selectedClaim?.claim_status} />
+              <Input readOnly value={selectedClaim?.claim_status} />
             </Form.Item>
           </Form>
         </Modal>
 
+        {/* PROJECTS DIV */}
         <div
           className="w-100% border-1 border-black rounded-xl flex flex-col items-center
                 shadow-[2px_2px_0px_black]"
         >
           <h1 className="mb-5 font-bold text-2xl text-black">Your Projects</h1>
 
-          <ul className="w-4/5">
-            {projects.map((project) => (
-              <li
-                className="border-1 rounded-lg m-4 px-4 shadow-[2px_2px_0px_black]
-                        cursor-pointer hover:bg-gray-200 transition"
-              >
-                <p className="font-bold text-2xl">{project.project_name}</p>
-                <p>{project.project_start_date}</p>
-                <p>{project.project_end_date}</p>
-              </li>
-            ))}
+          
+          <ul className="w-4/5 flex flex-col items-center">
+            <Spin tip="Loading" size="large" spinning={fetchingProjects}>
+              {projects.map((project) => (
+                <Button
+                  type="default"
+                  className="w-full min-h-12 flex justify-between items-center"
+                  style={{
+                    borderRadius: "0.5rem",
+                    boxShadow: "2px 2px 0px black",
+                    margin: "0.5rem"
+                  }}
+                  onClick = {() => {
+                    setSelectedProject(project)
+                    setIsProjectModal(true)
+                  }}
+                >
+                  <p className="font-semibold flex-1 text-lg text-left">{project.project_name}</p>
+                  <p className={`px-4 text-gray-500 text-right text-md rounded-full ${
+                    {
+                      Draft: "bg-gray-200",
+                      Processing: "bg-yellow-200",
+                      Active: "bg-green-200",
+                      Closed: "bg-red-200",
+                    }[project.project_status]
+                  }`}>{project.project_status}</p>
+                </Button>
+              ))}
+            </Spin>
           </ul>
+          
+          
         </div>
+
+          
+        {/* PROJECT DETAIL MODAL */}
+        <Modal
+          title="Project Details"
+          open={isProjectModal}
+          onCancel={() => setIsProjectModal(false)}
+          footer={null}
+        >
+          <Form layout="vertical">
+            <Form.Item label="Name">
+              <Input readOnly value={selectedProject?.project_name}/>
+            </Form.Item>
+
+            <Form.Item label="Code">
+              <Input readOnly value={selectedProject?.project_code}/>
+            </Form.Item>
+
+            <Form.Item label="Department">
+              <Input readOnly value={selectedProject?.project_department}/>
+            </Form.Item>
+
+            <Form.Item label="Description">
+              <Input.TextArea readOnly value={selectedProject?.project_description}
+              autoSize={{ minRows: 2, maxRows: 6 }}/>
+            </Form.Item>
+
+            <Form.Item label="Comment">
+              <Input.TextArea readOnly value={selectedProject?.project_comment}
+              autoSize={{ minRows: 2, maxRows: 6 }}/>
+            </Form.Item>
+
+            <Form.Item label="Start date">
+              <Input readOnly value={formatDate(selectedProject?.project_start_date)}/>
+            </Form.Item>
+
+            <Form.Item label="End date">
+              <Input readOnly value={formatDate(selectedProject?.project_end_date)}/>
+            </Form.Item>
+
+            <Form.Item label="Members">
+              <ul style={{paddingLeft:"2rem"}}>
+                {selectedProject?.project_members.map(member => (
+                  <div className="grid grid-cols-3">
+                    <Form.Item label="Role">
+                      <Input readOnly value={member.project_role}/>
+                    </Form.Item>
+                    <Form.Item label="Full name">
+                      <Input readOnly value={member.full_name}/>
+                    </Form.Item>
+                    <Form.Item label="Username">
+                      <Input readOnly value={member.user_name}/>
+                    </Form.Item>
+                  </div>
+                ))}
+              </ul>
+            </Form.Item>
+
+          </Form>
+        </Modal>
+
       </div>
     </div>
   );
@@ -903,135 +935,3 @@ export default Profile;
 ///////////////////////
 
 ///////////////////////
-
-// function ProjectModal(){
-// return (
-//     <Modal
-//       title="Edit Project"
-//       open={isEditModalOpen}
-//       onCancel={() => setIsEditModalOpen(false)}
-//       onOk={handleUpdateProject}
-//       okText="Save"
-//       cancelText="Cancel"
-//       width={800}
-//     >
-//       <Form form={form} layout="vertical" initialValues={editingProject || {}}>
-//         <Form.Item
-//           label="Project Name"
-//           name="project_name"
-//           rules={[{ required: true, message: "Please enter the project name" }]}
-//         >
-//           <Input />
-//         </Form.Item>
-
-//         <Form.Item
-//           label="Project Code"
-//           name="project_code"
-//           rules={[{ required: true, message: "Please enter the project code" }]}
-//         >
-//           <Input />
-//         </Form.Item>
-
-//         <Form.Item label="Project Department" name="project_department">
-//           <Select placeholder="Select a department" loading={loading}>
-//             {departments.map((dept) => (
-//               <Select.Option key={dept.department_name} value={dept.department_name}>
-//                 {dept.department_name}
-//               </Select.Option>
-//             ))}
-//           </Select>
-//         </Form.Item>
-
-//         <Form.Item
-//           label="Project Description"
-//           name="project_description"
-//           rules={[{ required: true, message: "Write the project description" }]}
-//         >
-//           <Input />
-//         </Form.Item>
-
-//         <Form.Item
-//           label="Project Start Date"
-//           name="project_start_date"
-//           rules={[{ required: true, message: "Please select the project start date" }]}
-//         >
-//           <DatePicker format="YYYY-MM-DD" />
-//         </Form.Item>
-
-//         <Form.Item
-//           label="Project End Date"
-//           name="project_end_date"
-//           rules={[
-//             { required: true, message: "Please select the project end date" },
-//             ({ getFieldValue }) => ({
-//               validator(_, value) {
-//                 if (!value || getFieldValue('project_start_date') <= value) {
-//                   return Promise.resolve();
-//                 }
-//                 return Promise.reject(new Error('End date must be later than start date'));
-//               },
-//             }),
-//           ]}
-//         >
-//           <DatePicker format="YYYY-MM-DD" />
-//         </Form.Item>
-
-//         <Form.List name="project_members">
-//           {(fields, { add, remove }) => (
-//             <>
-//               {fields.map(({ key, name, ...restField }) => (
-//                 <div key={key} style={{ display: 'flex', marginBottom: 8 }}>
-//                   <Form.Item
-//                     {...restField}
-//                     name={[name, 'user_id']}
-//                     rules={[{ required: true, message: 'Please select a user' }]}
-//                     style={{ flex: 1, marginRight: 8 }}
-//                   >
-//                     <Select placeholder="Select a user">
-//                       {users.map((user) => (
-//                         <Select.Option key={user._id} value={user._id}>
-//                           {user.user_name} ({user.email})
-//                         </Select.Option>
-//                       ))}
-//                     </Select>
-//                   </Form.Item>
-
-//                   <Form.Item
-//                     {...restField}
-//                     name={[name, 'project_role']}
-//                     rules={[{ required: true, message: 'Please select a role' }]}
-//                     style={{ flex: 1 }}
-//                   >
-//                     <Select placeholder="Select a role">
-//                       <Select.Option value="Project Manager">Project Manager</Select.Option>
-//                       <Select.Option value="Developer">Developer</Select.Option>
-//                       <Select.Option value="Designer">Designer</Select.Option>
-//                       <Select.Option value="Tester">Tester</Select.Option>
-//                     </Select>
-//                   </Form.Item>
-
-//                   <Button
-//                     type="link"
-//                     danger
-//                     onClick={() => remove(name)}
-//                     style={{ marginLeft: 8 }}
-//                   >
-//                     Remove
-//                   </Button>
-//                 </div>
-//               ))}
-
-//               <Button
-//                 type="dashed"
-//                 onClick={() => add()}
-//                 style={{ width: '100%' }}
-//               >
-//                 Add Member
-//               </Button>
-//             </>
-//           )}
-//         </Form.List>
-//       </Form>
-//     </Modal>
-// )
-// }
