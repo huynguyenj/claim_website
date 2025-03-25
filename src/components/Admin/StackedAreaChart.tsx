@@ -21,7 +21,7 @@ export default function StackedAreaChart() {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row gap-2 mr-5">
+      <div className="flex flex-col gap-2 mr-5 sm:flex-row">
         <MonthPicker onRangeChange={setSelectedRange} />
         <Select
           defaultValue={"all"}
@@ -43,7 +43,7 @@ export default function StackedAreaChart() {
           margin={{
             top: 10,
             right: 30,
-            left: -30,
+            left: -20,
             bottom: 30,
           }}
         >
@@ -56,8 +56,8 @@ export default function StackedAreaChart() {
               type="monotone"
               dataKey="users"
               stackId="1"
-              stroke="oklab(0.69 -0.09 -0.14 / 1)"
-              fill="oklab(0.69 -0.09 -0.14 / 1)"
+              stroke="#00A6A6"
+              fill="#00A6A6"
             />
           )}
           {(selectedData === "all" || selectedData === "claims") && (
@@ -65,8 +65,8 @@ export default function StackedAreaChart() {
               type="monotone"
               dataKey="claims"
               stackId="2"
-              stroke="red"
-              fill="red"
+              stroke="#FFB400"
+              fill="#FFB400"
             />
           )}
           {(selectedData === "all" || selectedData === "projects") && (
@@ -74,8 +74,8 @@ export default function StackedAreaChart() {
               type="monotone"
               dataKey="projects"
               stackId="3"
-              stroke="blue"
-              fill="blue"
+              stroke="#D72638"
+              fill="#D72638"
             />
           )}
         </AreaChart>
