@@ -48,6 +48,7 @@ export default function useChartData() {
         Draft: filteredClaims.filter((c) => c.claim_status === "Draft").length,
         Approved: filteredClaims.filter((c) => c.claim_status === "Approved").length,
         Canceled: filteredClaims.filter((c) => c.claim_status === "Canceled").length,
+        Rejected: filteredClaims.filter((c) => c.claim_status === "Rejected").length,
         PendingApproval: filteredClaims.filter((c) => c.claim_status === "Pending Approval").length,
     };
 

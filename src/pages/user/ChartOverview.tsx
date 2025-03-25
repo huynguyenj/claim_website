@@ -5,12 +5,12 @@ import useChartData from "../../hooks/user/Chartdata";
 
 const COLORS = ["#8884d8", "#00C49F", "#FF8042", "#0088FE"];
 type Variable = {
-    cx:number,
-    cy:number,
-    midAngle:number,
-    innerRadius:number,
-    outerRadius:number,
-    percentage:number
+    cx: number,
+    cy: number,
+    midAngle: number,
+    innerRadius: number,
+    outerRadius: number,
+    percentage: number
 
 }
 const ChartOverview: React.FC = () => {
@@ -22,6 +22,7 @@ const ChartOverview: React.FC = () => {
         { name: "Draft", value: statusCounts.Draft },
         { name: "Approved", value: statusCounts.Approved },
         { name: "Canceled", value: statusCounts.Canceled },
+        { name: "Rejected", value: statusCounts.Rejected },
         { name: "Pending Approval", value: statusCounts.PendingApproval },
     ].map(item => ({
         ...item,

@@ -32,6 +32,7 @@ enum ClaimStatus {
   Approved = "Approved",
   Canceled = "Canceled",
   PendingApproval = "Pending Approval",
+  Rejected = "Rejected",
 }
 
 type FilterStatus = "all" | ClaimStatus;
@@ -81,23 +82,34 @@ const UserDashboard: React.FC = () => {
       title: "Status",
       dataIndex: "claim_status",
       key: "claim_status",
-      render: (status: ClaimStatus) => (
-        <span
-          style={{
-            color:
-              status === ClaimStatus.Approved
-                ? "#52c41a"
-                : status === ClaimStatus.Canceled
-                  ? "#ff4d4f"
-                  : status === ClaimStatus.PendingApproval
-                    ? "#faad14"
-                    : "black",
-          }}
-        >
-          {status.charAt(0).toUpperCase() + status.slice(1)}
-        </span>
-      ),
+      render: (status: ClaimStatus) => {
+        const statusStyles: Record<ClaimStatus, { color: string; background: string; border: string }> = {
+          [ClaimStatus.Approved]: { color: "#389e0d", background: "#f6ffed", border: "1px solid #b7eb8f" },
+          [ClaimStatus.Canceled]: { color: "#595959", background: "#d9d9d9", border: "1px solid #8c8c8c" },
+          [ClaimStatus.PendingApproval]: { color: "#d48806", background: "#fffbe6", border: "1px solid #ffd666" },
+          [ClaimStatus.Rejected]: { color: "#cf1322", background: "#fff1f0", border: "1px solid #ffa39e" },
+          [ClaimStatus.Draft]: { color: "#096dd9", background: "#e6f7ff", border: "1px solid #91d5ff" },
+        };
+
+        return (
+          <span
+            style={{
+              display: "inline-block",
+              padding: "5px 5px",
+              fontSize: "10px",
+              fontWeight: "bold",
+              borderRadius: "8px",
+              color: statusStyles[status].color,
+              background: statusStyles[status].background,
+              border: statusStyles[status].border,
+            }}
+          >
+            {status}
+          </span>
+        );
+      },
     },
+
     { title: "Total work time", dataIndex: "total_work_time", key: "total_work_time" },
     {
       title: "Start Date",
@@ -150,6 +162,13 @@ const UserDashboard: React.FC = () => {
                 icon: <CloseCircleOutlined />,
                 title: "Canceled Claims",
                 value: getStatusCount(ClaimStatus.Canceled),
+                color: token.colorError,
+                trend: "down",
+              },
+              {
+                icon: <CloseCircleOutlined />,
+                title: "Rejected Claims",
+                value: getStatusCount(ClaimStatus.Rejected),
                 color: token.colorError,
                 trend: "down",
               },
@@ -251,7 +270,8 @@ const UserDashboard: React.FC = () => {
                   <Option value="all">All</Option>
                   <Option value={ClaimStatus.Draft}>Draft</Option>
                   <Option value={ClaimStatus.Approved}>Approved</Option>
-                  <Option value={ClaimStatus.Canceled}>Rejected</Option>
+                  <Option value={ClaimStatus.Canceled}>Canceled</Option>
+                  <Option value={ClaimStatus.Rejected}>Rejected</Option>
                   <Option value={ClaimStatus.PendingApproval}>Pending Approval</Option>
                 </Select>
               </Col>
