@@ -6,9 +6,9 @@ import {
   FinanceClaimResponse,
   FinanceSearchCondition,
 } from "../pages/finance/DataType";
-import { Notification } from "../components/common/Notification";
 import { ApiResponseWithDataNull } from "../model/UserData";
-import {useErrorStore} from "../store/errorStore";
+import { useErrorStore } from "../store/errorStore";
+import { useLoadingStore } from "../store/loadingStore";
 
 const API_BASE_URL: string = "https://management-claim-request.vercel.app/api/";
 
@@ -33,12 +33,13 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
-    return response;},
+    return response;
+  },
   (error) => {
     const errorMessage = getApiErrorMessage(error);
-    console.log(errorMessage)
-      // useAuthStore.getState().removeExpired();
-    useErrorStore.setState({message:errorMessage});
+    console.log(errorMessage);
+    // useAuthStore.getState().removeExpired();
+    useErrorStore.setState({ message: errorMessage });
     // useErrorStore.getState().setMessage(errorMessage)
     return Promise.reject(errorMessage);
   }
@@ -60,20 +61,21 @@ const privateApiService = {
   getFinanceClaimList: (
     filters: FinanceSearchCondition
   ): Promise<ApiResponse<FinanceClaimResponse> | null> => {
-    return apiClient  
+    return apiClient
       .post<ApiResponse<FinanceClaimResponse>>(
         API_BASE_URL + "claims/finance-search",
         filters
       )
       .then((response) => response.data)
       .catch((error) => {
-        Notification("error", "Fetch data failed", error as string);
+        console.error("Error:", error);
         return null;
       });
   },
   payForEmployee: (
     status: ChangeStatusClaim
   ): Promise<ApiResponseWithDataNull> => {
+    useLoadingStore.setState({ loading: true });
     return apiClient
       .put<ApiResponseWithDataNull>(
         `${API_BASE_URL}claims/change-status`,
@@ -81,8 +83,11 @@ const privateApiService = {
       )
       .then((response) => response.data)
       .catch((error) => {
-        Notification("error", "Update status fail", error as string);
+        console.error("Error:", error);
         return { success: false, data: null };
+      })
+      .finally(() => {
+        useLoadingStore.setState({ loading: false });
       });
   },
 };

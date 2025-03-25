@@ -80,7 +80,7 @@ function ModalConfirm({ userData }: ModalConfirmProps) {
         handleOK();
       },
       onCancel() {
-        message.error(`PAY FOR ${user.staff_name} IS CANCELED`);
+        message.error(`PAY FOR ${user.staff_name}  is canceled`);
       },
     });
   }
@@ -97,7 +97,6 @@ function ModalConfirm({ userData }: ModalConfirmProps) {
       .then((response) => {
         setLoading(false);
         if (response.success) {
-          message.success(`PAY FOR ${userData.staff_name} success`);
           Notification(
             "success",
             "Payment successful!",

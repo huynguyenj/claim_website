@@ -33,7 +33,7 @@ const sideBarUser: SidebarItem[] = [
   {
     title: "Paid",
     icon: PaidIcon,
-    path: "/paidPage",
+    path: "/paid-page",
     role: roleDefine.FINANCE,
     gap:true
   },
