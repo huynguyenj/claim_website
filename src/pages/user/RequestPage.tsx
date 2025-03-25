@@ -476,9 +476,13 @@ const RequestPage: React.FC = () => {
               value={statusFilter}
               onChange={(value) => setStatusFilter(value)}
               options={[
-                { value: "PENDING", label: "Pending Claims" },
-                { value: "APPROVED", label: "Approved Claims" },
-                { value: "REJECTED", label: "Rejected Claims" },
+                { value: "", label: "All" },
+                { value: "Draft", label: "Draft" },
+                { value: "Pending Approval", label: "Pending Claims" },
+                { value: "Approved", label: "Approved Claims" },
+                { value: "Paid", label: "Paid" },
+                { value: "Rejected", label: "Rejected Claims" },
+                { value: "Canceled", label: "Canceled" },
               ]}
             />
           </div>
