@@ -21,11 +21,13 @@ function VerifyPage() {
             Verify email
           </h1>
           {tokenSuccess ? (
-            <div className="flex items-center justify-center mt-3">
+            <div className="flex flex-col items-center justify-center mt-3">
                 <p className="text-[1.2rem] text-white mix-blend-difference">
                   Your email is verified!
                 </p>
+                
             </div>
+            
           ) : (
             <div className="flex flex-col items-center justify-center">
               <p className="mix-blend-difference text-white-fig ">
@@ -33,7 +35,7 @@ function VerifyPage() {
               </p>
               <input
                 ref={inputRef}
-                type="text"
+                type="email"
                 placeholder="Enter your email"
                 className="text-dark-fig bg-white mix-blend-difference p-2 rounded-2xl w-60 border-none outline-none"
               />

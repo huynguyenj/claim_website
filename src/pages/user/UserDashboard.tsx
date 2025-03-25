@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React from "react";
 import {
   Layout,
   Typography,
@@ -8,24 +8,18 @@ import {
   Statistic,
   Spin,
   Button,
-  Input,
-  Select,
-  Table,
   theme,
 } from "antd";
-import { ArrowDownOutlined, ArrowUpOutlined, CaretLeftOutlined, ClockCircleOutlined, CloseCircleOutlined, DownOutlined, EyeOutlined } from "@ant-design/icons";
+import { ArrowDownOutlined, ArrowUpOutlined, CaretLeftOutlined, ClockCircleOutlined, CloseCircleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { CheckCircleOutlined, SearchOutlined, StarOutlined } from "@mui/icons-material";
+import { CheckCircleOutlined, StarOutlined } from "@mui/icons-material";
 import Chartmonth from "./Chartmonth";
 import ChartOverview from "./ChartOverview";
-import { pagnitionAntd } from "../../consts/Pagination";
 import useDashboardData from "../../hooks/user/Userdata";
-import { Claim } from "../../model/ClaimData";
-import { formatToGMTPlus7 } from '../../utils/dateUtils';
+// import { Claim } from "../../model/ClaimData";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
-const { Option } = Select;
 
 enum ClaimStatus {
   Draft = "Draft",
@@ -46,25 +40,25 @@ const UserDashboard: React.FC = () => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const { claims, totalClaims, loading, error } = useDashboardData();
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
+  // const [searchTerm, setSearchTerm] = useState<string>("");
+  // const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
 
-  const filteredClaims: Claim[] = useMemo(() => {
-    return claims.filter((claim) => {
-      return (
-        (searchTerm ? claim.claim_name.includes(searchTerm) : true) &&
-        (statusFilter === "all" ? true : claim.claim_status === statusFilter)
-      );
-    });
-  }, [claims, searchTerm, statusFilter]);
+  // const filteredClaims: Claim[] = useMemo(() => {
+  //   return claims.filter((claim) => {
+  //     return (
+  //       (searchTerm ? claim._id.includes(searchTerm) : true) &&
+  //       (statusFilter === "all" ? true : claim.claim_status === statusFilter)
+  //     );
+  //   });
+  // }, [claims, searchTerm, statusFilter]);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
+  // const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setSearchTerm(e.target.value);
+  // };
 
-  const handleStatusChange = (value: FilterStatus) => {
-    setStatusFilter(value);
-  };
+  // const handleStatusChange = (value: FilterStatus) => {
+  //   setStatusFilter(value);
+  // };
 
   const getStatusCount = (status: Exclude<FilterStatus, "all">): number => {
     console.log("Checking status:", status);
@@ -76,54 +70,42 @@ const UserDashboard: React.FC = () => {
 
 
 
-  const columns = [
-    { title: "Claim Name", dataIndex: "claim_name", key: "claim_name" },
-    {
-      title: "Status",
-      dataIndex: "claim_status",
-      key: "claim_status",
-      render: (status: ClaimStatus) => {
-        const statusStyles: Record<ClaimStatus, { color: string; background: string; border: string }> = {
-          [ClaimStatus.Approved]: { color: "#389e0d", background: "#f6ffed", border: "1px solid #b7eb8f" },
-          [ClaimStatus.Canceled]: { color: "#595959", background: "#d9d9d9", border: "1px solid #8c8c8c" },
-          [ClaimStatus.PendingApproval]: { color: "#d48806", background: "#fffbe6", border: "1px solid #ffd666" },
-          [ClaimStatus.Rejected]: { color: "#cf1322", background: "#fff1f0", border: "1px solid #ffa39e" },
-          [ClaimStatus.Draft]: { color: "#096dd9", background: "#e6f7ff", border: "1px solid #91d5ff" },
-        };
-
-        return (
-          <span
-            style={{
-              display: "inline-block",
-              padding: "5px 5px",
-              fontSize: "10px",
-              fontWeight: "bold",
-              borderRadius: "8px",
-              color: statusStyles[status].color,
-              background: statusStyles[status].background,
-              border: statusStyles[status].border,
-            }}
-          >
-            {status}
-          </span>
-        );
-      },
-    },
-
-    { title: "Total work time", dataIndex: "total_work_time", key: "total_work_time" },
-    {
-      title: "Start Date",
-      dataIndex: "claim_start_date",
-      key: "claim_start_date",
-      render: (date: string) => formatToGMTPlus7(date)
-    },
-    {
-      title: "End Date",
-      dataIndex: "claim_end_date",
-      key: "claim_end_date",
-      render: (date: string) => formatToGMTPlus7(date)
-    },
-  ];
+  // const columns = [
+  //   { title: "Claim ID", dataIndex: "_id", key: "_id" },
+  //   {
+  //     title: "Status",
+  //     dataIndex: "claim_status",
+  //     key: "claim_status",
+  //     render: (status: ClaimStatus) => (
+  //       <span
+  //         style={{
+  //           color:
+  //             status === ClaimStatus.Approved
+  //               ? "#52c41a"
+  //               : status === ClaimStatus.Canceled
+  //                 ? "#ff4d4f"
+  //                 : status === ClaimStatus.PendingApproval
+  //                   ? "#faad14"
+  //                   : "black",
+  //         }}
+  //       >
+  //         {status.charAt(0).toUpperCase() + status.slice(1)}
+  //       </span>
+  //     ),
+  //   },
+  //   {
+  //     title: "Start Date",
+  //     dataIndex: "claim_start_date",
+  //     key: "claim_start_date",
+  //     render: (date: string) => formatToGMTPlus7(date)
+  //   },
+  //   {
+  //     title: "End Date",
+  //     dataIndex: "claim_end_date",
+  //     key: "claim_end_date",
+  //     render: (date: string) => formatToGMTPlus7(date)
+  //   },
+  // ];
 
   return (
     <Layout style={{ minHeight: "50vh", padding: "20px", overflow: "scroll" }}>
@@ -248,7 +230,7 @@ const UserDashboard: React.FC = () => {
             ))}
           </Row>
 
-          <div style={{ border: "2px solid rgb(132, 130, 130)", borderRadius: "12px", padding: "16px", background: "#fff" }}>
+          {/* <div style={{ border: "2px solid rgb(132, 130, 130)", borderRadius: "12px", padding: "16px", background: "#fff" }}>
             <Row gutter={[16, 16]} style={{ marginTop: "20px", marginBottom: "10px" }}>
               <Col xs={24} md={4}>
                 <Input
@@ -286,7 +268,7 @@ const UserDashboard: React.FC = () => {
                 pagination={{ pageSize: pagnitionAntd.pageSize }}
               />
             </div>
-          </div>
+          </div> */}
 
           <div style={{ border: "2px solid rgb(132, 130, 130)", borderRadius: "12px", padding: "24px", background: "#fff", marginTop: "100px" }}>
             <Row gutter={[24, 24]}>

@@ -19,7 +19,7 @@ const authService = {
 
   getAllClaims: () =>
     apiService
-      .post<ApiResponse<{ pageData: any[] }>>(`claims/search`, {
+      .post<ApiResponse<{ pageData: any[] }>>(`claims/claimer-search`, {
         searchCondition: {},
         pageInfo: { pageNum: 1, pageSize: 100 },
       })
@@ -59,6 +59,15 @@ const authService = {
         },
       })
       .then((res) => res.data),
+
+  searchClaimLogs: (claimId: string) =>
+    apiService
+      .post<ApiResponse<{ pageData: any[] }>>('/claim-logs/search', {
+        searchCondition: { claim_id: claimId, is_delete: false },
+        pageInfo: { pageNum: 1, pageSize: 10 },
+      })
+      .then((res) => res.data),
+
 };
 
 export default authService;

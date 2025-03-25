@@ -11,7 +11,6 @@ import { ApiResponseWithDataNull } from "../model/UserData";
 import {useErrorStore} from "../store/errorStore";
 
 const API_BASE_URL: string = "https://management-claim-request.vercel.app/api/";
-
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -22,7 +21,6 @@ const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
-    console.log(token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -36,10 +34,10 @@ apiClient.interceptors.response.use(
     return response;},
   (error) => {
     const errorMessage = getApiErrorMessage(error);
-    console.log(errorMessage)
-      // useAuthStore.getState().removeExpired();
+    if(errorMessage == 403){
+      return Promise.reject(error);
+    }
     useErrorStore.setState({message:errorMessage});
-    // useErrorStore.getState().setMessage(errorMessage)
     return Promise.reject(errorMessage);
   }
 );
