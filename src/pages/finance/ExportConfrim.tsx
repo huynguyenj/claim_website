@@ -83,7 +83,7 @@ const ExportConfirm: React.FC<ExportConfirmProps> = ({ userData }) => {
         style={{ border: "#000" }}
         className=" text-[0.8rem] hover:tracking-[0.2rem]  transition duration-300"
       >
-        Export <CloudDownloadIcon />
+      <CloudDownloadIcon />
       </Button>
     </>
   );
