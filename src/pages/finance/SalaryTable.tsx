@@ -1,13 +1,4 @@
-import {
-  Button,
-  DatePicker,
-  Input,
-  Space,
-  Spin,
-  Table,
-  Tag,
-  Tooltip,
-} from "antd";
+import { DatePicker, Input, Space, Spin, Table, Tag, Tooltip } from "antd";
 import type { TableProps } from "antd";
 import ModalConfirm from "./ModalConfirm";
 import dayjs from "dayjs";
@@ -17,12 +8,13 @@ import {
   PersonIcon,
   WorkIcon,
 } from "../../components/Icon/MuiIIcon";
-import { ArrowCircleDown, SearchOutlined } from "@mui/icons-material";
+import { SearchOutlined } from "@mui/icons-material";
 import { pagnitionAntd } from "../../consts/Pagination";
 import { FinanceClaim, FinanceSearchCondition } from "./DataType";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { privateApiService } from "../../services/ApiService";
 import debounce from "lodash/debounce";
+import ExportConfirm from "./ExportConfrim";
 
 function SalaryTable(): JSX.Element {
   const [filteredData, setFilteredData] = useState<FinanceClaim[]>([]);
@@ -117,7 +109,6 @@ function SalaryTable(): JSX.Element {
     fetchFinanceClaimData();
   }, [fetchFinanceClaimData]);
 
-
   const getColor = (role_in_project: string): string => {
     switch (role_in_project.toLowerCase()) {
       case "developer":
@@ -133,110 +124,117 @@ function SalaryTable(): JSX.Element {
     }
   };
 
-  const columns: TableProps<FinanceClaim>["columns"] = [
-    {
-      title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
-          <DateRangeIcon />
-          Start Date
-        </div>
-      ),
-      dataIndex: "claim_start_date",
-      key: "claim_start_date",
-      render: (date) => (date ? dayjs(date).format("DD/MM/YYYY") : "N/A"),
-      responsive: ["xs", "sm", "md", "lg"],
-    },
-    {
-      title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
-          <DateRangeIcon />
-          End Date
-        </div>
-      ),
-      dataIndex: "claim_end_date",
-      key: "claim_end_date",
-      render: (date) => (date ? dayjs(date).format("DD/MM/YYYY") : "N/A"),
-      responsive: ["xs", "sm", "md", "lg"],
-    },
-    {
-      title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
-          <PersonIcon />
-          Staff Name
-        </div>
-      ),
-      dataIndex: "staff_name",
-      key: "staff_name",
-      render: (text) => (
-        <a className="text-blue-500 font-medium">{text || "Unknown"}</a>
-      ),
-      responsive: ["xs", "sm", "md", "lg"],
-    },
-    {
-      title: (
-        <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
-          <WorkIcon />
-          Email
-        </div>
-      ),
-      dataIndex: "staff_email",
-      key: "staff_email",
-      render: (text) => (
-        <Tooltip title={text}>
-          <div className="text-gray-700 font-bold truncate max-w-[150px]">
-            {text || "N/A"}
+  const columns = useMemo<TableProps<FinanceClaim>["columns"]>(
+    () => [
+      {
+        title: (
+          <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
+            <DateRangeIcon />
+            Start Date
           </div>
-        </Tooltip>
-      ),
-      ellipsis: true,
-      responsive: ["xs", "sm", "md", "lg"],
-    },
-    {
-      title: (
-        <div className="font-bold flex items-center gap-0.5 text-[0.7rem]">
-          <AccountCircleIcon />
-          Role in Project
-        </div>
-      ),
-      key: "role_in_project",
-      dataIndex: "role_in_project",
-      render: (role_in_project: string | null) => (
-        <div className="flex flex-wrap gap-1 max-w-[150px] overflow-hidden truncate">
-          <Tooltip title={role_in_project || "No Role"}>
-            <Tag
-              color={getColor(role_in_project || "default")}
-              className="truncate max-w-[80px]"
-            >
-              {role_in_project ? role_in_project.toUpperCase() : "N/A"}
-            </Tag>
+        ),
+        dataIndex: "claim_start_date",
+        key: "claim_start_date",
+        render: (date) => (date ? dayjs(date).format("DD/MM/YYYY") : "N/A"),
+        responsive: ["xs", "sm", "md", "lg"],
+      },
+      {
+        title: (
+          <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
+            <DateRangeIcon />
+            End Date
+          </div>
+        ),
+        dataIndex: "claim_end_date",
+        key: "claim_end_date",
+        render: (date) => (date ? dayjs(date).format("DD/MM/YYYY") : "N/A"),
+        responsive: ["xs", "sm", "md", "lg"],
+      },
+      {
+        title: (
+          <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
+            <PersonIcon />
+            Staff Name
+          </div>
+        ),
+        dataIndex: "staff_name",
+        key: "staff_name",
+        render: (text) => (
+          <a className="text-blue-500 font-medium">{text || "Unknown"}</a>
+        ),
+        responsive: ["xs", "sm", "md", "lg"],
+      },
+      {
+        title: (
+          <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
+            <WorkIcon />
+            Email
+          </div>
+        ),
+        dataIndex: "staff_email",
+        key: "staff_email",
+        render: (text) => (
+          <Tooltip title={text}>
+            <div className="text-gray-700 font-bold truncate max-w-[150px]">
+              {text || "N/A"}
+            </div>
           </Tooltip>
-        </div>
-      ),
-      responsive: ["sm", "md", "lg"],
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (data: FinanceClaim) => (
-        <Space size="small">
-          <ModalConfirm userData={data} />
-        </Space>
-      ),
-      responsive: ["xs", "sm", "md", "lg"],
-    },
-  ];
+        ),
+        ellipsis: true,
+        responsive: ["xs", "sm", "md", "lg"],
+      },
+      {
+        title: (
+          <div className="font-bold flex items-center gap-0.5 text-[0.7rem]">
+            <AccountCircleIcon />
+            Role in Project
+          </div>
+        ),
+        key: "role_in_project",
+        dataIndex: "role_in_project",
+        render: (role_in_project: string | null) => (
+          <div className="flex flex-wrap gap-1 max-w-[150px] overflow-hidden truncate">
+            <Tooltip title={role_in_project || "No Role"}>
+              <Tag
+                color={getColor(role_in_project || "default")}
+                className="truncate max-w-[80px]"
+              >
+                {role_in_project ? role_in_project.toUpperCase() : "N/A"}
+              </Tag>
+            </Tooltip>
+          </div>
+        ),
+        responsive: ["sm", "md", "lg"],
+      },
+      {
+        title: "Action",
+        key: "action",
+        render: (data: FinanceClaim) => (
+          <Space size="small">
+            <ModalConfirm userData={data} />
+            <ExportConfirm userData={data} />
+          </Space>
+        ),
+        responsive: ["xs", "sm", "md", "lg"],
+      },
+    ],
+    []
+  );
 
-  const components = {
-    body: {
-      cell: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
-        <td {...props} className="border-t-[1.2px] border-black" />
-      ),
-    },
-  };
+  const components = useMemo(
+    () => ({
+      body: {
+        cell: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
+          <td {...props} className="border-t-[1.2px] border-black" />
+        ),
+      },
+    }),
+    []
+  );
 
   return (
     <>
-      <div className="flex justify-end mr-[40px] mb-[20px]">
+      {/* <div className="flex justify-end mr-[40px] mb-[20px]">
         <Button
           type="primary"
           className="sm:text-[0.7rem] flex-row justify-around "
@@ -245,7 +243,7 @@ function SalaryTable(): JSX.Element {
         >
           Export Data
         </Button>
-      </div>
+      </div> */}
       <div className="p-6 mr-6 ml-6 mb-6 h-full overflow-y-auto border-zinc-950 border-[1.5px] rounded-[12px]">
         <div className="p-6 flex justify-around gap-2 mr-1">
           <Input
@@ -263,7 +261,7 @@ function SalaryTable(): JSX.Element {
         </div>
         <div>
           {loading ? (
-              <div className="text-center py-12">
+            <div className="text-center py-12">
               <Spin size="large" />
             </div>
           ) : (
