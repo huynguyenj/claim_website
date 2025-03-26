@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Select, Button, Table, Spin } from 'antd';
+import { Modal, Form, Input, Select, Button, Table, Spin, Typography, Tag } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import type { Project } from '../model/ProjectData';
 import authService from '../services/AuthService';
+import { formatColorForClaimStatus } from '../utils/format';
+
+const { Title, Text } = Typography;
 
 interface ClaimFormModalProps {
   visible: boolean;
@@ -43,9 +46,7 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
   // Lọc danh sách approvals theo keyword, giới hạn 10 kết quả
   const filteredApprovals = approvals
     .filter((user) =>
-      (user.user_name || user.email)
-        .toLowerCase()
-        .includes(approvalSearch.toLowerCase())
+      (user.user_name || user.email).toLowerCase().includes(approvalSearch.toLowerCase())
     )
     .slice(0, 10);
 
@@ -54,7 +55,7 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
     if (!editingId) return;
     try {
       setLogLoading(true);
-      
+      // Gọi API searchClaimLogs với claim id (editingId)
       const result = await authService.searchClaimLogs(editingId) as { pageData: any[] };
       const logs: ClaimLog[] = result.pageData.map((item: any) => ({
         _id: item._id,
@@ -107,7 +108,7 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
             ? "Do you want to update?"
             : "Do you want to create a new claim?",
           icon: <ExclamationCircleOutlined />,
-          onOk: onSubmit, 
+          onOk: onSubmit,
         });
       }}
     >
@@ -130,6 +131,7 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
           renderSaveButton,
         ]}
       >
+        {/* Form Tạo/Chỉnh Sửa Claim */}
         <Form form={form} layout="vertical">
           {/* Project */}
           <Form.Item
@@ -211,40 +213,56 @@ const ClaimFormModal: React.FC<ClaimFormModalProps> = ({
 
       {/* Modal hiển thị Claim Logs */}
       <Modal
-        title={`Claim Logs - ${form.getFieldValue('claim_name') || ""}`}
+        title={<Title level={4}>Claim Logs - {form.getFieldValue('claim_name') || ""}</Title>}
         open={logModalOpen}
         onCancel={() => setLogModalOpen(false)}
         footer={[
-          <Button key="close" onClick={() => setLogModalOpen(false)}>
+          <Button key="close" type="primary" onClick={() => setLogModalOpen(false)}>
             Close
           </Button>,
         ]}
+        width={600}
+        centered
       >
         {logLoading ? (
-          <Spin />
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            <Spin size="large" />
+          </div>
         ) : (
           <Table
             dataSource={logData}
             rowKey="_id"
             pagination={false}
+            bordered
             columns={[
               {
-                title: 'Update By',
+                title: <Text strong>Updated By</Text>,
                 dataIndex: 'update_by',
                 key: 'update_by',
+                render: (val: string) => <Text>{val}</Text>,
               },
               {
-                title: 'Old Status',
+                title: <Text strong>Old Status</Text>,
                 dataIndex: 'old_status',
                 key: 'old_status',
+                render: (status: string) => (
+                  <Tag color={formatColorForClaimStatus(status)}>
+                    {status}
+                  </Tag>
+                ),
               },
               {
-                title: 'New Status',
+                title: <Text strong>New Status</Text>,
                 dataIndex: 'new_status',
                 key: 'new_status',
+                render: (status: string) => (
+                  <Tag color={formatColorForClaimStatus(status)}>
+                    {status}
+                  </Tag>
+                ),
               },
               {
-                title: 'Created At',
+                title: <Text strong>Created At</Text>,
                 dataIndex: 'created_at',
                 key: 'created_at',
                 render: (val: string) => (val ? new Date(val).toLocaleString() : ''),
