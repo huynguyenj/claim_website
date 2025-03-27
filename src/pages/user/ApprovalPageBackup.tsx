@@ -169,7 +169,7 @@ function ApprovalPageBackup() {
                 allowClear
                 style={{width:'fit-content'}}
           />
-          <Select placeholder='Choose status claim'className="w-30"  onChange={(value:string) => setSortTerm(value)} options={[
+          <Select placeholder='Sort by'className="w-30"  onChange={(value:string) => setSortTerm(value)} options={[
             {value:'newest',label:'Newest'},
             {value:'oldest',label:'Oldest'},
 
