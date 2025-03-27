@@ -87,12 +87,8 @@ function Profile() {
       `/employees/${user?._id}`
     ).then((res) => res.data);
     setEmployee(employee);
-
-    employee.job_rank = "DEV1";
-    employee.contract_type = "THREE YEAR";
-    employee.department_code = "CMS";
+    
     employee.end_date = new Date().toISOString();
-    employee.salary = 3000001;
 
     employeeForm.setFieldsValue({
       avatarInput: employee.avatar_url,
