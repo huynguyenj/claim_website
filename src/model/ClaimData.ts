@@ -5,6 +5,7 @@ import { ApprovalUserInfo } from "./UserData";
 export interface Claim {
   _id: string;
   user_id: string;
+  staff_id: string;
   project_id: string;
   approval_id: string;
   claim_name: string;
