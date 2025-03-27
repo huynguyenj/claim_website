@@ -23,7 +23,6 @@ import {
   Button,
   Modal,
   Divider,
-  Card,
   Spin,
   Tabs,
   Pagination,
@@ -40,7 +39,7 @@ const roleMap: Record<string, string> = {
   A004: "All Members Remaining",
 };
 
-const formatDate = (dateTimeString: string | undefined) => {
+function formatDate(dateTimeString: string | undefined) {
   const dateTime = new Date(dateTimeString as string);
   const year = dateTime.getFullYear();
   const month = String(dateTime.getMonth() + 1).padStart(2, "0"); // Month is zero-indexed
@@ -48,6 +47,12 @@ const formatDate = (dateTimeString: string | undefined) => {
 
   return `${year}-${month}-${day}`;
 };
+
+function truncate(str : string, maxlength : number) {
+  return (str.length > maxlength) ?
+    str.slice(0, maxlength - 1) + '…' : str;
+}
+
 
 function Profile() {
   const [nameMailForm] = Form.useForm();
@@ -890,7 +895,7 @@ function Profile() {
           
           <AnimatePresence mode='popLayout'>
             <motion.ul 
-            className="w-4/5 flex flex-col items-center"
+            className="w-4/5"
             >
               <Spin tip="Loading" size="large" spinning={fetchingProjects}>
                 {projects.map((project, index) => {
@@ -918,7 +923,7 @@ function Profile() {
                         setIsProjectModal(true)
                       }}
                       >
-                        <span className="font-semibold flex-1 text-lg text-left">{project.project_name}</span>
+                        <span className="font-semibold flex-1 text-lg text-left">{truncate(project.project_name, 20)}</span>
                         <span className={`px-4 text-gray-500 text-right text-md rounded-full ${
                           {
                             Draft: "bg-gray-200",
