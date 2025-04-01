@@ -7,9 +7,9 @@ import { Fragment, useEffect, useState } from "react";
 import { EditIcon, VisibilityIcon } from "../../components/Icon/MuiIIcon";
 import { ClaimStatusChoice } from "../../consts/ClaimStatus";
 import TextArea from "antd/es/input/TextArea";
-import LoadingSpin from "../../components/common/LoadingSpin";
 import { SearchOutlined } from "../../components/Icon/AntdIcon";
 import useDebounce from "../../hooks/delay-hooks/useDebounce";
+import LoadingScreen from "../../components/common/LoadingScreen";
 
 function ApprovalPageBackup() {
   const {loading, setSearchTerm, totalItems,updataClaimStatus,setSortTerm,approveClaimSortList } = useApprovalApi();
@@ -116,6 +116,11 @@ function ApprovalPageBackup() {
         return;
       }else{
         form.submit();
+        if(modalNum == 1){
+          setIsModalOpen(false)
+        }else{
+          setIsModalOpen2(false)
+        }
       }
     }else if(modalNum == 2){
       if(!validateFields.comment){
@@ -159,6 +164,7 @@ function ApprovalPageBackup() {
   }
   
   return (
+    <LoadingScreen loading={[loading]}>
       <div className="py-4 px-10 border-2 rounded-2xl mx-auto mb-5 w-[20rem] sm:w-[95%] sm:h-fit h-fit">
           <div className="flex flex-col justify-between lg:flex-row lg:items-center overflow-y-auto">
            <Input
@@ -180,7 +186,6 @@ function ApprovalPageBackup() {
         <Table<ClaimResponseApproval>
           columns={columns}
           dataSource={approveClaimSortList|| []}
-          loading={loading}
           pagination={{
             pageSize: pagnitionAntd.pageSize,
             current: currentPage,
@@ -192,7 +197,6 @@ function ApprovalPageBackup() {
         />
         </div>
       <Modal open={isModalOpen} onCancel={() => handleCloseModel(1)} onOk={() =>handleOk(1)} title='Update claim' footer={[
-        loading ? '':
         <Button key="back" type="primary" onClick={() => handleOk(2,ClaimStatusChoice.draft)} >
         Return claim
       </Button>,
@@ -200,10 +204,6 @@ function ApprovalPageBackup() {
         Submit
       </Button>,
       ]}>
-      {loading ? 
-                  <div className="flex justify-center mt-5">
-                        <LoadingSpin width="2rem" border_color="black" border_top_clr="white" height="2rem"/>
-                  </div>  :
           <Form form={form} onFinish={updataClaimStatus}>
             <Form.Item<ClaimStatusChangeApproval> name='_id' initialValue={chosenClaim} className="hidden">
             </Form.Item>
@@ -218,7 +218,6 @@ function ApprovalPageBackup() {
                 <TextArea placeholder="Write some comment"/>
               </Form.Item>
           </Form>
-      }
       </Modal>
       <Modal title='Claim information' open={isModalOpen2} onCancel={() => handleCloseModel(2)} footer=''>
         {claimDetail?.map((value,index) => (
@@ -256,6 +255,7 @@ function ApprovalPageBackup() {
         ))}
       </Modal>
     </div>    
+    </LoadingScreen>
   );
 }
 

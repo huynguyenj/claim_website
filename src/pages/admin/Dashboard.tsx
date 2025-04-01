@@ -5,12 +5,14 @@ import useUsers from "../../hooks/admin/useUsers";
 import useClaims from "../../hooks/admin/useClaims";
 import useProjects from "../../hooks/admin/useProjects";
 import StatisticCard from "../../components/Admin/StatisticCard";
+import LoadingScreen from "../../components/common/LoadingScreen";
 export default function Dashboard() {
   // Hooks
   const { userLoading, totalUsers } = useUsers();
   const { claimLoading, totalClaims } = useClaims();
   const { projectLoading, totalProjects } = useProjects();
   return (
+    <LoadingScreen loading={[userLoading,claimLoading,projectLoading]}>
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 px-5 md:px-14 overflow-auto pb-5">
       {/* Search Section */}
       <div className="col-span-1 sm:col-span-2 lg:col-span-4 flex flex-col lg:flex-row">
@@ -51,5 +53,7 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+
+    </LoadingScreen>
   );
 }

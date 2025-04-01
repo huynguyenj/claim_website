@@ -8,7 +8,7 @@ import UserCard from "../../components/Admin/UserCard";
 import { PlusOutlined, StopFilled } from "../../components/Icon/AntdIcon";
 import { EmailIcon, PersonIcon } from "../../components/Icon/MuiIIcon";
 import { Notification } from "../../components/common/Notification";
-import { ApiResponse, getApiErrorMessage } from "../../consts/ApiResponse";
+import { ApiResponse } from "../../consts/ApiResponse";
 import { exportToExcel } from "../../consts/ExcelDownload";
 import { pagnitionAntd } from "../../consts/Pagination";
 import useUserData from "../../hooks/admin/useUserData";
@@ -19,11 +19,15 @@ import { Job } from "../../model/JobData";
 import { Role } from "../../model/RoleData";
 import { PaginatedResponse, SearchRequest, User } from "../../model/UserData";
 import apiService from "../../services/ApiService";
+import { AxiosError } from "axios";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export default function UserManagement() {
+
+    const [globalLoading, setGlobalLoading] = useState(false);
+    const [showLoader, setShowLoader] = useState(false);
 
     const { totalUsers, totalUsersThisMonth, totalUsersVerified, userLoading } = useUserData();
 
@@ -59,38 +63,54 @@ export default function UserManagement() {
     const [editForm] = Form.useForm();
     const [employeeForm] = Form.useForm();
 
-    const validateEmail = (_: unknown, value: string, callback: (error?: string) => void) => {
+    const handleFormErrors = (error: unknown) => {
+        const axiosError = error as AxiosError<{ message?: string; errors?: Array<{ message: string; field: string }> }>;
+
+        if (axiosError.response?.status === 400 && axiosError.response.data?.errors) {
+            const fieldErrors = axiosError.response.data.errors.map(err => ({
+                name: err.field,
+                errors: [err.message],
+            }));
+
+            addForm.setFields(fieldErrors);
+            editForm.setFields(fieldErrors);
+            employeeForm.setFields(fieldErrors);
+        }
+    };
+
+
+    const validateEmail = (_: unknown, value: string, promise: (error?: string) => void) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) {
-            callback('Invalid email address');
+            promise('Invalid email address');
         } else {
-            callback();
+            promise();
         }
     };
 
-    const validatePassword = (_: unknown, value: string, callback: (error?: string) => void) => {
+    const validatePassword = (_: unknown, value: string, promise: (error?: string) => void) => {
         const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
         if (!passwordRegex.test(value)) {
-            callback('Password must contain at least 8 characters, including uppercase, lowercase, and numbers');
+            promise('Password must contain at least 8 characters, including uppercase, lowercase, and numbers');
         } else {
-            callback();
+            promise();
         }
     };
 
-    const validateURL = (_: unknown, value: string, callback: (error?: string) => void) => {
+    const validateURL = (_: unknown, value: string, promise: (error?: string) => void) => {
         try {
 
             new URL(value);
 
             if (!value.startsWith('http://') && !value.startsWith('https://')) {
-                callback('URL must start with http:// or https://');
+                promise('URL must start with http:// or https://');
                 return;
             }
 
-            callback();
+            promise();
         } catch (error) {
-            console.log(error);
-            callback('Invalid URL address');
+            console.log(error)
+            promise('Invalid URL address');
         }
     };
 
@@ -134,6 +154,7 @@ export default function UserManagement() {
     };
 
     const fetchRoles = async () => {
+        setLoading(true);
         try {
             const response = await apiService.get<{ data: Role[] }>('/roles/get-all');
             setRoles(response.data);
@@ -168,7 +189,7 @@ export default function UserManagement() {
     };
 
     const fetchUsers = async (page: number, size: number, keyword: string, isBlocked?: boolean | null) => {
-        setLoading(true);
+        setGlobalLoading(true);
         try {
             const searchParams: SearchRequest = {
                 searchCondition: {
@@ -197,9 +218,19 @@ export default function UserManagement() {
         } catch (error) {
             Notification("error", error as string);
         } finally {
-            setLoading(false);
+            setGlobalLoading(false);
         }
     };
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (globalLoading) {
+            timer = setTimeout(() => setShowLoader(true), 100);
+        } else {
+            setShowLoader(false);
+        }
+        return () => clearTimeout(timer);
+    }, [globalLoading]);
 
     useEffect(() => {
         fetchUsers(currentPage, pageSize, searchTerm, showBanned);
@@ -291,26 +322,23 @@ export default function UserManagement() {
 
     const handleAddUser = async () => {
         try {
-            setLoading(true);
+            setGlobalLoading(true);
             const values = await addForm.validateFields();
-            const response = await apiService.post("/users", values);
-
-            if (response) {
-                message.success("User added successfully!");
-                fetchUsers(currentPage, pageSize, searchTerm);
-                handleAddCancel();
-            }
+            await apiService.post("/users", values);
+            message.success("User added successfully!");
+            fetchUsers(currentPage, pageSize, searchTerm);
+            handleAddCancel();
         } catch (error) {
-            const errorMessage = getApiErrorMessage(error);
-            message.error(errorMessage);
+            handleFormErrors(error);
         } finally {
-            setLoading(false);
+            setGlobalLoading(false);
         }
     };
 
+
     const handleUpdateUser = async () => {
         try {
-            setLoading(true);
+            setGlobalLoading(true);
             const values = await editForm.validateFields();
             if (!editingUser) return;
 
@@ -319,10 +347,9 @@ export default function UserManagement() {
             setIsEditModalOpen(false);
             fetchUsers(currentPage, pageSize, searchTerm);
         } catch (error) {
-            const errorMessage = getApiErrorMessage(error);
-            message.error(errorMessage);
+            handleFormErrors(error);
         } finally {
-            setLoading(false);
+            setGlobalLoading(true);
         }
     };
 
@@ -349,8 +376,7 @@ export default function UserManagement() {
             setIsEmployeeModalOpen(false);
             // fetchEmployees(editingEmployee.user_id);
         } catch (error) {
-            const errorMessage = getApiErrorMessage(error);
-            message.error(errorMessage);
+            handleFormErrors(error);
         } finally {
             setLoading(false);
         }
@@ -362,7 +388,7 @@ export default function UserManagement() {
             message.success("User deleted successfully!");
             fetchUsers(currentPage, pageSize, searchTerm);
         } catch (error) {
-            console.log(error)
+            handleFormErrors(error);
         }
     };
 
@@ -383,7 +409,7 @@ export default function UserManagement() {
 
             fetchUsers(currentPage, pageSize, searchTerm);
         } catch (error) {
-            console.log(error)
+            handleFormErrors(error);
         } finally {
             setLoading(false);
         }
@@ -409,7 +435,7 @@ export default function UserManagement() {
                     fetchUsers(currentPage, pageSize, searchTerm);
                     setIsRoleModalOpen(false);
                 } catch (error) {
-                    console.log(error)
+                    handleFormErrors(error);
                 } finally {
                     setLoading(false);
                 }
@@ -555,246 +581,292 @@ export default function UserManagement() {
 
     return (
         <div className="overflow-y-scroll">
-            <div className="flex justify-end items-center p-5">
-                <div className="flex gap-2">
-                    <Button type="primary" onClick={() => exportToExcel(users, ['id', 'name', 'email', 'password', 'phone', 'role', 'department', 'salary', 'address'], 'users')}>Export users file</Button>
-                </div>
-            </div>
+            <div className="relative min-h-screen">
+                {showLoader && (
+                    <div className={`
+          fixed inset-0 
+          bg-black/30 backdrop-blur-sm
+          flex flex-col items-center justify-center 
+          z-[9999]
+          transition-all duration-300
+          ${showLoader ? 'opacity-100' : 'opacity-0'}
+        `}>
+                        {/* Bouncing Dots Animation */}
+                        <div className="flex space-x-2 mb-4">
+                            {['L', 'O', 'A', 'D', 'I', 'N', 'G'].map((char, i) => (
+                                <div
+                                    key={i}
+                                    className="text-white text-2xl font-bold"
+                                    style={{
+                                        animation: `bounce 1s infinite ${i * 0.1}s`,
+                                    }}
+                                >
+                                    {char}
+                                </div>
+                            ))}
+                            <div className="flex space-x-1">
+                                {[1, 2, 3].map((dot) => (
+                                    <div
+                                        key={dot}
+                                        className="w-2 h-2 bg-white rounded-full"
+                                        style={{
+                                            animation: `pulse 1.5s infinite ${dot * 0.3}s`,
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
-                {/* Users */}
-                <UserCard
-                    icon={<Article />}
-                    title="Total Users"
-                    data={totalUsers}
-                    growth={42}
-                    loading={userLoading}
-                />
-                {/* Claims */}
-                <UserCard
-                    icon={<Article />}
-                    title="New Users This Month"
-                    data={totalUsersThisMonth}
-                    growth={42}
-                    loading={userLoading}
-                />
-                {/* Funds */}
-                <UserCard
-                    icon={<Article />}
-                    title="Verified Users"
-                    data={totalUsersVerified}
-                    growth={42}
-                    loading={userLoading}
-                />
-            </div>
-
-            <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
-                <div className="mb-4 flex items-center">
-                    <Input
-                        placeholder="Search by name or email"
-                        prefix={<SearchOutlined onClick={handleSearchSubmit} style={{ cursor: 'pointer' }} />}
-                        value={searchTerm}
-                        onChange={handleSearch}
-                        onPressEnter={handleSearchSubmit}
-                        size="large"
-                        className="max-w-md shadow-[9px_6px_0px_rgba(0,0,0,1)]"
-                        allowClear
-                    />
-
-                    <div className="ml-auto flex gap-2">
-                        <Button
-                            type="primary"
-                            icon={<PlusOutlined />}
-                            onClick={showModal}
-                        >
-                            Add User
-                        </Button>
-
-                        <Select
-                            className="w-fit"
-                            placeholder="User Status"
-                            value={showBanned}
-                            onChange={(value) => {
-                                setShowBanned(value);
-                                setCurrentPage(1);
-                                fetchUsers(1, pageSize, searchTerm, value);
-                            }}
-                            options={[
-                                { value: false, label: "Active Users" },
-                                { value: true, label: "Banned Users" },
-                            ]}
+                        {/* Antd Spin with custom styling */}
+                        <Spin
+                            size="large"
+                            className="!text-white"
+                            indicator={
+                                <div className="relative w-10 h-10">
+                                    <div className="absolute inset-0 border-4 border-t-white border-r-white border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+                                    <div className="absolute inset-1 border-4 border-t-transparent border-r-transparent border-b-white border-l-white rounded-full animate-spin-reverse"></div>
+                                </div>
+                            }
                         />
                     </div>
-
+                )}
+                <div className="flex justify-end items-center p-5">
+                    <div className="flex gap-2">
+                        <Button type="primary" onClick={() => exportToExcel(users, ['id', 'name', 'email', 'password', 'phone', 'role', 'department', 'salary', 'address'], 'users')}>Export users file</Button>
+                    </div>
                 </div>
 
-                <Modal
-                    title="Add New User"
-                    open={isAddModalOpen}
-                    onCancel={handleAddCancel}
-                    onOk={handleAddUser}
-                    okText="Add User"
-                    cancelText="Cancel"
-                >
-                    <Form form={addForm} layout="vertical">
-                        <Form.Item
-                            name="email"
-                            label="Email"
-                            rules={[
-                                { required: true, message: 'Email is required' },
-                                { validator: validateEmail },
-                            ]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            label="Password"
-                            name="password"
-                            rules={[
-                                { required: true, message: 'Password is required' },
-                                { validator: validatePassword },
-                            ]}
-                        >
-                            <Input.Password />
-                        </Form.Item>
-                        <Form.Item
-                            label="Confirm Password"
-                            name="confirmPassword"
-                            dependencies={['password']}
-                            rules={[
-                                { required: true, message: 'Please confirm your password' },
-                                ({ getFieldValue }) => ({
-                                    validator(_, value) {
-                                        if (!value || getFieldValue('password') === value) {
-                                            return Promise.resolve();
-                                        }
-                                        return Promise.reject('The two passwords do not match');
-                                    },
-                                }),
-                            ]}
-                        >
-                            <Input.Password />
-                        </Form.Item>
-                        <Form.Item
-                            label="Username"
-                            name="user_name"
-                            rules={[
-                                { required: true, message: "Please enter a username" },
-                            ]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            label="Role"
-                            name="role_code"
-                            rules={[{ required: true, message: "Please select a role" }]}
-                        >
-                            <Select placeholder="Select a role">
-                                {roles.map((role) => (
-                                    <Select.Option key={role.role_code} value={role.role_code}>
-                                        {role.role_name}
-                                    </Select.Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Form>
-                </Modal>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#FCFCFC] p-5">
+                    {/* Users */}
+                    <UserCard
+                        icon={<Article />}
+                        title="Total Users"
+                        data={totalUsers}
+                        growth={42}
+                        loading={userLoading}
+                    />
+                    {/* Claims */}
+                    <UserCard
+                        icon={<Article />}
+                        title="New Users This Month"
+                        data={totalUsersThisMonth}
+                        growth={42}
+                        loading={userLoading}
+                    />
+                    {/* Funds */}
+                    <UserCard
+                        icon={<Article />}
+                        title="Verified Users"
+                        data={totalUsersVerified}
+                        growth={42}
+                        loading={userLoading}
+                    />
+                </div>
 
-                {loading ? (
-                    <div className="text-center py-12">
-                        <Spin size="large" />
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-4">
-                            <Table
-                                columns={columns}
-                                dataSource={users}
-                                loading={loading}
-                                rowKey="_id"
-                                pagination={{
-                                    current: currentPage,
-                                    pageSize: pageSize,
-                                    total: totalItems,
-                                    showSizeChanger: true,
-                                    pageSizeOptions: ["5", "10", "20"],
+                <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
+                    <div className="mb-4 flex items-center">
+                        <Input
+                            placeholder="Search by name or email"
+                            prefix={<SearchOutlined onClick={handleSearchSubmit} style={{ cursor: 'pointer' }} />}
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            onPressEnter={handleSearchSubmit}
+                            size="large"
+                            className="max-w-md shadow-[9px_6px_0px_rgba(0,0,0,1)]"
+                            allowClear
+                        />
+
+                        <div className="ml-auto flex gap-2">
+                            <Button
+                                type="primary"
+                                icon={<PlusOutlined />}
+                                onClick={showModal}
+                            >
+                                Add User
+                            </Button>
+
+                            <Select
+                                className="w-fit"
+                                placeholder="User Status"
+                                value={showBanned}
+                                onChange={(value) => {
+                                    setShowBanned(value);
+                                    setCurrentPage(1);
+                                    fetchUsers(1, pageSize, searchTerm, value);
                                 }}
-                                onChange={handleTableChange}
-                                components={components}
+                                options={[
+                                    { value: false, label: "Active Users" },
+                                    { value: true, label: "Banned Users" },
+                                ]}
                             />
-
                         </div>
+
                     </div>
-                )}
 
-                <Modal
-                    title="Edit User"
-                    open={isEditModalOpen}
-                    onCancel={handleEditCancel}
-                    onOk={handleUpdateUser}
-                    okText="Save"
-                    cancelText="Cancel"
-                >
-                    <Form form={editForm} layout="vertical">
-                        <Form.Item
-                            name="email"
-                            label="Email"
-                            rules={[
-                                { required: true, message: 'Email is required' },
-                            ]}>
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            name="user_name"
-                            label="Username"
-                            rules={[
-                                { required: true, message: "Please enter a username" },
-                            ]}>
-                            <Input />
-                        </Form.Item>
-                        <Form.Item name="role_code" label="Role">
-                            <Input value={roleMap[editingUser?.role_code || ""]} readOnly />
-                            <div
-                                className="text-blue-500 flex justify-end font-medium p-2 hover:text-blue-600 hover:underline cursor-pointer"
-                                onClick={() => {
-                                    setSelectedRole(editingUser?.role_code || "");
-                                    setIsRoleModalOpen(true);
-                                }}
+                    <Modal
+                        title="Add New User"
+                        open={isAddModalOpen}
+                        onCancel={handleAddCancel}
+                        onOk={handleAddUser}
+                        okText="Add User"
+                        cancelText="Cancel"
+                    >
+                        <Form form={addForm} layout="vertical">
+                            <Form.Item
+                                name="email"
+                                label="Email"
+                                rules={[
+                                    { required: true, message: 'Email is required' },
+                                    { validator: validateEmail },
+                                ]}
                             >
-                                Change role
-                            </div>
-
-                            <Modal
-                                title="Change User Role"
-                                open={isRoleModalOpen}
-                                onCancel={() => setIsRoleModalOpen(false)}
-                                onOk={handleChangeUserRole}
-                                okText="Update Role"
-                                cancelText="Cancel"
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                label="Password"
+                                name="password"
+                                rules={[
+                                    { required: true, message: 'Password is required' },
+                                    { validator: validatePassword },
+                                ]}
                             >
-                                <Select placeholder="Select a role" style={{ width: "100%" }} onChange={(value) => setSelectedRole(value)}>
+                                <Input.Password />
+                            </Form.Item>
+                            <Form.Item
+                                label="Confirm Password"
+                                name="confirmPassword"
+                                dependencies={['password']}
+                                rules={[
+                                    { required: true, message: 'Please confirm your password' },
+                                    ({ getFieldValue }) => ({
+                                        validator(_, value) {
+                                            if (!value || getFieldValue('password') === value) {
+                                                return Promise.resolve();
+                                            }
+                                            return Promise.reject('The two passwords do not match');
+                                        },
+                                    }),
+                                ]}
+                            >
+                                <Input.Password />
+                            </Form.Item>
+                            <Form.Item
+                                label="Username"
+                                name="user_name"
+                                rules={[
+                                    { required: true, message: "Please enter a username" },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                label="Role"
+                                name="role_code"
+                                rules={[{ required: true, message: "Please select a role" }]}
+                            >
+                                <Select placeholder="Select a role">
                                     {roles.map((role) => (
                                         <Select.Option key={role.role_code} value={role.role_code}>
                                             {role.role_name}
                                         </Select.Option>
                                     ))}
                                 </Select>
-                            </Modal>
-                        </Form.Item>
-                    </Form>
-                </Modal>
+                            </Form.Item>
+                        </Form>
+                    </Modal>
 
-                <Modal
-                    title="Employee Details"
-                    open={isEmployeeModalOpen}
-                    onCancel={handleEmployeeCancel}
-                    onOk={handleUpdateEmployee}
-                    okText="Save"
-                    cancelText="Cancel"
-                >
                     {loading ? (
-                        <Spin />
+                        <div className="text-center py-12">
+                            <Spin size="large" />
+                        </div>
                     ) : (
+                        <div className="overflow-x-auto">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-4">
+                                <Table
+                                    columns={columns}
+                                    dataSource={users}
+                                    loading={loading}
+                                    rowKey="_id"
+                                    pagination={{
+                                        current: currentPage,
+                                        pageSize: pageSize,
+                                        total: totalItems,
+                                        showSizeChanger: true,
+                                        pageSizeOptions: ["5", "10", "20"],
+                                    }}
+                                    onChange={handleTableChange}
+                                    components={components}
+                                />
+
+                            </div>
+                        </div>
+                    )}
+
+                    <Modal
+                        title="Edit User"
+                        open={isEditModalOpen}
+                        onCancel={handleEditCancel}
+                        onOk={handleUpdateUser}
+                        okText="Save"
+                        cancelText="Cancel"
+                    >
+                        <Form form={editForm} layout="vertical">
+                            <Form.Item
+                                name="email"
+                                label="Email"
+                                rules={[
+                                    { required: true, message: 'Email is required' },
+                                ]}>
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="user_name"
+                                label="Username"
+                                rules={[
+                                    { required: true, message: "Please enter a username" },
+                                ]}>
+                                <Input />
+                            </Form.Item>
+                            <Form.Item name="role_code" label="Role">
+                                <Input value={roleMap[editingUser?.role_code || ""]} readOnly />
+                                <div
+                                    className="text-blue-500 flex justify-end font-medium p-2 hover:text-blue-600 hover:underline cursor-pointer"
+                                    onClick={() => {
+                                        setSelectedRole(editingUser?.role_code || "");
+                                        setIsRoleModalOpen(true);
+                                    }}
+                                >
+                                    Change role
+                                </div>
+
+                                <Modal
+                                    title="Change User Role"
+                                    open={isRoleModalOpen}
+                                    onCancel={() => setIsRoleModalOpen(false)}
+                                    onOk={handleChangeUserRole}
+                                    okText="Update Role"
+                                    cancelText="Cancel"
+                                >
+                                    <Select placeholder="Select a role" style={{ width: "100%" }} onChange={(value) => setSelectedRole(value)}>
+                                        {roles.map((role) => (
+                                            <Select.Option key={role.role_code} value={role.role_code}>
+                                                {role.role_name}
+                                            </Select.Option>
+                                        ))}
+                                    </Select>
+                                </Modal>
+                            </Form.Item>
+                        </Form>
+                    </Modal>
+
+                    <Modal
+                        title="Employee Details"
+                        open={isEmployeeModalOpen}
+                        onCancel={handleEmployeeCancel}
+                        onOk={handleUpdateEmployee}
+                        okText="Save"
+                        cancelText="Cancel"
+                    >
                         <Form form={employeeForm} layout="vertical">
                             <Row gutter={16}> {/* Add gutter for spacing between columns */}
                                 {/* Left Column */}
@@ -906,9 +978,9 @@ export default function UserManagement() {
                                 </Col>
                             </Row>
                         </Form>
-                    )}
-                </Modal>
+                    </Modal>
 
+                </div>
             </div>
         </div >
     )
