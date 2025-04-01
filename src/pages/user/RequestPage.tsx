@@ -28,6 +28,7 @@ import { exportToExcel } from '../../consts/ExcelDownload';
 import ClaimFormModal from '../../components/ClaimFormModal';
 import ClaimLogModal from '../../components/ClaimLogModal';
 import { formatColorForClaimStatus } from '../../utils/format';
+import LoadingScreen from '../../components/common/LoadingScreen';
 
 
 const RequestPage: React.FC = () => {
@@ -373,6 +374,7 @@ const RequestPage: React.FC = () => {
   const currentEditingClaim = editingId ? requests.find((r) => r._id === editingId) : null;
 
   return (
+    <LoadingScreen loading={[loading]}>
     <div className="overflow-y-scroll">
       {/* Export Button */}
       <div className="flex justify-end items-center p-5">
@@ -523,6 +525,7 @@ const RequestPage: React.FC = () => {
         />
       </div>
     </div>
+    </LoadingScreen>
   );
 };
 
