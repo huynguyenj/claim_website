@@ -31,6 +31,7 @@ import {
 
 import "react-phone-number-input/style.css";
 import PhoneInput from "react-phone-number-input";
+import LoadingScreen from "../../components/common/LoadingScreen";
 
 const roleMap: Record<string, string> = {
   A001: "Administrator",
@@ -69,7 +70,7 @@ function Profile() {
   const [approvedClaims, setApprovedClaims] = useState<Claim[]>([]);
   const [rejectedClaims, setRejectedClaims] = useState<Claim[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-
+  const [isLoading,setIsLoading] = useState<boolean>(false);
   const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
@@ -171,6 +172,7 @@ function Profile() {
   ////////////////////////
 
   const updateUser = async () => {
+    setIsLoading(true);
     try {
       const values = await nameMailForm.validateFields();
       const updateBody = {
@@ -193,10 +195,13 @@ function Profile() {
     } catch (error) {
       // message.error(getApiErrorMessage(error))
       console.log(error);
+    }finally{
+      setIsLoading(false);
     }
   };
 
   const changePassword = async () => {
+    setIsLoading(true);
     try {
       const values = await passwordForm.validateFields();
       const updateBody = {
@@ -214,10 +219,13 @@ function Profile() {
     } catch (error) {
       // message.error(getApiErrorMessage(error))
       console.log(error);
+    }finally{
+      setIsLoading(false);
     }
   };
 
   const updateEmployee = async () => {
+    setIsLoading(true);
     try {
       const values = await employeeForm.validateFields();
       const updateBody = {
@@ -247,6 +255,8 @@ function Profile() {
     } catch (error) {
       // message.error(getApiErrorMessage(error))
       console.log(error);
+    }finally{
+      setIsLoading(false);
     }
   };
 
@@ -283,9 +293,10 @@ function Profile() {
   }, [refreshes]);
 
   return (
-    <div className="flex flex-col items-center overflow-y-scroll ">
+    <div className="px-15 overflow-y-scroll ">
+      <LoadingScreen loading={[isLoading]}>
       <div
-        className="w-3/4 border-1 border-black rounded-xl flex flex-col items-center
+        className="w-full border-1 border-black rounded-xl flex flex-col items-center
             shadow-[2px_2px_0px_black]"
       >
         <br />
@@ -365,7 +376,7 @@ function Profile() {
       {/* LOWER DIV, BELOW AVATAR */}
       <motion.div 
       layout
-      className="w-3/4 border-1 border-black rounded-xl flex flex-col items-center
+      className="w-full border-1 border-black rounded-xl flex flex-col items-center
             shadow-[2px_2px_0px_black]"
       key={tabKey}
       variants={{
@@ -628,7 +639,7 @@ function Profile() {
                     },
                   ]}
                 >
-                  <Input
+                  <Input.Password
                     className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
                                     shadow-[2px_2px_0px_black]"
                   />
@@ -653,7 +664,7 @@ function Profile() {
                     },
                   ]}
                 >
-                  <Input
+                  <Input.Password
                     className="bg-white p-1 rounded-sm border-1 border-gray-300 w-full
                                     shadow-[2px_2px_0px_black]"
                   />
@@ -676,7 +687,7 @@ function Profile() {
       </motion.div>
 
       <br />
-      <div className="w-3/4 grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
+      <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
 
         {/* CLAIMS DIV */}
         <div
@@ -1061,6 +1072,7 @@ function Profile() {
         </Modal>
 
       </div>
+      </LoadingScreen>
     </div>
   );
 }
