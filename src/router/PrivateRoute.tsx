@@ -11,6 +11,7 @@ const ProjectListPage = lazy(() => import("../pages/admin/Project"));
 const UserProfile = lazy(() => import("../pages/user/UserProfile"));
 const UserDashboard = lazy(() => import("../pages/user/UserDashboard"));
 const PaidPage = lazy(() => import("../pages/finance/PaidPage"));
+const EmployeeDetailPage = lazy(() => import("../pages/user/EmployeeDetail"));
 
 const commonRoute:RouteType[] = [
   {
@@ -25,6 +26,12 @@ const commonRoute:RouteType[] = [
   {
     path: UserRoutes.REQUEST_PAGE,
     element: <RequestPage />,
+    
+  },
+
+  {
+    path: UserRoutes.EMPLOYEE_DETAIL,
+    element: <EmployeeDetailPage />,
     
   },
 

@@ -46,9 +46,9 @@ export {default as ApprovedRequestIcon} from '@mui/icons-material/MarkEmailRead'
 export {default as RejectedRequestIcon} from '@mui/icons-material/LabelOff';
 export {default as VisibilityIcon} from '@mui/icons-material/Visibility';
 export {default as UploadIcon } from '@mui/icons-material/Upload';
-
-
-
+export {default as AssignmentIndIcon} from '@mui/icons-material/AssignmentInd';
+export {default as BusinessIcon} from '@mui/icons-material/Business';
+export {default as StarsIcon} from '@mui/icons-material/Stars';
 
 
 

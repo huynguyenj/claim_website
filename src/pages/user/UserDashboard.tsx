@@ -108,8 +108,8 @@ const UserDashboard: React.FC = () => {
   // ];
 
   return (
-    <LoadingScreen loading={[loading]}>
     <Layout style={{ minHeight: "50vh", padding: "20px", overflow: "scroll" }}>
+      <LoadingScreen loading={[loading]}>
       <Content style={{ background: "#fff", padding: "20px" }}>
         <Button
           type="link"
@@ -297,8 +297,8 @@ const UserDashboard: React.FC = () => {
           <br></br>
         </Spin>
       </Content>
-    </Layout>
     </LoadingScreen>
+    </Layout>
   );
 };
 
