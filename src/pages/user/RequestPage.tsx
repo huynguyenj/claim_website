@@ -124,7 +124,7 @@ const RequestPage: React.FC = () => {
             project_department: p.project_department || '',
             is_deleted: p.is_deleted ?? false,
             project_description: p.project_description || '',
-            project_status: p.project_status || 'Chưa biết',
+            project_status: p.project_status || 'N/A',
             project_start_date: p.project_start_date || '',
             project_end_date: p.project_end_date || '',
             updated_by: p.updated_by || '',
@@ -374,8 +374,8 @@ const RequestPage: React.FC = () => {
   const currentEditingClaim = editingId ? requests.find((r) => r._id === editingId) : null;
 
   return (
-    <LoadingScreen loading={[loading]}>
     <div className="overflow-y-scroll">
+    <LoadingScreen loading={[loading]}>
       {/* Export Button */}
       <div className="flex justify-end items-center p-5">
         <div className="flex gap-2">
@@ -384,14 +384,7 @@ const RequestPage: React.FC = () => {
             onClick={() =>
               exportToExcel(
                 requests,
-                [
-                  '_id',
-                  'claim_name',
-                  'claim_status',
-                  'claim_start_date',
-                  'claim_end_date',
-                  'total_work_time'
-                ],
+                [],
                 'claims'
               )
             }
@@ -524,8 +517,8 @@ const RequestPage: React.FC = () => {
           onClose={() => setLogModalVisible(false)}
         />
       </div>
-    </div>
     </LoadingScreen>
+    </div>
   );
 };
 

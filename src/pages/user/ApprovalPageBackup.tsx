@@ -11,6 +11,8 @@ import { SearchOutlined } from "../../components/Icon/AntdIcon";
 import useDebounce from "../../hooks/delay-hooks/useDebounce";
 import LoadingScreen from "../../components/common/LoadingScreen";
 
+const columnWidth = 120;
+
 function ApprovalPageBackup() {
   const {loading, setSearchTerm, totalItems,updataClaimStatus,setSortTerm,approveClaimSortList } = useApprovalApi();
   const [searchTermInput,setSearchTermInput] = useState<string>('')
@@ -22,29 +24,31 @@ function ApprovalPageBackup() {
   const [form] = Form.useForm();
   const [claimDetail,setClaimDetail] = useState<ClaimResponseApproval[]>();
   const columns: TableProps<ClaimResponseApproval>["columns"] = [
-    { title: "Claim Name", dataIndex: "claim_name", key: "claim_name" },
-    { title: "Start Date", dataIndex: "claim_start_date", key: "claim_start_date", render: formatDate },
-    { title: "End Date", dataIndex: "claim_end_date", key: "claim_end_date", render: formatDate },
-    { title: "Staff Name", dataIndex: "staff_name", key: "staff_name" },
-    { title: "Role in Project", dataIndex: "role_in_project", key: "role_in_project" },
+    { title: "Claim Name", dataIndex: "claim_name", key: "claim_name",width:columnWidth },
+    { title: "Start Date", dataIndex: "claim_start_date", key: "claim_start_date",width:columnWidth, render: formatDate },
+    { title: "End Date", dataIndex: "claim_end_date", key: "claim_end_date",width:columnWidth, render: formatDate },
+    { title: "Staff Name", dataIndex: "staff_name", key: "staff_name",width:columnWidth },
+    { title: "Role in Project", dataIndex: "role_in_project", key: "role_in_project",width:columnWidth },
     {
       title: "Status",
       dataIndex: "claim_status",
       key: "claim_status",
+      width:columnWidth,
       render: (_: unknown, record: ClaimResponseApproval) => (
         <Tag color={formatColorForClaimStatus(record.claim_status)}>
-          <span className="text-[0.5rem] lg:text-[0.9rem]">{record.claim_status}</span>
+          <span className="text-[0.7rem] lg:text-[0.9rem]">{record.claim_status}</span>
         </Tag>
       ),
     },
     {
       title: "Actions",
       key: "actions",
+      width:columnWidth,
       render: (_: unknown, render: ClaimResponseApproval) => (
         <div className="flex gap-2 w-35">
         <button
           onClick={() => handleOpenModel(render._id,1)}
-          className="bg-dark-fig p-2 rounded-2xl w-10 hover:w-20 cursor-pointer group flex  gap-2 overflow-hidden duration-300 ease-in-out active:opacity-75"
+          className="bg-dark-fig p-2 rounded-2xl w-10 hover:w-20 cursor-pointer group flex gap-2 overflow-hidden duration-300 ease-in-out active:opacity-75"
         >
           <EditIcon sx={{color:'white'}} />
           <div className="text-white-fig transform-[scale(0)] group-hover:transform-[scale(1)] transition-all duration-300 ease-in-out">
@@ -78,6 +82,7 @@ function ApprovalPageBackup() {
   };
 
   const handleCloseModel = (modalNum: number) => {
+    console.log(modalNum)
     switch(modalNum){
       case 1:
         form.resetFields();
@@ -103,9 +108,9 @@ function ApprovalPageBackup() {
     }));
   };
 
-  const handleOk = (modalNum:number, status?:string) =>{
+  const handleOk = async (choice:string, status?:string) =>{
     const validateFields:ClaimStatusChangeApproval = form.getFieldsValue();
-    if(modalNum == 1){
+    if(choice === "submit"){
       if( validateFields.claim_status == ClaimStatusChoice.rejected && !validateFields.comment){
         form.setFields([
           {
@@ -114,15 +119,20 @@ function ApprovalPageBackup() {
           }
         ])
         return;
-      }else{
-        form.submit();
-        if(modalNum == 1){
-          setIsModalOpen(false)
-        }else{
-          setIsModalOpen2(false)
-        }
+      }else if (!validateFields.claim_status) {
+        form.setFields([
+          {
+            name:"claim_status",
+            errors:["Status is required when update a claim!"]
+          }
+        ])
       }
-    }else if(modalNum == 2){
+      else{
+       await form.submit();
+        form.setFields([]);
+        handleCloseModel(1);
+      }
+    }else if(choice === "return"){
       if(!validateFields.comment){
         form.setFields([
           {
@@ -133,7 +143,9 @@ function ApprovalPageBackup() {
         return;
       }
       form.setFieldsValue({claim_status:status})
-      form.submit();
+      await form.submit();
+      form.setFields([]);
+      handleCloseModel(1);
     }
     
   }
@@ -164,8 +176,9 @@ function ApprovalPageBackup() {
   }
   
   return (
-    <LoadingScreen loading={[loading]}>
-      <div className="py-4 px-10 border-2 rounded-2xl mx-auto mb-5 w-[20rem] sm:w-[95%] sm:h-fit h-fit">
+    <div className="p-5">
+        <LoadingScreen loading={[loading]}>
+        <div className="p-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)] w-[260px] sm:w-[550px] lg:w-[900px] xl:w-[95%] mx-auto">
           <div className="flex flex-col justify-between lg:flex-row lg:items-center overflow-y-auto">
            <Input
                 placeholder="Search by claim-name"
@@ -180,9 +193,8 @@ function ApprovalPageBackup() {
             {value:'oldest',label:'Oldest'},
 
           ]}/>
-          </div>
-          
-        <div className="overflow-x-auto">
+          </div>        
+          <div className="w-full overflow-x-auto">
         <Table<ClaimResponseApproval>
           columns={columns}
           dataSource={approveClaimSortList|| []}
@@ -193,14 +205,16 @@ function ApprovalPageBackup() {
           }}
           rowKey="_id"
           onChange={handleTablePagination}
-          scroll={{y: 55 * 5,x:55*5}}
+          scroll={{ y: 55*5 }} // Adjust width & height
+
         />
-        </div>
-      <Modal open={isModalOpen} onCancel={() => handleCloseModel(1)} onOk={() =>handleOk(1)} title='Update claim' footer={[
-        <Button key="back" type="primary" onClick={() => handleOk(2,ClaimStatusChoice.draft)} >
+          </div>
+
+      <Modal open={isModalOpen} onCancel={() => handleCloseModel(1)}  title='Update claim' footer={[
+        <Button key="back" type="primary" onClick={() => handleOk("return",ClaimStatusChoice.draft)} >
         Return claim
       </Button>,
-      <Button key="submit" type="primary" loading={loading} onClick={() => handleOk(1)}>
+      <Button key="submit" type="primary" loading={loading} onClick={() => handleOk("submit")}>
         Submit
       </Button>,
       ]}>
@@ -254,8 +268,9 @@ function ApprovalPageBackup() {
           </Fragment>
         ))}
       </Modal>
-    </div>    
+        </div>
     </LoadingScreen>
+        </div>
   );
 }
 

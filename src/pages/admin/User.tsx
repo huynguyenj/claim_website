@@ -757,7 +757,7 @@ export default function UserManagement() {
                                     { required: true, message: "Please enter a username" },
                                 ]}
                             >
-                                <Input />
+                                <Input/>
                             </Form.Item>
                             <Form.Item
                                 label="Role"

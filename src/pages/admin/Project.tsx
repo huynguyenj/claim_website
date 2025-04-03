@@ -548,7 +548,7 @@ export default function ProjectManagement() {
         )}
         <div className="flex justify-end items-center p-5 over ">
           <div className="flex gap-2">
-            <Button type="primary" onClick={() => exportToExcel(projects, ['id', 'project name', 'start date', 'enddate', 'budget'], 'project')}>Export project list</Button>
+            <Button type="primary" onClick={() => exportToExcel(projects, [], 'project')}>Export project list</Button>
           </div>
         </div>
 
