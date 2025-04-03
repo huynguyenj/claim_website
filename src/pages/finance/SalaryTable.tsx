@@ -273,6 +273,7 @@ function SalaryTable(): JSX.Element {
                 pageSize: pagnitionAntd.pageSize,
                 onChange: handleTableChange,
               }}
+              scroll={{y:55*5}}
               style={{
                 tableLayout: "auto",
               }}

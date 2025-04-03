@@ -1,6 +1,6 @@
-import { LogoutIcon, UserIcon } from "../components/Icon/MuiIIcon";
+import { LogoutIcon } from "../components/Icon/MuiIIcon";
 import profile from "../assets/logouser.png";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Popup from "../components/common/Popup";
 import { useAuthStore } from "../store/authStore";
 import apiService from "../services/ApiService";
@@ -9,16 +9,33 @@ import { Notification } from "../components/common/Notification";
 import { useNavigate } from "react-router-dom";
 import { PublicRoutes } from "../consts/RoutesConst";
 import LoadingSpin from "../components/common/LoadingSpin";
+import authService from "../services/AuthService";
+import { EmployeeData } from "../model/EmployeeData";
 
 function Navbar() {
   const userInfo = useAuthStore((state) => state.user);
   const navigate = useNavigate();
   const [isProfilePopup, setIsProfilePopup] = useState<boolean>(false);
+  const [employeeInfo, setEmployeeInfo] = useState<EmployeeData>();
+
   const [loading, setLoading] = useState<boolean>(false);
   const handlePopUpProfile = () => {
     setIsProfilePopup((prev) => !prev);
   };
 
+  useEffect(() => {
+    const getEmployeeInfo = async () => {
+      if (userInfo?._id) {
+        try {
+          const response = await authService.getEmployeeById(userInfo?._id);
+          setEmployeeInfo(response);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    };
+    getEmployeeInfo();
+  }, [userInfo]);
   const handleLogout = async () => {
     setLoading(true);
     try {
@@ -47,7 +64,9 @@ function Navbar() {
               onClick={handlePopUpProfile}
             >
               <img
-                src={profile}
+                src={
+                  employeeInfo?.avatar_url ? employeeInfo.avatar_url : profile
+                }
                 className=" w-6 h-6 sm:w-10 sm:h-10 rounded-full bg-amber-200"
                 alt="profile pic"
               />
@@ -55,7 +74,15 @@ function Navbar() {
             <Popup isOpen={isProfilePopup} top={45} right={8}>
               <div className="p-5 w-40 sm:w-70 bg-dark-fig text-white-fig rounded-2xl sm:mt-4 flex flex-col items-center justify-center">
                 <div className="m-auto bg-red-400 rounded-full p-1 sm:p-2 mb-3">
-                  <UserIcon sx={{ fontSize: 35 }} />
+                  <img
+                    src={
+                      employeeInfo?.avatar_url
+                        ? employeeInfo.avatar_url
+                        : profile
+                    }
+                    className=" w-6 h-6 sm:w-10 sm:h-10 rounded-full bg-amber-200"
+                    alt="profile pic"
+                  />
                 </div>
                 <p className="text-[0.9rem] sm:text-[1.3rem]">
                   {userInfo?.user_name}
