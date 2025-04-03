@@ -19,4 +19,5 @@ export const UserRoutes = {
   APPROVAL_PAGE: `/approval-page`, 
   PROFILE_PAGE: `/user-profile`, 
   PAID_PAGE: `/paid-page`, 
+  EMPLOYEE_DETAIL: "/employee-detail/:id"
 };

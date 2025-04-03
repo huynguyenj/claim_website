@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Table, Button, Spin, Typography, Tag } from 'antd';
 import { formatColorForClaimStatus } from '../utils/format';
 import authService from '../services/AuthService';
+import { useNavigate } from 'react-router-dom';
+import { ClaimResponseId } from '../model/Claim';
+import { UserRoutes } from '../consts/RoutesConst';
 
 const { Title, Text } = Typography;
 
@@ -28,12 +31,27 @@ const ClaimLogModal: React.FC<ClaimLogModalProps> = ({
 }) => {
   const [logData, setLogData] = useState<ClaimLog[]>([]);
   const [logLoading, setLogLoading] = useState(false);
-
+  const [claimDetail,setClaimDetail] = useState<ClaimResponseId>();
+  const navigate = useNavigate();
   useEffect(() => {
     if (visible && claimId) {
       fetchClaimLogs();
     }
   }, [visible, claimId]);
+
+  useEffect(() => {
+    const getClaimById = async () => {
+      try {
+        if(claimId){
+          const response = await authService.getClaimById(claimId);
+          setClaimDetail(response)
+        } 
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getClaimById();
+  },[claimId])
 
   const fetchClaimLogs = async () => {
     if (!claimId) return;
@@ -60,6 +78,9 @@ const ClaimLogModal: React.FC<ClaimLogModalProps> = ({
     }
   };
 
+  const handleChangeEmployeeDetailPage = () => {
+    navigate(UserRoutes.EMPLOYEE_DETAIL.replace(":id",claimDetail?.approval_id || ''))
+  }
   return (
     <Modal
       title={<Title level={4}>Claim Logs - {claimName}</Title>}
@@ -88,7 +109,7 @@ const ClaimLogModal: React.FC<ClaimLogModalProps> = ({
               title: <Text strong>Updated By</Text>,
               dataIndex: 'updated_by',
               key: 'updated_by',
-              render: (val: string) => <Text>{val}</Text>,
+              render: (val: string) => <Text onClick={handleChangeEmployeeDetailPage} className='hover:underline cursor-pointer'>{val}</Text>,
             },
             {
               title: <Text strong>Old Status</Text>,
