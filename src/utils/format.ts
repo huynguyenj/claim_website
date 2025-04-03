@@ -28,3 +28,15 @@ export const formatColorForClaimStatus = (status: string) => {
       return "default";
   }
 };
+
+export const formatDataForDownload = (data:any) => {
+  const result: any = {...data};
+  for(const key in data){
+    if(Object.prototype.hasOwnProperty.call(data,key)){
+      if(Array.isArray(data[key])){
+        result[key] = data[key].map((item) => Object.entries(item).map(([k,v]) => `${k}: ${v}`).join('\n')).join("\n\n")
+      }
+    }
+  }
+  return result;
+}
