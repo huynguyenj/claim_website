@@ -683,10 +683,11 @@ function Profile() {
           className="w-100% border-1 border-black rounded-xl flex flex-col items-center
                 shadow-[2px_2px_0px_black]"
         >
+          <br/>
           <h1 className="mb-5 font-bold text-2xl text-black">Your Requests</h1>
 
-          <Spin tip="Loading" size="large" spinning={fetchingClaims}>
-            <ul className="flex flex-col items-center">
+          <ul className="w-4/5">
+            <Spin tip="Loading" size="large" spinning={fetchingClaims}>
               <Button
                 style={{
                   padding: "1rem",
@@ -699,7 +700,7 @@ function Profile() {
                   setClaims(totalClaims);
                   setIsClaimModal(true);
                 }}
-                className="w-50 sm:w-100"
+                className="w-full -inset-x-4"
               >
                 <p className="col-span-1">
                   {" "}
@@ -722,7 +723,7 @@ function Profile() {
                   setClaims(pendingClaims);
                   setIsClaimModal(true);
                 }}
-                className="w-50 sm:w-100"
+                className="w-full -inset-x-4"
               >
                 <p className="col-span-1">
                   {" "}
@@ -745,7 +746,7 @@ function Profile() {
                   setClaims(approvedClaims);
                   setIsClaimModal(true);
                 }}
-                className="w-50 sm:w-100"
+                className="w-full -inset-x-4"
               >
                 <p className="col-span-1">
                   {" "}
@@ -768,7 +769,7 @@ function Profile() {
                   setClaims(rejectedClaims);
                   setIsClaimModal(true);
                 }}
-                className="w-50 sm:w-100"
+                className="w-full -inset-x-4"
               >
                 <p className="col-span-1">
                   {" "}
@@ -779,10 +780,10 @@ function Profile() {
                   {rejectedClaims.length}
                 </p>
               </Button>
-            </ul>
+            </Spin>
           
             <br/>
-          </Spin>
+          </ul>
         </div>
 
         {/* CLAIMS LIST MODAL */}
@@ -809,7 +810,7 @@ function Profile() {
                   exit="exit"
                   >
                     <Button
-                    className="w-full min-h-12 flex justify-between items-center"
+                    className="w-full -inset-x-2 min-h-12 flex justify-between items-center"
                     style={{ 
                       boxShadow: "2px 2px 0px black",
                       padding: "1rem", 
@@ -894,6 +895,7 @@ function Profile() {
           className="w-100% border-1 border-black rounded-xl flex flex-col items-center
                 shadow-[2px_2px_0px_black]"
         >
+          <br/>
           <h1 className="mb-5 font-bold text-2xl text-black">Your Projects</h1>
 
           
@@ -916,7 +918,7 @@ function Profile() {
                     >
                       <Button
                       type="default"
-                      className="w-full min-h-12 flex justify-between items-center"
+                      className="w-full -inset-x-2 min-h-12 flex justify-between items-center"
                       style={{
                         borderRadius: "0.5rem",
                         boxShadow: "2px 2px 0px black",
