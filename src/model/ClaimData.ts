@@ -3,20 +3,21 @@ import { ProjectInfoForApproval } from "./ProjectData";
 import { ApprovalUserInfo } from "./UserData";
 
 export interface Claim {
-    _id: string;
-    user_id: string;
-    project_id: string;
-    approval_id: string;
-    claim_name: string;
-    claim_status: string;
-    claim_start_date: string;
-    claim_end_date: string;
-    total_work_time: number;
-    is_deleted: boolean;
-    created_at: string;
-    updated_at: string;
-    remark: string;
-    __v: number;
+  _id: string;
+  user_id: string;
+  staff_id: string;
+  project_id: string;
+  approval_id: string;
+  claim_name: string;
+  claim_status: string;
+  claim_start_date: string;
+  claim_end_date: string;
+  total_work_time: number;
+  is_deleted: boolean;
+  created_at: string;
+  updated_at: string;
+  remark: string;
+  __v: number;
 
 }
 export interface ClaimRequest {

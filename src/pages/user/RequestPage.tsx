@@ -26,15 +26,10 @@ import { Article } from '@mui/icons-material';
 import { UserIcon } from '../../components/Icon/MuiIIcon';
 import { exportToExcel } from '../../consts/ExcelDownload';
 import ClaimFormModal from '../../components/ClaimFormModal';
+import ClaimLogModal from '../../components/ClaimLogModal';
 import { formatColorForClaimStatus } from '../../utils/format';
+import LoadingScreen from '../../components/common/LoadingScreen';
 
-interface ClaimLog {
-  _id: string;
-  updated_by: string;
-  old_status: string;
-  new_status: string;
-  created_at?: string;
-}
 
 const RequestPage: React.FC = () => {
   const userId = useAuthStore((state) => state.user?._id);
@@ -52,10 +47,9 @@ const RequestPage: React.FC = () => {
   const [form] = Form.useForm();
 
   // State cho modal log và hiển thị tiêu đề modal log
-  const [logModalOpen, setLogModalOpen] = useState(false);
-  const [logData, setLogData] = useState<ClaimLog[]>([]);
+  const [logModalVisible, setLogModalVisible] = useState(false);
+  const [selectedClaimId, setSelectedClaimId] = useState<string | null>(null);
   const [selectedClaimName, setSelectedClaimName] = useState('');
-
   // Tính tổng số giờ làm của user
   const totalWorkTime = requests.reduce((acc, cur) => acc + cur.total_work_time, 0);
 
@@ -130,7 +124,7 @@ const RequestPage: React.FC = () => {
             project_department: p.project_department || '',
             is_deleted: p.is_deleted ?? false,
             project_description: p.project_description || '',
-            project_status: p.project_status || 'Chưa biết',
+            project_status: p.project_status || 'N/A',
             project_start_date: p.project_start_date || '',
             project_end_date: p.project_end_date || '',
             updated_by: p.updated_by || '',
@@ -149,26 +143,9 @@ const RequestPage: React.FC = () => {
 
   // Hàm xử lý xem log của claim
   const handleViewLogs = async (record: ClaimRequest) => {
-    try {
-      setLoading(true);
-      const result = await authService.searchClaimLogs(record._id) as { pageData: any[] };
-      console.log("Claim logs raw data:", result.pageData); 
-      const logs: ClaimLog[] = result.pageData.map((item: any) => ({
-        _id: item._id,
-        updated_by: item.updated_by, 
-        old_status: item.old_status,
-        new_status: item.new_status,
-        created_at: item.created_at,
-      }));
-      setLogData(logs);
-      setSelectedClaimName(record.claim_name);
-      setLogModalOpen(true);
-    } catch (error: unknown) {
-      console.error("Error fetching claim logs:", error);
-      message.error("Unable to fetch claim logs");
-    } finally {
-      setLoading(false);
-    }
+    setSelectedClaimId(record._id);
+    setSelectedClaimName(record.claim_name);
+    setLogModalVisible(true);
   };
 
   // Hàm xử lý thay đổi trạng thái (Send Request / Cancel Claim)
@@ -398,6 +375,7 @@ const RequestPage: React.FC = () => {
 
   return (
     <div className="overflow-y-scroll">
+    <LoadingScreen loading={[loading]}>
       {/* Export Button */}
       <div className="flex justify-end items-center p-5">
         <div className="flex gap-2">
@@ -406,14 +384,7 @@ const RequestPage: React.FC = () => {
             onClick={() =>
               exportToExcel(
                 requests,
-                [
-                  '_id',
-                  'claim_name',
-                  'claim_status',
-                  'claim_start_date',
-                  'claim_end_date',
-                  'total_work_time'
-                ],
+                [],
                 'claims'
               )
             }
@@ -445,7 +416,6 @@ const RequestPage: React.FC = () => {
           data={totalWorkTime}
         />
       </div>
-
       {/* Search & Table */}
       <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
         <div className="mb-4 flex items-center">
@@ -487,7 +457,6 @@ const RequestPage: React.FC = () => {
             />
           </div>
         </div>
-
         {loading ? (
           <div className="text-center py-12">
             <Spin size="large" />
@@ -541,52 +510,14 @@ const RequestPage: React.FC = () => {
           }
           loading={loading}
         />
+        <ClaimLogModal
+          visible={logModalVisible}
+          claimId={selectedClaimId}
+          claimName={selectedClaimName}
+          onClose={() => setLogModalVisible(false)}
+        />
       </div>
-
-      {/* Modal hiển thị Claim Logs */}
-      <Modal
-        title={`Claim Logs - ${selectedClaimName}`}
-        visible={logModalOpen}
-        onCancel={() => setLogModalOpen(false)}
-        footer={[
-          <Button key="close" onClick={() => setLogModalOpen(false)}>
-            Close
-          </Button>,
-        ]}
-      >
-        {loading ? (
-          <Spin />
-        ) : (
-          <Table
-            dataSource={logData}
-            rowKey="_id"
-            pagination={false}
-            columns={[
-              {
-                title: 'Updated By',
-                dataIndex: 'updated_by',
-                key: 'updated_by',
-              },
-              {
-                title: 'Old Status',
-                dataIndex: 'old_status',
-                key: 'old_status',
-              },
-              {
-                title: 'New Status',
-                dataIndex: 'new_status',
-                key: 'new_status',
-              },
-              {
-                title: 'Created At',
-                dataIndex: 'created_at',
-                key: 'created_at',
-                render: (val: string) => (val ? new Date(val).toLocaleString() : ''),
-              },
-            ]}
-          />
-        )}
-      </Modal>
+    </LoadingScreen>
     </div>
   );
 };

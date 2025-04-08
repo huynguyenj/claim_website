@@ -16,6 +16,7 @@ import { CheckCircleOutlined, StarOutlined } from "@mui/icons-material";
 import Chartmonth from "./Chartmonth";
 import ChartOverview from "./ChartOverview";
 import useDashboardData from "../../hooks/user/Userdata";
+import LoadingScreen from "../../components/common/LoadingScreen";
 // import { Claim } from "../../model/ClaimData";
 
 const { Content } = Layout;
@@ -109,6 +110,7 @@ const UserDashboard: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: "50vh", padding: "20px", overflow: "scroll" }}>
+      <LoadingScreen loading={[loading]}>
       <Content style={{ background: "#fff", padding: "20px" }}>
         <Button
           type="link"
@@ -305,6 +307,7 @@ const UserDashboard: React.FC = () => {
           <br></br>
         </Spin>
       </Content>
+    </LoadingScreen>
     </Layout>
   );
 };

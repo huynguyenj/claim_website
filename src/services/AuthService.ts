@@ -1,9 +1,10 @@
 import { ApiResponse } from "../consts/ApiResponse";
 import { ApiResponseWithDataNull, UserInfo } from "../model/UserData";
-import { ClaimRequest, NewClaimRequest } from "../model/Claim";
+import { ClaimRequest, ClaimResponseId, NewClaimRequest } from "../model/Claim";
 import apiService from "./ApiService";
 import { ClaimSearchCondition, PageReturn, ProjectCondition } from "../model/SearchType";
 import { ClaimResponseApproval, ClaimStatusChangeApproval } from "../model/ClaimData";
+import { Employee } from "../model/EmployeeData";
 
 const authService = {
   getInfo: () =>
@@ -67,7 +68,10 @@ const authService = {
         pageInfo: { pageNum: 1, pageSize: 10 },
       })
       .then((res) => res.data),
+  getClaimById: (claimId:string) => apiService.get<ApiResponse<ClaimResponseId>>(`/claims/${claimId}`).then((res) => res.data),
 
-};
+  getEmployeeById: (employeeId:string) => apiService.get<ApiResponse<Employee>>(`employees/${employeeId}`).then((res) => res.data),
+      
+}
 
 export default authService;

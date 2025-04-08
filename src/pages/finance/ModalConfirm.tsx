@@ -5,6 +5,7 @@ import { ChangeStatusClaim, FinanceClaim } from "./DataType";
 import dayjs from "dayjs";
 import { Notification } from "../../components/common/Notification";
 import { privateApiService } from "../../services/ApiService";
+import LoadingScreen from "../../components/common/LoadingScreen";
 
 const { confirm } = Modal;
 
@@ -111,25 +112,27 @@ function ModalConfirm({ userData }: ModalConfirmProps) {
 
   return (
     <>
-      {loading ? (
-        <Button
-          style={{ backgroundColor: "var(--color-indigo-700)",color:"white" }}
-          className="text-[0.8rem]  tracking-[0.1rem] font-medium"
-          disabled
-        >
-          <Spin indicator={<LoadingOutlined spin />} size="small" />
-          Progress...
-        </Button>
-      ) : (
-        <Button
-          onClick={showConfirm}
-          style={{ backgroundColor: "#90EE90" }}
-          className=" text-[0.8rem] hover:tracking-[0.2rem] transition duration-300"
-        >
-          PAY
-        </Button>
-      )}
-    </>
+    {loading ? (
+      <LoadingScreen loading={[loading]}>
+      <Button
+        style={{ backgroundColor: "var(--color-indigo-700)",color:"white" }}
+        className="text-[0.8rem]  tracking-[0.1rem] font-medium"
+        disabled
+      >
+        <Spin indicator={<LoadingOutlined spin />} size="small" />
+        Progress...
+      </Button>
+      </LoadingScreen>
+    ) : (
+      <Button
+        onClick={showConfirm}
+        style={{ backgroundColor: "#90EE90" }}
+        className=" text-[0.8rem] hover:tracking-[0.2rem] transition duration-300"
+      >
+        PAY
+      </Button>
+    )}
+  </>
   );
 }
 
