@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import { Notification } from "../../components/common/Notification";
 import { privateApiService } from "../../services/ApiService";
 import LoadingScreen from "../../components/common/LoadingScreen";
+import { AttachMoneyIcon } from "../../components/Icon/MuiIIcon";
 
 const { confirm } = Modal;
 
@@ -31,7 +32,7 @@ function ModalConfirm({ userData }: ModalConfirmProps) {
           {/* Thông tin chi tiết */}
           <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg shadow-sm">
             <p className="font-semibold text-gray-900">
-              PAY FOR: <span className="text-blue-600">{user.staff_name}</span>
+              Pay for: <span className="text-blue-600">{user.staff_name}</span>
             </p>
             <p className="text-gray-700">
               <span className="font-semibold">Project:</span>{" "}
@@ -81,7 +82,7 @@ function ModalConfirm({ userData }: ModalConfirmProps) {
         handleOK();
       },
       onCancel() {
-        message.error(`PAY FOR ${user.staff_name}  is canceled`);
+        message.error(`Pay for ${user.staff_name}  is canceled`);
       },
     });
   }
@@ -126,10 +127,8 @@ function ModalConfirm({ userData }: ModalConfirmProps) {
     ) : (
       <Button
         onClick={showConfirm}
-        style={{ backgroundColor: "#90EE90" }}
-        className=" text-[0.8rem] hover:tracking-[0.2rem] transition duration-300"
       >
-        PAY
+        <AttachMoneyIcon/>
       </Button>
     )}
   </>
