@@ -1,8 +1,35 @@
-import { AccountTree, Article, CheckCircleOutline, DehazeOutlined, EditCalendar, EditOutlined, SearchOutlined, SettingsEthernet, Today, Visibility } from "@mui/icons-material";
-import { Button, Col, DatePicker, Form, Input, message, Modal, Row, Select, Spin, Table, TablePaginationConfig } from "antd";
-import dayjs from 'dayjs';
-import timezone from 'dayjs/plugin/timezone';
-import utc from 'dayjs/plugin/utc';
+import {
+  AccountTree,
+  Article,
+  CheckCircleOutline,
+  DehazeOutlined,
+  EditCalendar,
+  EditOutlined,
+  KeyboardArrowDown,
+  KeyboardArrowUp,
+  SearchOutlined,
+  SettingsEthernet,
+  Today,
+  Visibility,
+} from "@mui/icons-material";
+import {
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  message,
+  Modal,
+  Row,
+  Select,
+  Spin,
+  Table,
+  TablePaginationConfig,
+} from "antd";
+import { AxiosError } from "axios";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import React, { useEffect, useState } from "react";
 import ProjectCard from "../../components/Admin/ProjectCard";
 import { Notification } from "../../components/common/Notification";
@@ -13,21 +40,28 @@ import { exportToExcel } from "../../consts/ExcelDownload";
 import { pagnitionAntd } from "../../consts/Pagination";
 import useProjectData from "../../hooks/admin/useProjectData";
 import { Department } from "../../model/DepartmentData";
-import { PaginatedResponse, Project, ProjectMember, ProjectRole, SearchRequest } from "../../model/ProjectData";
+import {
+  PaginatedResponse,
+  Project,
+  ProjectMember,
+  ProjectRole,
+  SearchRequest,
+} from "../../model/ProjectData";
 import { User } from "../../model/UserData";
 import apiService from "../../services/ApiService";
-import { AxiosError } from "axios";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export default function ProjectManagement() {
+  const [showProjectCards, setShowProjectCards] = useState(true);
 
   const [globalLoading, setGlobalLoading] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
 
-  const { totalProjects, totalProjectsThisMonth, projectLoading } = useProjectData();
-  const [selectedProjectDetails, setSelectedProjectDetails] = useState<Project | null>(null);
+  const { totalProjects, totalProjectsThisMonth } = useProjectData();
+  const [selectedProjectDetails, setSelectedProjectDetails] =
+    useState<Project | null>(null);
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -39,23 +73,32 @@ export default function ProjectManagement() {
   const [selectSearchTerm, setSelectSearchTerm] = useState<string>("");
   const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(pagnitionAntd.pageSize);
   const [totalItems, setTotalItems] = useState<number>(0);
-  const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState<boolean>(false);
+  const [isAddProjectModalOpen, setIsAddProjectModalOpen] =
+    useState<boolean>(false);
   const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
-  const [projectMembers, setProjectMembers] = useState<Project["project_members"]>([]);
+  const [projectMembers, setProjectMembers] = useState<
+    Project["project_members"]
+  >([]);
   const [addProjectForm] = Form.useForm();
   const [editProjectForm] = Form.useForm();
 
   const handleFormErrors = (error: unknown) => {
-    const axiosError = error as AxiosError<{ message?: string; errors?: Array<{ message: string; field: string }> }>;
+    const axiosError = error as AxiosError<{
+      message?: string;
+      errors?: Array<{ message: string; field: string }>;
+    }>;
 
-    if (axiosError.response?.status === 400 && axiosError.response.data?.errors) {
-      const fieldErrors = axiosError.response.data.errors.map(err => ({
+    if (
+      axiosError.response?.status === 400 &&
+      axiosError.response.data?.errors
+    ) {
+      const fieldErrors = axiosError.response.data.errors.map((err) => ({
         name: err.field,
         errors: [err.message],
       }));
@@ -79,23 +122,25 @@ export default function ProjectManagement() {
       const searchParams: SearchRequest = {
         searchCondition: {
           keyword,
-          project_start_date: '',
-          project_end_date: '',
+          project_start_date: "",
+          project_end_date: "",
           is_delete: false,
-          user_id: '',
+          user_id: "",
         },
         pageInfo: {
           pageNum: page,
-          pageSize: size
+          pageSize: size,
         },
       };
 
-      const response = await apiService.post<PaginatedResponse>('projects/search', searchParams);
+      const response = await apiService.post<PaginatedResponse>(
+        "projects/search",
+        searchParams
+      );
       if (response) {
         setProjects(response.data.pageData);
         setTotalItems(response.data.pageInfo.totalItems);
       }
-
     } catch (error) {
       Notification("error", error as string);
     } finally {
@@ -103,8 +148,11 @@ export default function ProjectManagement() {
     }
   };
 
-  const fetchUsers = async (page: number, size: number, keyword: string = "") => {
-    setLoading(true);
+  const fetchUsers = async (
+    page: number,
+    size: number,
+    keyword: string = ""
+  ) => {
     try {
       const searchParams = {
         searchCondition: {
@@ -117,26 +165,31 @@ export default function ProjectManagement() {
         },
       };
 
-      const response = await apiService.post<{ data: { pageData: User[]; pageInfo: { totalItems: number } } }>("/users/search", searchParams);
+      const response = await apiService.post<{
+        data: { pageData: User[]; pageInfo: { totalItems: number } };
+      }>("/users/search", searchParams);
 
       if (response?.data?.pageData && response?.data?.pageInfo) {
         setUsers(response.data.pageData);
         setTotalUsers(response.data.pageInfo.totalItems);
       } else {
-        throw new Error("Invalid response format: Missing pageData or pageInfo");
+        throw new Error(
+          "Invalid response format: Missing pageData or pageInfo"
+        );
       }
     } catch (error) {
       message.error("Failed to fetch users");
       console.error(error);
     } finally {
-      setLoading(false);
     }
   };
 
   const fetchProjectMembers = async (projectId: string) => {
-    setLoading(true);
+    setGlobalLoading(true);
     try {
-      const response = await apiService.get<{ data: Project }>(`/projects/${projectId}`);
+      const response = await apiService.get<{ data: Project }>(
+        `/projects/${projectId}`
+      );
 
       if (response && response.data) {
         setProjectMembers(response.data.project_members);
@@ -147,33 +200,33 @@ export default function ProjectManagement() {
     } catch (error) {
       Notification("error", error as string);
     } finally {
-      setLoading(false);
+      setGlobalLoading(false);
     }
   };
 
   const fetchDepartments = async () => {
-    setLoading(true);
     try {
-      const response = await apiService.get<ApiResponse<Department[]>>("/departments/get-all");
+      const response = await apiService.get<ApiResponse<Department[]>>(
+        "/departments/get-all"
+      );
 
       setDepartments(response.data);
     } catch (error) {
       Notification("error", error as string);
     } finally {
-      setLoading(false);
     }
   };
 
   const fetchProjectRoles = async () => {
     try {
-      setLoading(true);
-      const response = await apiService.get<{ data: ProjectRole[] }>('/projects/roles');
+      const response = await apiService.get<{ data: ProjectRole[] }>(
+        "/projects/roles"
+      );
       setProjectRoles(response.data);
       console.log(response.data);
     } catch (error) {
       Notification("error", error as string);
     } finally {
-      setLoading(false);
     }
   };
 
@@ -195,14 +248,19 @@ export default function ProjectManagement() {
 
         if (editingProject) {
           const members = editingProject.project_members;
-          const usersFromMembers = members.map(m => ({
-            _id: m.user_id,
-            user_name: m.user_name,
-          }) as User);
+          const usersFromMembers = members.map(
+            (m) =>
+              ({
+                _id: m.user_id,
+                user_name: m.user_name,
+              } as User)
+          );
 
-          setUsers(prev => {
-            const existingIds = new Set(prev.map(u => u._id));
-            const newUsers = usersFromMembers.filter(u => !existingIds.has(u._id));
+          setUsers((prev) => {
+            const existingIds = new Set(prev.map((u) => u._id));
+            const newUsers = usersFromMembers.filter(
+              (u) => !existingIds.has(u._id)
+            );
             return [...prev, ...newUsers];
           });
         }
@@ -264,16 +322,22 @@ export default function ProjectManagement() {
 
       if (!editingProject) return;
 
-      const simplifiedMembers: ProjectMember[] = values.project_members.map((member: any) => ({
-        user_id: member.user_id,
-        user_name: member.user_name,
-        project_role: member.project_role,
-      }));
+      const simplifiedMembers: ProjectMember[] = values.project_members.map(
+        (member: any) => ({
+          user_id: member.user_id,
+          user_name: member.user_name,
+          project_role: member.project_role,
+        })
+      );
 
       const updatedProject = {
         ...values,
-        project_start_date: values.project_start_date ? values.project_start_date.toISOString() : null,
-        project_end_date: values.project_end_date ? values.project_end_date.toISOString() : null,
+        project_start_date: values.project_start_date
+          ? values.project_start_date.toISOString()
+          : null,
+        project_end_date: values.project_end_date
+          ? values.project_end_date.toISOString()
+          : null,
         project_members: simplifiedMembers,
       };
 
@@ -364,7 +428,9 @@ export default function ProjectManagement() {
           <AccountTree />
           Department
         </div>
-      ), dataIndex: "project_department", key: "project_department",
+      ),
+      dataIndex: "project_department",
+      key: "project_department",
     },
     {
       title: (
@@ -372,7 +438,9 @@ export default function ProjectManagement() {
           <SettingsEthernet />
           Project Code
         </div>
-      ), dataIndex: "project_code", key: "project_code",
+      ),
+      dataIndex: "project_code",
+      key: "project_code",
     },
     // {
     //   title: (
@@ -404,7 +472,7 @@ export default function ProjectManagement() {
       ),
       dataIndex: "project_start_date",
       key: "project_start_date",
-      render: (text: string) => dayjs(text).format('YYYY-MM-DD'),
+      render: (text: string) => dayjs(text).format("YYYY-MM-DD"),
     },
     {
       title: (
@@ -415,7 +483,7 @@ export default function ProjectManagement() {
       ),
       dataIndex: "project_end_date",
       key: "project_end_date",
-      render: (text: string) => dayjs(text).format('YYYY-MM-DD'),
+      render: (text: string) => dayjs(text).format("YYYY-MM-DD"),
     },
     {
       title: (
@@ -436,7 +504,11 @@ export default function ProjectManagement() {
         };
 
         return (
-          <span className={`p-2 rounded-lg text-sm font-semibold ${getStatusClasses(record.project_status)}`}>
+          <span
+            className={`p-2 rounded-lg text-sm font-semibold ${getStatusClasses(
+              record.project_status
+            )}`}
+          >
             {record.project_status}
           </span>
         );
@@ -457,11 +529,14 @@ export default function ProjectManagement() {
             icon={<EditOutlined />}
             type="link"
             onClick={() => {
-
               editProjectForm.setFieldsValue({
                 ...record,
-                project_start_date: record.project_start_date ? dayjs(record.project_start_date) : null,
-                project_end_date: record.project_end_date ? dayjs(record.project_end_date) : null,
+                project_start_date: record.project_start_date
+                  ? dayjs(record.project_start_date)
+                  : null,
+                project_end_date: record.project_end_date
+                  ? dayjs(record.project_end_date)
+                  : null,
               });
 
               setEditingProject(record);
@@ -484,32 +559,33 @@ export default function ProjectManagement() {
                 title: "Delete Project",
                 content: "Are you sure you want to delete this project?",
                 onOk: () => handleDeleteProject(record._id),
-                okText: 'Delete',
-                cancelText: 'Cancel',
+                okText: "Delete",
+                cancelText: "Cancel",
               });
             }}
-          >
-          </Button>
+          ></Button>
         </div>
       ),
-    }
+    },
   ];
 
   return (
     <div className="overflow-y-scroll">
       <div className="relative min-h-screen">
         {showLoader && (
-          <div className={`
+          <div
+            className={`
                 fixed inset-0 
                 bg-black/30 backdrop-blur-sm
                 flex flex-col items-center justify-center 
                 z-[9999]
                 transition-all duration-300
-                ${showLoader ? 'opacity-100' : 'opacity-0'}
-              `}>
+                ${showLoader ? "opacity-100" : "opacity-0"}
+              `}
+          >
             {/* Bouncing Dots Animation */}
             <div className="flex space-x-2 mb-4">
-              {['L', 'O', 'A', 'D', 'I', 'N', 'G'].map((char, i) => (
+              {["L", "O", "A", "D", "I", "N", "G"].map((char, i) => (
                 <div
                   key={i}
                   className="text-white text-2xl font-bold"
@@ -548,32 +624,56 @@ export default function ProjectManagement() {
         )}
         <div className="flex justify-end items-center p-5 over ">
           <div className="flex gap-2">
-            <Button type="primary" onClick={() => exportToExcel(projects, ['id', 'project name', 'start date', 'enddate', 'budget'], 'project')}>Export project list</Button>
+            <Button
+              type="primary"
+              onClick={() =>
+                exportToExcel(
+                  projects,
+                  ["id", "project name", "start date", "enddate", "budget"],
+                  "project"
+                )
+              }
+            >
+              Export project list
+            </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5 bg-[#FCFCFC] p-5">
-          <ProjectCard
-            icon={<UserIcon />}
-            title="Total Projects"
-            data={totalProjects}
-            growth={25}
-            loading={projectLoading}
-          />
-          <ProjectCard
-            icon={<Article />}
-            title="New Projects This Month"
-            data={totalProjectsThisMonth}
-            growth={42}
-            loading={projectLoading}
-          />
+        <div className="bg-[#FCFCFC] p-5">
+          <div
+            className="flex items-center cursor-pointer mb-2"
+            onClick={() => setShowProjectCards(!showProjectCards)}
+          >
+            <h2 className="text-lg font-bold mr-2">User Statistics</h2>
+            {showProjectCards ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+          </div>
+
+          {showProjectCards && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5">
+              <ProjectCard
+                icon={<UserIcon />}
+                title="Total Projects"
+                data={totalProjects}
+              />
+              <ProjectCard
+                icon={<Article />}
+                title="New Projects This Month"
+                data={totalProjectsThisMonth}
+              />
+            </div>
+          )}
         </div>
 
         <div className="p-6 m-5 rounded-2xl border-black border-1 shadow-[1px_1px_0px_rgba(0,0,0,1)]">
           <div className="mb-4 flex items-center">
             <Input
               placeholder="Search by project name"
-              prefix={<SearchOutlined onClick={handleSearchSubmit} style={{ cursor: 'pointer' }} />}
+              prefix={
+                <SearchOutlined
+                  onClick={handleSearchSubmit}
+                  style={{ cursor: "pointer" }}
+                />
+              }
               value={searchTerm}
               onChange={handleSearch}
               onPressEnter={handleSearchSubmit}
@@ -591,8 +691,6 @@ export default function ProjectManagement() {
                 Add Project
               </Button>
             </div>
-
-
           </div>
 
           <Modal
@@ -601,12 +699,12 @@ export default function ProjectManagement() {
             onCancel={handleCloseDescriptionModal}
             styles={{
               body: {
-                maxHeight: '60vh',
-                overflowY: 'auto',
-                padding: '16px',
+                maxHeight: "60vh",
+                overflowY: "auto",
+                padding: "16px",
               },
               content: {
-                maxHeight: '80vh',
+                maxHeight: "80vh",
               },
             }}
             footer={null}
@@ -616,19 +714,29 @@ export default function ProjectManagement() {
                 {/* Description */}
                 <div>
                   <strong>Description:</strong>
-                  <p className="p-2 mt-4 max-h-60 overflow-auto border-1 rounded-tl-lg rounded-bl-lg border-black">{selectedProjectDetails.project_description}</p>
+                  <p className="p-2 mt-4 max-h-60 overflow-auto border-1 rounded-tl-lg rounded-bl-lg border-black">
+                    {selectedProjectDetails.project_description}
+                  </p>
                 </div>
 
                 {/* Created At */}
                 <div>
                   <strong>Created At:</strong>
-                  <p>{dayjs(selectedProjectDetails.created_at).format('YYYY-MM-DD')}</p>
+                  <p>
+                    {dayjs(selectedProjectDetails.created_at).format(
+                      "YYYY-MM-DD"
+                    )}
+                  </p>
                 </div>
 
                 {/* Updated At */}
                 <div>
                   <strong>Updated At:</strong>
-                  <p>{dayjs(selectedProjectDetails.updated_at).format('YYYY-MM-DD')}</p>
+                  <p>
+                    {dayjs(selectedProjectDetails.updated_at).format(
+                      "YYYY-MM-DD"
+                    )}
+                  </p>
                 </div>
 
                 {/* Comment */}
@@ -657,7 +765,12 @@ export default function ProjectManagement() {
                       <Form.Item
                         label="Project Name"
                         name="project_name"
-                        rules={[{ required: true, message: "Please enter the project name" }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter the project name",
+                          },
+                        ]}
                       >
                         <Input />
                       </Form.Item>
@@ -667,7 +780,12 @@ export default function ProjectManagement() {
                       <Form.Item
                         label="Project Code"
                         name="project_code"
-                        rules={[{ required: true, message: "Please enter the project code" }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter the project code",
+                          },
+                        ]}
                       >
                         <Input />
                       </Form.Item>
@@ -677,11 +795,22 @@ export default function ProjectManagement() {
                       <Form.Item
                         label="Project Department"
                         name="project_department"
-                        rules={[{ required: true, message: 'Please select a department' }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select a department",
+                          },
+                        ]}
                       >
-                        <Select placeholder="Select department" loading={loading}>
+                        <Select
+                          placeholder="Select department"
+                          loading={loading}
+                        >
                           {departments.map((dept) => (
-                            <Select.Option key={dept.department_code} value={dept.department_code}>
+                            <Select.Option
+                              key={dept.department_code}
+                              value={dept.department_code}
+                            >
                               {dept.department_code}
                             </Select.Option>
                           ))}
@@ -693,7 +822,12 @@ export default function ProjectManagement() {
                       <Form.Item
                         label="Project Description"
                         name="project_description"
-                        rules={[{ required: true, message: "Write the project description" }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Write the project description",
+                          },
+                        ]}
                       >
                         <Input.TextArea rows={3} />
                       </Form.Item>
@@ -703,13 +837,30 @@ export default function ProjectManagement() {
                       <Form.Item
                         label="Project Start Date"
                         name="project_start_date"
-                        rules={[{ required: true, message: "Please select start date" }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select start date",
+                          },
+                        ]}
                       >
                         <DatePicker
                           format="YYYY-MM-DD"
                           style={{ width: "100%" }}
-                          value={addProjectForm.getFieldValue('project_start_date') ? dayjs(addProjectForm.getFieldValue('project_start_date')) : null}
-                          onChange={(date) => addProjectForm.setFieldsValue({ project_start_date: date })}
+                          value={
+                            addProjectForm.getFieldValue("project_start_date")
+                              ? dayjs(
+                                  addProjectForm.getFieldValue(
+                                    "project_start_date"
+                                  )
+                                )
+                              : null
+                          }
+                          onChange={(date) =>
+                            addProjectForm.setFieldsValue({
+                              project_start_date: date,
+                            })
+                          }
                         />
                       </Form.Item>
                     </Col>
@@ -722,9 +873,16 @@ export default function ProjectManagement() {
                           { required: true, message: "Please select end date" },
                           ({ getFieldValue }) => ({
                             validator(_, value) {
-                              const startDate = getFieldValue("project_start_date");
-                              if (value && startDate && value.isBefore(startDate)) {
-                                return Promise.reject("End date must be greater than start date");
+                              const startDate =
+                                getFieldValue("project_start_date");
+                              if (
+                                value &&
+                                startDate &&
+                                value.isBefore(startDate)
+                              ) {
+                                return Promise.reject(
+                                  "End date must be greater than start date"
+                                );
                               }
                               return Promise.resolve();
                             },
@@ -734,8 +892,20 @@ export default function ProjectManagement() {
                         <DatePicker
                           format="YYYY-MM-DD"
                           style={{ width: "100%" }}
-                          value={addProjectForm.getFieldValue('project_end_date') ? dayjs(addProjectForm.getFieldValue('project_end_date')) : null}
-                          onChange={(date) => addProjectForm.setFieldsValue({ project_end_date: date })}
+                          value={
+                            addProjectForm.getFieldValue("project_end_date")
+                              ? dayjs(
+                                  addProjectForm.getFieldValue(
+                                    "project_end_date"
+                                  )
+                                )
+                              : null
+                          }
+                          onChange={(date) =>
+                            addProjectForm.setFieldsValue({
+                              project_end_date: date,
+                            })
+                          }
                         />
                       </Form.Item>
                     </Col>
@@ -752,7 +922,7 @@ export default function ProjectManagement() {
                           <div className="sticky top-0 bg-white z-10 pb-4">
                             <Button
                               type="dashed"
-                              onClick={() => add()}
+                              onClick={() => add({}, 0)}
                               block
                               icon={<PlusOutlined />}
                               className="mb-4"
@@ -764,22 +934,27 @@ export default function ProjectManagement() {
                             <div key={key} className="flex gap-2 mb-4">
                               <Form.Item
                                 {...restField}
-                                name={[name, 'user_id']}
-                                rules={[{ required: true, message: 'Select member' }]}
+                                name={[name, "user_id"]}
+                                rules={[
+                                  { required: true, message: "Select member" },
+                                ]}
                                 className="flex-1"
                               >
                                 <Select
                                   className="truncate max-w-[150px]"
                                   placeholder="Select a member"
                                   showSearch
-                                  onSearch={value => {
+                                  onSearch={(value) => {
                                     setUserSearchTerm(value);
                                     fetchUsers(1, userPageSize, value);
                                   }}
                                   filterOption={false}
                                 >
-                                  {users.map(user => (
-                                    <Select.Option key={user._id} value={user._id}>
+                                  {users.map((user) => (
+                                    <Select.Option
+                                      key={user._id}
+                                      value={user._id}
+                                    >
                                       {user.user_name}
                                     </Select.Option>
                                   ))}
@@ -788,13 +963,18 @@ export default function ProjectManagement() {
 
                               <Form.Item
                                 {...restField}
-                                name={[name, 'project_role']}
-                                rules={[{ required: true, message: 'Select role' }]}
+                                name={[name, "project_role"]}
+                                rules={[
+                                  { required: true, message: "Select role" },
+                                ]}
                                 className="flex-1"
                               >
                                 <Select placeholder="Select a role">
-                                  {projectRoles.map(role => (
-                                    <Select.Option key={role.name} value={role.name}>
+                                  {projectRoles.map((role) => (
+                                    <Select.Option
+                                      key={role.name}
+                                      value={role.name}
+                                    >
                                       {role.name}
                                     </Select.Option>
                                   ))}
@@ -819,62 +999,73 @@ export default function ProjectManagement() {
             </Form>
           </Modal>
 
-          {loading ? (
+          {/* {loading ? (
             <div className="text-center py-12">
               <Spin size="large" />
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-4">
-                <Table
-                  columns={columns}
-                  dataSource={projects}
-                  loading={loading}
-                  rowKey="_id"
-                  pagination={{
-                    current: currentPage,
-                    pageSize: pageSize,
-                    total: totalItems,
-                    showSizeChanger: true,
-                    pageSizeOptions: ["5", "10", "20"],
-                  }}
-                  onChange={handleTableChange}
-                  components={components}
-                />
-
-              </div>
-
-              <Modal
-                title="Project Members"
-                open={isMembersModalOpen}
-                onCancel={() => setIsMembersModalOpen(false)}
-                styles={{
-                  body: {
-                    maxHeight: '60vh',
-                    overflowY: 'auto',
-                    padding: '16px',
-                  },
-                  content: {
-                    maxHeight: '80vh',
-                  },
+          ) : ( */}
+          <div className="overflow-x-auto">
+            <div
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-4"
+              style={{
+                maxHeight: "calc(100vh - 550px)",
+                overflowY: "auto",
+                scrollbarWidth: "none" /* Firefox */,
+                msOverflowStyle: "none" /* IE 10+ */,
+              }}
+            >
+              <Table
+                columns={columns}
+                dataSource={projects}
+                loading={loading}
+                rowKey="_id"
+                pagination={{
+                  current: currentPage,
+                  pageSize: pageSize,
+                  total: totalItems,
+                  showSizeChanger: true,
+                  pageSizeOptions: ["5", "10", "20"],
                 }}
-                footer={null}
-              >
-                {projectMembers.length > 0 ? (
-                  <ul>
-                    {projectMembers.map((member) => (
-                      <li key={member.user_id} className="p-2 border-b">
-                        <span className="font-bold">{member.user_name || "Unknown User"}</span> - {member.project_role}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No members found for this project.</p>
-                )}
-              </Modal>
+                onChange={handleTableChange}
+                components={components}
+                scroll={{ x: true, y: "calc(100vh - 400px)" }}
+                sticky
+              />
             </div>
-          )}
+          </div>
+          {/* )} */}
 
+          <Modal
+            title="Project Members"
+            open={isMembersModalOpen}
+            onCancel={() => setIsMembersModalOpen(false)}
+            styles={{
+              body: {
+                maxHeight: "60vh",
+                overflowY: "auto",
+                padding: "16px",
+              },
+              content: {
+                maxHeight: "80vh",
+              },
+            }}
+            footer={null}
+          >
+            {projectMembers.length > 0 ? (
+              <ul>
+                {projectMembers.map((member) => (
+                  <li key={member.user_id} className="p-2 border-b">
+                    <span className="font-bold">
+                      {member.user_name || "Unknown User"}
+                    </span>{" "}
+                    - {member.project_role}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No members found for this project.</p>
+            )}
+          </Modal>
           <Modal
             title="Edit Project"
             open={isEditProjectModalOpen}
@@ -892,7 +1083,12 @@ export default function ProjectManagement() {
                       <Form.Item
                         label="Project Name"
                         name="project_name"
-                        rules={[{ required: true, message: "Please enter the project name" }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter the project name",
+                          },
+                        ]}
                       >
                         <Input />
                       </Form.Item>
@@ -902,7 +1098,12 @@ export default function ProjectManagement() {
                       <Form.Item
                         label="Project Code"
                         name="project_code"
-                        rules={[{ required: true, message: "Please enter the project code" }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter the project code",
+                          },
+                        ]}
                       >
                         <Input />
                       </Form.Item>
@@ -912,11 +1113,22 @@ export default function ProjectManagement() {
                       <Form.Item
                         label="Project Department"
                         name="project_department"
-                        rules={[{ required: true, message: 'Please select a department' }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select a department",
+                          },
+                        ]}
                       >
-                        <Select placeholder="Select department" loading={loading}>
+                        <Select
+                          placeholder="Select department"
+                          loading={loading}
+                        >
                           {departments.map((dept) => (
-                            <Select.Option key={dept.department_code} value={dept.department_code}>
+                            <Select.Option
+                              key={dept.department_code}
+                              value={dept.department_code}
+                            >
                               {dept.department_code}
                             </Select.Option>
                           ))}
@@ -928,7 +1140,12 @@ export default function ProjectManagement() {
                       <Form.Item
                         label="Project Description"
                         name="project_description"
-                        rules={[{ required: true, message: "Write the project description" }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Write the project description",
+                          },
+                        ]}
                       >
                         <Input.TextArea rows={3} />
                       </Form.Item>
@@ -938,12 +1155,30 @@ export default function ProjectManagement() {
                       <Form.Item
                         label="Project Start Date"
                         name="project_start_date"
-                        rules={[{ required: true, message: "Please select start date" }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select start date",
+                          },
+                        ]}
                       >
-                        <DatePicker format="YYYY-MM-DD"
+                        <DatePicker
+                          format="YYYY-MM-DD"
                           style={{ width: "100%" }}
-                          value={editProjectForm.getFieldValue('project_start_date') ? dayjs(editProjectForm.getFieldValue('project_start_date')) : null}
-                          onChange={(date) => editProjectForm.setFieldsValue({ project_start_date: date })}
+                          value={
+                            editProjectForm.getFieldValue("project_start_date")
+                              ? dayjs(
+                                  editProjectForm.getFieldValue(
+                                    "project_start_date"
+                                  )
+                                )
+                              : null
+                          }
+                          onChange={(date) =>
+                            editProjectForm.setFieldsValue({
+                              project_start_date: date,
+                            })
+                          }
                         />
                       </Form.Item>
                     </Col>
@@ -956,19 +1191,39 @@ export default function ProjectManagement() {
                           { required: true, message: "Please select end date" },
                           ({ getFieldValue }) => ({
                             validator(_, value) {
-                              const startDate = getFieldValue("project_start_date");
-                              if (value && startDate && value.isBefore(startDate)) {
-                                return Promise.reject("End date must be greater than start date");
+                              const startDate =
+                                getFieldValue("project_start_date");
+                              if (
+                                value &&
+                                startDate &&
+                                value.isBefore(startDate)
+                              ) {
+                                return Promise.reject(
+                                  "End date must be greater than start date"
+                                );
                               }
                               return Promise.resolve();
                             },
                           }),
                         ]}
                       >
-                        <DatePicker format="YYYY-MM-DD"
+                        <DatePicker
+                          format="YYYY-MM-DD"
                           style={{ width: "100%" }}
-                          value={editProjectForm.getFieldValue('project_end_date') ? dayjs(editProjectForm.getFieldValue('project_end_date')) : null}
-                          onChange={(date) => editProjectForm.setFieldsValue({ project_end_date: date })}
+                          value={
+                            editProjectForm.getFieldValue("project_end_date")
+                              ? dayjs(
+                                  editProjectForm.getFieldValue(
+                                    "project_end_date"
+                                  )
+                                )
+                              : null
+                          }
+                          onChange={(date) =>
+                            editProjectForm.setFieldsValue({
+                              project_end_date: date,
+                            })
+                          }
                         />
                       </Form.Item>
                     </Col>
@@ -986,14 +1241,16 @@ export default function ProjectManagement() {
                             <Input
                               placeholder="Search existing members..."
                               value={userSearchTerm}
-                              onChange={(e) => setUserSearchTerm(e.target.value)}
+                              onChange={(e) =>
+                                setUserSearchTerm(e.target.value)
+                              }
                               allowClear
                               className="mb-4"
                             />
 
                             <Button
                               type="dashed"
-                              onClick={() => add()}
+                              onClick={() => add({}, 0)}
                               block
                               icon={<PlusOutlined />}
                               className="mb-4"
@@ -1003,12 +1260,16 @@ export default function ProjectManagement() {
                           </div>
 
                           {fields.map(({ key, name, ...restField }) => {
-                            const member = editProjectForm.getFieldValue(['project_members', name]);
-                            const userName = member?.user_name || '';
-                            const role = member?.project_role || '';
+                            const member = editProjectForm.getFieldValue([
+                              "project_members",
+                              name,
+                            ]);
+                            const userName = member?.user_name || "";
+                            const role = member?.project_role || "";
 
                             const searchLower = userSearchTerm.toLowerCase();
-                            const isVisible = !userSearchTerm ||
+                            const isVisible =
+                              !userSearchTerm ||
                               userName.toLowerCase().includes(searchLower) ||
                               role.toLowerCase().includes(searchLower);
 
@@ -1016,37 +1277,64 @@ export default function ProjectManagement() {
                               <div
                                 key={key}
                                 className="flex gap-2 mb-4"
-                                style={{ display: isVisible ? 'flex' : 'none' }}
+                                style={{ display: isVisible ? "flex" : "none" }}
                               >
                                 <Form.Item
                                   {...restField}
-                                  name={[name, 'user_id']}
-                                  rules={[{ required: true, message: 'Select member' }]}
+                                  name={[name, "user_id"]}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Select member",
+                                    },
+                                  ]}
                                   className="flex-1"
                                 >
                                   <Select
                                     className="truncate max-w-[150px]"
                                     placeholder="Select a member"
                                     showSearch
-                                    onSearch={value => {
+                                    onSearch={(value) => {
                                       setSelectSearchTerm(value);
                                       fetchUsers(1, userPageSize, value);
                                     }}
                                     onPopupScroll={(e) => {
                                       const { target } = e;
-                                      if ((target as HTMLElement).scrollTop + (target as HTMLElement).clientHeight === (target as HTMLElement).scrollHeight) {
+                                      if (
+                                        (target as HTMLElement).scrollTop +
+                                          (target as HTMLElement)
+                                            .clientHeight ===
+                                        (target as HTMLElement).scrollHeight
+                                      ) {
                                         if (users.length < totalUsers) {
-                                          fetchUsers(userCurrentPage + 1, userPageSize, userSearchTerm);
-                                          setUserCurrentPage(userCurrentPage + 1);
+                                          fetchUsers(
+                                            userCurrentPage + 1,
+                                            userPageSize,
+                                            userSearchTerm
+                                          );
+                                          setUserCurrentPage(
+                                            userCurrentPage + 1
+                                          );
                                         }
                                       }
                                     }}
-                                    onFocus={() => fetchUsers(1, userPageSize, selectSearchTerm)}
+                                    onFocus={() =>
+                                      fetchUsers(
+                                        1,
+                                        userPageSize,
+                                        selectSearchTerm
+                                      )
+                                    }
                                     filterOption={false}
-                                    notFoundContent={loading ? <Spin size="small" /> : null}
+                                    notFoundContent={
+                                      loading ? <Spin size="small" /> : null
+                                    }
                                   >
-                                    {users.map(user => (
-                                      <Select.Option key={user._id} value={user._id}>
+                                    {users.map((user) => (
+                                      <Select.Option
+                                        key={user._id}
+                                        value={user._id}
+                                      >
                                         {user.user_name}
                                       </Select.Option>
                                     ))}
@@ -1055,13 +1343,21 @@ export default function ProjectManagement() {
 
                                 <Form.Item
                                   {...restField}
-                                  name={[name, 'project_role']}
-                                  rules={[{ required: true, message: 'Select role' }]}
+                                  name={[name, "project_role"]}
+                                  rules={[
+                                    { required: true, message: "Select role" },
+                                  ]}
                                   className="flex-1"
                                 >
-                                  <Select className="truncate max-w-[150px]" placeholder="Select a role">
-                                    {projectRoles.map(role => (
-                                      <Select.Option key={role.name} value={role.name}>
+                                  <Select
+                                    className="truncate max-w-[150px]"
+                                    placeholder="Select a role"
+                                  >
+                                    {projectRoles.map((role) => (
+                                      <Select.Option
+                                        key={role.name}
+                                        value={role.name}
+                                      >
                                         {role.name}
                                       </Select.Option>
                                     ))}
@@ -1071,12 +1367,21 @@ export default function ProjectManagement() {
                                 <Button
                                   type="link"
                                   danger
-                                  onClick={() => remove(name)}
+                                  onClick={() => {
+                                    Modal.confirm({
+                                      title: "Remove Member",
+                                      content:
+                                        "Are you sure you want to remove this member?",
+                                      okText: "Yes",
+                                      cancelText: "No",
+                                      onOk: () => remove(name),
+                                    });
+                                  }}
                                   icon={<StopFilled />}
                                   className="mt-1"
                                 />
                               </div>
-                            )
+                            );
                           })}
                         </>
                       )}
@@ -1089,5 +1394,5 @@ export default function ProjectManagement() {
         </div>
       </div>
     </div>
-  )
-};
+  );
+}
