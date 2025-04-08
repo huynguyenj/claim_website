@@ -45,7 +45,6 @@ export default function BasicColor() {
             <Typography variant="h6" sx={{ mb: 2 }}>Monthly Claims</Typography>
             <Stack direction="row" alignItems="center" spacing={2} mb={3}>
                 <Chip
-                    label="24.5% ↑"
                     size="small"
                     sx={{ bgcolor: "rgba(76, 175, 80, 0.2)", color: "green" }}
                 />

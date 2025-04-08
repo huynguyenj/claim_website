@@ -642,7 +642,6 @@ export default function UserManagement() {
                         icon={<Article />}
                         title="Total Users"
                         data={totalUsers}
-                        growth={42}
                         loading={userLoading}
                     />
                     {/* Claims */}
@@ -650,7 +649,6 @@ export default function UserManagement() {
                         icon={<Article />}
                         title="New Users This Month"
                         data={totalUsersThisMonth}
-                        growth={42}
                         loading={userLoading}
                     />
                     {/* Funds */}
@@ -658,7 +656,6 @@ export default function UserManagement() {
                         icon={<Article />}
                         title="Verified Users"
                         data={totalUsersVerified}
-                        growth={42}
                         loading={userLoading}
                     />
                 </div>

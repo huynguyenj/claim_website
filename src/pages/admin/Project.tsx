@@ -557,14 +557,12 @@ export default function ProjectManagement() {
             icon={<UserIcon />}
             title="Total Projects"
             data={totalProjects}
-            growth={25}
             loading={projectLoading}
           />
           <ProjectCard
             icon={<Article />}
             title="New Projects This Month"
             data={totalProjectsThisMonth}
-            growth={42}
             loading={projectLoading}
           />
         </div>

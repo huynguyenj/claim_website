@@ -62,7 +62,6 @@ const ChartOverview: React.FC = () => {
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} mb={1}>
 
                 <Chip
-                    label="24.5% ↑"
                     size="small"
                     sx={{ bgcolor: "rgba(76, 175, 80, 0.2)", color: "green" }}
                     style={{ marginRight: "150px", marginTop: "10px" }}
