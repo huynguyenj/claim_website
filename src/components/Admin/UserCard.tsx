@@ -5,14 +5,12 @@ interface StatisticCardProps {
     icon: ReactNode;
     title: string;
     data?: number;
-    growth: number;
     loading?: boolean;
 }
 export default function UserCard({
     icon,
     title,
     data,
-    growth,
     loading,
 }: StatisticCardProps) {
     return (
@@ -28,9 +26,7 @@ export default function UserCard({
                     <p className="text-3xl font-bold">{data}</p>
                 </>
             )}
-            <p className="absolute top-10 right-3 text-sm text-center text-green-800 bg-green-100 border border-green-300 w-12  rounded-full">
-                {growth}%
-            </p>
+           
         </div>
     );
 }

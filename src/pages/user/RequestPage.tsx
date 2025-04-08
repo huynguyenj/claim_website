@@ -396,23 +396,20 @@ const RequestPage: React.FC = () => {
 
       {/* Statistic Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 bg-[#FCFCFC] p-5">
-        <UserCard icon={<UserIcon />} title="Total Claims" growth={15} data={requests.length} />
+        <UserCard icon={<UserIcon />} title="Total Claims" data={requests.length} />
         <UserCard
           icon={<Article />}
           title="Pending Claims"
-          growth={20}
           data={requests.filter((r) => r.claim_status === 'Pending Approval').length}
         />
         <UserCard
           icon={<Article />}
           title="Approved Claims"
-          growth={30}
           data={requests.filter((r) => r.claim_status === 'Approved').length}
         />
         <UserCard
           icon={<Article />}
           title="Total Work Time"
-          growth={25}
           data={totalWorkTime}
         />
       </div>
