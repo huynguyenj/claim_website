@@ -12,6 +12,7 @@ export default function Dashboard() {
   const { claimLoading, totalClaims } = useClaims();
   const { projectLoading, totalProjects } = useProjects();
   return (
+    <div className="overflow-y-auto">
     <LoadingScreen loading={[userLoading,claimLoading,projectLoading]}>
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 px-5 md:px-14 overflow-auto pb-5">
       {/* Search Section */}
@@ -25,21 +26,18 @@ export default function Dashboard() {
           icon={<UserIcon />}
           title="Users"
           data={totalUsers}
-          loading={userLoading}
         />
         {/* Claims */}
         <StatisticCard
           icon={<Article />}
           title="Claims"
           data={totalClaims}
-          loading={claimLoading}
         />
         {/* Projects */}
         <StatisticCard
           icon={<Article />}
           title="Projects"
           data={totalProjects}
-          loading={projectLoading}
         />
       </div>
       {/* Charts Container */}
@@ -55,5 +53,6 @@ export default function Dashboard() {
     </div>
 
     </LoadingScreen>
+    </div>
   );
 }
