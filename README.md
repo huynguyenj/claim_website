@@ -1,50 +1,47 @@
-# React + TypeScript + Vite
+#  Project claim for OT employee 🚀
+## ℹ️Information:
+A website that can track and assist the organization in managing overtime requests from employees was developed as part of this project.
+# Feature🕹️
+## For user role👤:
+- Employees can create claim to request OT payment.
+- Employees can see claim history that they created.
+## For BUL,BM👤:
+- They can also create claim.
+- They can approval the claim that was created by user.
+## For Finance👤:
+- They also can create claim.
+- They will pay for claim that has been appoved by approval.
+# Technologies🧩:
+- React + Vite🖥️
+- Threejs + Three fiber + Three drei
+- Zustand🏬
+- Tailwindcss🎨
+# Installation & running🔧
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+If you want to use this project, follow these step below:
+### 1.Create folder in your pc.
+### 2.Clone project:
+  ```js
+    git clone https://github.com/huynguyenj/claim_website.git
 ```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+### 3.Config project
+  ```js
+     npm install
 ```
+### 4.Run project
+  ```js
+     npm run dev
+```
+# Contributors👥
+- Nguyễn Lê Gia Huy
+- Trương Gia Kiện
+- Nguyễn Như Thành
+- Phan Quới An Phú
+- Nguyễn Thành Đạt
+- Nguyễn Tấn Tài
+- Nguyễn Trọng Quý
+- Nguyễn Trần Anh Vũ
+# Contribute🤝
+- You can create branch like this prefix: work/feature or page/name
+- When you push to your own branch, you can contact with owner to check your code.
+

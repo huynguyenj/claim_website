@@ -129,6 +129,20 @@ function SalaryTable(): JSX.Element {
       {
         title: (
           <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
+            <WorkIcon />
+            Claim Name
+          </div>
+        ),
+        dataIndex: "claim_name",
+        key: "claim_name",
+        render: (text) => (
+          <a className="text-gray-500 font-medium">{text || "Unknown"}</a>
+        ),
+        responsive: ["xs", "sm", "md", "lg"],
+      },
+      {
+        title: (
+          <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
             <DateRangeIcon />
             Start Date
           </div>
@@ -156,31 +170,12 @@ function SalaryTable(): JSX.Element {
             <PersonIcon />
             Staff Name
           </div>
-        ),
+        ),  
         dataIndex: "staff_name",
         key: "staff_name",
         render: (text) => (
-          <a className="text-blue-500 font-medium">{text || "Unknown"}</a>
+          <p className="font-medium">{text || "Unknown"}</p>
         ),
-        responsive: ["xs", "sm", "md", "lg"],
-      },
-      {
-        title: (
-          <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
-            <WorkIcon />
-            Email
-          </div>
-        ),
-        dataIndex: "staff_email",
-        key: "staff_email",
-        render: (text) => (
-          <Tooltip title={text}>
-            <div className="text-gray-700 font-bold truncate max-w-[150px]">
-              {text || "N/A"}
-            </div>
-          </Tooltip>
-        ),
-        ellipsis: true,
         responsive: ["xs", "sm", "md", "lg"],
       },
       {
@@ -205,6 +200,19 @@ function SalaryTable(): JSX.Element {
           </div>
         ),
         responsive: ["sm", "md", "lg"],
+      },
+      {
+        title: (
+          <div className="font-bold flex align-middle gap-0.5 text-[0.7rem]">
+            Status
+          </div>
+        ),
+        dataIndex: "claim_status",
+        key: "claim_status",
+        render: (text) => (
+          <Tag color='success'>{text || "Unknown"}</Tag>
+        ),
+        responsive: ["xs", "sm", "md", "lg"],
       },
       {
         title: "Action",
@@ -233,56 +241,40 @@ function SalaryTable(): JSX.Element {
   );
 
   return (
-    <>
-      {/* <div className="flex justify-end mr-[40px] mb-[20px]">
-        <Button
-          type="primary"
-          className="sm:text-[0.7rem] flex-row justify-around "
-          icon={<ArrowCircleDown />}
-          iconPosition="end"
-        >
-          Export Data
-        </Button>
-      </div> */}
-      <div className="p-6 mr-6 ml-6 mb-6 h-full overflow-y-auto border-zinc-950 border-[1.5px] rounded-[12px]">
-        <div className="p-6 flex justify-around gap-2 mr-1">
-          <Input
-            prefix={<SearchOutlined className="text-gray-500" />}
-            placeholder="Search By Name"
-            className="max-w-xs mb-4 rounded-full mr-4 shadow-[7px_7px_0px_0px] duration-1000 ease-in-out"
-            onChange={handleSearchChange}
-          />
-          <DatePicker.RangePicker
-            format={"DD/MM/YYYY"}
-            style={{ width: "30%", marginBottom: "1rem", marginLeft: "1rem" }}
-            className="shadow-[7px_7px_0px_0px]"
-            onChange={handleDatePicker}
-          />
-        </div>
-        <div>
-          {loading ? (
-            <div className="text-center py-12">
-              <Spin size="large" />
-            </div>
-          ) : (
-            <Table
-              className="overflow-x-auto"
-              columns={columns}
-              dataSource={filteredData || []}
-              pagination={{
-                pageSize: pagnitionAntd.pageSize,
-                onChange: handleTableChange,
-              }}
-              scroll={{y:55*5}}
-              style={{
-                tableLayout: "auto",
-              }}
-              components={components}
-            />
-          )}
-        </div>
+    <div className="p-6 mr-6 ml-6 mb-6 border-zinc-950 border-[1.5px] rounded-[12px]">
+      <div className="flex justify-start gap-2">
+        <Input
+          prefix={<SearchOutlined className="text-gray-500" />}
+          placeholder="Search By Name"
+          className="max-w-xs mb-4 rounded-full mr-4 shadow-[7px_7px_0px_0px] duration-1000 ease-in-out"
+          onChange={handleSearchChange}
+        />
+        <DatePicker.RangePicker
+          format={"DD/MM/YYYY"}
+          style={{ width: "30%", marginBottom: "1rem", marginLeft: "1rem" }}
+          className="shadow-[7px_7px_0px_0px]"
+          onChange={handleDatePicker}
+        />
       </div>
-    </>
+
+      {loading ? (
+        <div className="text-center py-12">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={filteredData || []}
+          pagination={{
+            pageSize: 5,
+            onChange: handleTableChange,
+            showSizeChanger: false,
+          }}
+          scroll={{ y: 275 }}
+          components={components}
+        />
+      )}
+    </div>
   );
 }
 export default SalaryTable;

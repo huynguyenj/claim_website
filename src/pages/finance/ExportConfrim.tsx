@@ -51,13 +51,13 @@ const ExportConfirm: React.FC<ExportConfirmProps> = ({ userData }) => {
   };
 
   const columns = [
-    "claim_start_date",
-    "claim_end_date",
-    "staff_name",
-    "staff_email",
-    "role_in_project",
-    "claim_name",
-    "claim_status",
+    "Start Date",
+    "End Date",
+    "Staff Name",
+    "Staff Email",
+    "Role in Project",
+    "Claim Name",
+    "Claim Status",
   ];
 
   const handleOk = (): void => {
