@@ -1,4 +1,3 @@
-import { useEffect} from "react";
 import OverviewCard from "../../components/OverviewCard";
 import {
   AccessTimeFiledIcon,
@@ -64,11 +63,7 @@ const steps: StepData[] = [
 
 function OverView() {
   const {contributors} = useCallApiGithub();
-  useEffect(() => {
-    console.log(window.innerHeight);
-    const title = document.getElementById("title");
-    console.log(title?.getBoundingClientRect());
-  }, []);
+
   return (
     <div className="text-white relative">
       <div id="title" className="p-5">

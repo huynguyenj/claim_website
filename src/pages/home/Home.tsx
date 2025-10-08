@@ -16,7 +16,7 @@ function Home() {
   const [isPaused, setIsPaused] = useState(false);
   const navigate = useNavigate();
   const userInfo = useAuthStore((state) => state.user);
-
+  console.log('log count')
   const handleChangePage = ():void => {
     console.log(userInfo?.role_code)
     if (!userInfo) {
